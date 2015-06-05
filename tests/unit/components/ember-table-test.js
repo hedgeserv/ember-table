@@ -94,7 +94,7 @@ test('Should resize group width when inner column size changed', function (asser
   assert.ok(getGroupColumnWidth(this) === 300, 'Should be width before change');
 
   Ember.run(function () {
-    var thirdColumn = component.columns[1].innerColumns[1];
+    var thirdColumn = component.get('columns')[1].innerColumns[1];
     thirdColumn.resize(500);
   });
   assert.ok(getGroupColumnWidth(this) === 650, 'Should be width after change');
@@ -110,7 +110,7 @@ function getInnerColumn(table, columnIndex) {
 
 test('Should reorder inner columns when dragging the inner column', function (assert) {
   var component = tableFixture.groupTable(this);
-  var firstCol = component.columns[1].innerColumns[0];
+  var firstCol = component.get('columns')[1].innerColumns[0];
 
   Ember.run(function () {
     component.onColumnSort(firstCol, 1);

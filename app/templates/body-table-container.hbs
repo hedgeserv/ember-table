@@ -1,7 +1,7 @@
 <div class="antiscroll-box">
   <div class="antiscroll-inner">
     <div class="ember-table-table-scrollable-wrapper">
-      {{#if numFixedColumns}}
+      {{#if _numFixedColumns }}
         {{view "lazy-table-block" classNames="ember-table-left-table-block"
           content=bodyContent
           columns=fixedColumns

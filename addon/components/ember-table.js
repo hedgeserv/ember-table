@@ -3,6 +3,7 @@ import StyleBindingsMixin from 'ember-table/mixins/style-bindings';
 import ResizeHandlerMixin from 'ember-table/mixins/resize-handler';
 import RowArrayController from 'ember-table/controllers/row-array';
 import Row from 'ember-table/controllers/row';
+import ColumnDefinition from 'ember-table/models/column-definition';
 
 export default Ember.Component.extend(
 StyleBindingsMixin, ResizeHandlerMixin, {
@@ -26,11 +27,33 @@ StyleBindingsMixin, ResizeHandlerMixin, {
   // An array of column definitions: see `Ember.Table.ColumnDefinition`. Allows
   // each column to have its own configuration.
   // TODO(new-api): Rename to `data`
-  columns: null,
+  columns: Ember.computed(function(name, columns) {
+    if (arguments.length > 1) {
+      if (this.get('_hasGroupingColumn')) {
+        columns.unshiftObject(this.get('_groupingColumn'));
+      }
+      this.set('_columns', columns);
+    }
+    return this.get('_columns') || [];
+  }).property('_hasGroupingColumn'),
 
   // The number of fixed columns on the left side of the table. Fixed columns
   // are always visible, even when the table is scrolled horizontally.
   numFixedColumns: 0,
+
+  // fixed columns count in real.
+  // a grouping column will be added as fixed column if has grouping column
+  _numFixedColumns: Ember.computed(function() {
+    var numFixedColumns = this.get('numFixedColumns');
+    if (this.get('_hasGroupingColumn')) {
+      numFixedColumns++;
+    }
+    return numFixedColumns;
+  }).property('numFixedColumns', 'hasGroupingColumn'),
+
+
+  // TODO: Currently set by user, will be replaced by grouped data provider
+  hasGroupingColumn: false,
 
   // The number of footer rows in the table. Footer rows appear at the bottom of
   // the table and are always visible.
@@ -127,8 +150,10 @@ StyleBindingsMixin, ResizeHandlerMixin, {
   columnsFillTable: true,
 
   init: function() {
-
     this._super();
+    if (this.get('hasColumnGroup')) {
+      this.set('columnGroups', this.get('columns'));
+    }
     if (!Ember.$.ui) {
       throw 'Missing dependency: jquery-ui';
     }
@@ -210,18 +235,18 @@ StyleBindingsMixin, ResizeHandlerMixin, {
     if (!columns) {
       return Ember.A();
     }
-    var numFixedColumns = this.get('numFixedColumns') || 0;
+    var numFixedColumns = this.get('_numFixedColumns') || 0;
     return columns.slice(0, numFixedColumns) || [];
-  }).property('columns.[]', 'numFixedColumns'),
+  }).property('columns.[]', '_numFixedColumns'),
 
   tableColumns: Ember.computed(function() {
     var columns = this.get('_flattenedColumns') || this.get('columns');
     if (!columns) {
       return Ember.A();
     }
-    var numFixedColumns = this.get('numFixedColumns') || 0;
+    var numFixedColumns = this.get('_numFixedColumns') || 0;
     return columns.slice(numFixedColumns, columns.get('length')) || [];
-  }).property('columns.@each', 'numFixedColumns', "_innerColumnReordered"),
+  }).property('columns.@each', '_numFixedColumns', "_innerColumnReordered"),
 
   prepareTableColumns: function() {
     var _this = this;
@@ -267,6 +292,21 @@ StyleBindingsMixin, ResizeHandlerMixin, {
     }
     return null;
   },
+
+  //encapsulate input, will be used inside only
+  _hasGroupingColumn: Ember.computed.alias('hasGroupingColumn'),
+
+  _groupingColumn: Ember.computed(function () {
+    return ColumnDefinition.create({
+      headerCellName: 'GroupingColumn', //Todo: Fix grouping header name
+      isResizable: false,
+      isSortable: false,
+      getCellContent: function () {
+        //Todo: Use group name
+        return null;
+      }
+    });
+  }),
 
   // ---------------------------------------------------------------------------
   // View concerns

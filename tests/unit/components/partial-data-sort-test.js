@@ -20,7 +20,7 @@ test('should call set sort function with clicked column when sort partial data',
   component.set('setSortConditionBy', 'setSort');
   component.set('targetObject', Ember.Object.create({
     setSort: function (column) {
-      assert.equal(column, component.columns[0]);
+      assert.equal(column, component.get('columns')[0]);
     }
   }));
 
