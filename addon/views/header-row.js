@@ -10,7 +10,12 @@ StyleBindingsMixin, RegisterTableComponentMixin, {
   classNames: ['ember-table-table-row', 'ember-table-header-row'],
   styleBindings: ['width', 'top', 'height'],
   columns: Ember.computed.alias('content'),
-  width: Ember.computed.alias('tableComponent._rowWidth'),
+  width: Ember.computed(function() {
+    var widths = this.get('columns').getEach('width');
+    return widths.reduce(function (width, res) {
+      return width + res;
+    }, 0);
+  }).property('columns.@each.width'),
   scrollLeft: Ember.computed.alias('tableComponent._tableScrollLeft'),
 
   rowWidth: Ember.computed(function() {

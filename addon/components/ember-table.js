@@ -3,6 +3,7 @@ import StyleBindingsMixin from 'ember-table/mixins/style-bindings';
 import ResizeHandlerMixin from 'ember-table/mixins/resize-handler';
 import RowArrayController from 'ember-table/controllers/row-array';
 import Row from 'ember-table/controllers/row';
+import ColumnDefinition from 'ember-table/models/column-definition';
 
 export default Ember.Component.extend(
 StyleBindingsMixin, ResizeHandlerMixin, {
@@ -31,6 +32,20 @@ StyleBindingsMixin, ResizeHandlerMixin, {
   // The number of fixed columns on the left side of the table. Fixed columns
   // are always visible, even when the table is scrolled horizontally.
   numFixedColumns: 0,
+
+  // Actually fixed columns count, this is a internal property.
+  _numFixedColumns: Ember.computed(function() {
+    var numFixedColumns = this.get('numFixedColumns');
+    if (this.get('hasGroupingColumn')) {
+      this.setGroupingColumn();
+      numFixedColumns++;
+    }
+    return numFixedColumns;
+  }).property('numFixedColumns', 'hasGroupingColumn'),
+
+
+  // TODO: Currently set it by user, and will set it by a grouped data provider
+  hasGroupingColumn: false,
 
   // The number of footer rows in the table. Footer rows appear at the bottom of
   // the table and are always visible.
@@ -210,18 +225,30 @@ StyleBindingsMixin, ResizeHandlerMixin, {
     if (!columns) {
       return Ember.A();
     }
-    var numFixedColumns = this.get('numFixedColumns') || 0;
+    var numFixedColumns = this.get('_numFixedColumns') || 0;
     return columns.slice(0, numFixedColumns) || [];
-  }).property('columns.[]', 'numFixedColumns'),
+  }).property('columns.[]', '_numFixedColumns'),
+
+  setGroupingColumn: function () {
+    var groupingColumn = ColumnDefinition.create({
+      headerCellName: 'GroupingColumn',
+      isResizable: false,
+      isSortable: false,
+      getCellContent: function (row) {
+        return row.get('id');
+      }
+    });
+    this.get('columns').unshiftObject(groupingColumn);
+  },
 
   tableColumns: Ember.computed(function() {
     var columns = this.get('_flattenedColumns') || this.get('columns');
     if (!columns) {
       return Ember.A();
     }
-    var numFixedColumns = this.get('numFixedColumns') || 0;
+    var numFixedColumns = this.get('_numFixedColumns') || 0;
     return columns.slice(numFixedColumns, columns.get('length')) || [];
-  }).property('columns.@each', 'numFixedColumns', "_innerColumnReordered"),
+  }).property('columns.@each', '_numFixedColumns', "_innerColumnReordered"),
 
   prepareTableColumns: function() {
     var _this = this;
