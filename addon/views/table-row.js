@@ -14,7 +14,12 @@ RegisterTableComponentMixin, {
   styleBindings: ['width', 'height'],
   row: Ember.computed.alias('content'),
   columns: Ember.computed.alias('parentView.columns'),
-  width: Ember.computed.alias('tableComponent._rowWidth'),
+  width: Ember.computed(function() {
+    var widths = this.get('columns').getEach('width');
+    return widths.reduce(function (width, res) {
+      return width + res;
+    }, 0);
+  }).property('columns.@each.width'),
   height: Ember.computed.alias('tableComponent.rowHeight'),
 
   isLastRow: Ember.computed(function() {

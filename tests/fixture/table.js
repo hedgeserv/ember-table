@@ -44,6 +44,7 @@ export default Ember.Object.extend({
       content: []
     });
   },
+
   groupTable: function (obj) {
     var columnFixture = ColumnFixture.create();
     var result = obj.subject({
