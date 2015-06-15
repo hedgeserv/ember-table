@@ -343,8 +343,8 @@ StyleBindingsMixin, ResizeHandlerMixin, {
       getCellContent: function (row) {
         return row.get('groupName');
       },
-      expandedDepthChanged: function() {
-        this.resize(this.get('width') + 10);
+      expandedDepthChanged: function(expandedDepth) {
+        this.resize(150 + 10 * expandedDepth);
       }
     });
   }),
