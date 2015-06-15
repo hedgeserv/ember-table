@@ -237,3 +237,16 @@ test('toggle expand indicator', function(assert) {
   var secondGroupingIndicator = helper.rowGroupingIndicator(4);
   assert.ok(!!!secondGroupingIndicator.hasClass('unfold'), 'second grouping row indicator should not be changed');
 });
+
+test('expand grouping column width', function(assert) {
+  var component = this.subject();
+  this.render();
+  var helper = EmberTableHelper.create({_assert: assert, _component: component});
+  var indicator = helper.rowGroupingIndicator(1);
+  var columnWidthBefore = helper.nthColumnHeader(1).width();
+
+  indicator.click();
+
+  var columnWidthAfter = helper.nthColumnHeader(1).width();
+  assert.equal(columnWidthAfter, columnWidthBefore + 10, 'should expand width 10px when expanded one level');
+});
