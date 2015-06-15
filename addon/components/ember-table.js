@@ -342,6 +342,9 @@ StyleBindingsMixin, ResizeHandlerMixin, {
       tableCellView: 'grouping-column-cell',
       getCellContent: function (row) {
         return row.get('groupName');
+      },
+      expandedDepthChanged: function(expandedDepth) {
+        this.resize(150 + 10 * expandedDepth);
       }
     });
   }),
