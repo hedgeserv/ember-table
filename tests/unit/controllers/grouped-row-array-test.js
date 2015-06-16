@@ -294,3 +294,48 @@ test('different instance', function (assert) {
 });
 
 
+test('different instance', function (assert) {
+  var content = [{
+    id: 10,
+    children: [
+      {
+        id: 11,
+        children: [
+          {
+            id: 111,
+            children: [
+              {
+                id: 1111,
+                children: [
+                  {
+                    id: 11111
+                  },
+                  {
+                    id: 11112
+                  }
+                ]
+              },
+              {
+                id: 1112
+              },
+              {
+                id: 1113
+              }
+            ]
+        }]
+      },
+      {id: 12},
+      {id: 13}
+    ]
+  }];
+  var subject = GroupedRowArrayController.create({
+    content: content,
+    itemController: Row
+  });
+
+  subject.expandChildren(subject.objectAt(0));
+  subject.expandChildren(subject.objectAt(1));
+  subject.expandChildren(subject.objectAt(2));
+
+  assert.ok(subject.objectAt(2).get('isExpanded') === true, 'should be expanded');
+});

@@ -9,6 +9,8 @@ export default TableCell.extend(
 
   classNames: ['grouping-column-cell'],
 
+  styleBindings: ['padding-left'],
+
   indicatorClass: Ember.computed(function() {
     var classNames = ['grouping-column-indicator'];
     if (this.get('_isExpanded')) {
@@ -30,6 +32,10 @@ export default TableCell.extend(
       }
     }
   },
+
+  "padding-left": Ember.computed(function() {
+    return this.get('row.expandLevel') * 10 + 5;
+  }).property('row.expandLevel'),
 
   _isExpanded: Ember.computed.oneWay('row.isExpanded')
 

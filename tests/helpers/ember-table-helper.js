@@ -91,12 +91,7 @@ export default Ember.Object.extend({
   },
 
   fixedBodyCell: function fixedBodyCell(rowIndex, colIndex) {
-    var component = this.get('_component');
-    return component.$('.ember-table-body-container ' +
-      '.ember-table-left-table-block ' +
-      ('.ember-table-table-row:eq(%@) '.fmt(rowIndex)) +
-      ('.ember-table-cell:eq(%@) '.fmt(colIndex)) +
-      '.ember-table-content');
+    return this.findCell('left', rowIndex, colIndex);
   },
 
   fixedBodyRows: function fixedBodyRows() {
@@ -104,5 +99,17 @@ export default Ember.Object.extend({
     return component.$('.ember-table-body-container ' +
       '.ember-table-left-table-block ' +
       '.ember-table-table-row');
+  },
+
+  bodyCell: function bodyCell (rowIndex, colIndex) {
+    return this.findCell('right', rowIndex, colIndex);
+  },
+
+  findCell: function(blockPosition, rowIndex, colIndex) {
+    var component = this.get('_component');
+    return component.$('.ember-table-body-container ' +
+      '.ember-table-%@-table-block '.fmt(blockPosition) +
+      ('.ember-table-table-row:eq(%@) '.fmt(rowIndex)) +
+      ('.ember-table-cell:eq(%@) '.fmt(colIndex)));
   }
 });
