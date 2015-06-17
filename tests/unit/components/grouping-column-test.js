@@ -17,7 +17,6 @@ var content = [{
   state: 'up'
 }, {
   groupName: 'thirdRootGroupName',
-  isGroupRow: true,
   id: 10000,
   state: 'down',
   children: [{
@@ -68,14 +67,14 @@ test('it should render group indicator in grouping column when the loan is group
   assert.equal(indicator.length, 1);
 });
 
-test('it should not render group indicator in grouping column when the loan is not grouped data', function(assert) {
+test('it should hide group indicator in grouping column when the loan is not grouped data', function(assert) {
   var component = this.subject();
   this.render();
   var helper = EmberTableHelper.create({_assert: assert, _component: component});
 
   var indicator = helper.rowGroupingIndicator(1);
 
-  assert.equal(indicator.length, 0);
+  assert.equal(indicator.length, 0, "it should hide grouped row indicator");
 });
 
 test('it should render columns data in columns', function(assert) {
@@ -197,7 +196,6 @@ moduleForEmberTable('table with two group rows',
         state: 'up'
       }, {
         groupName: 'secondRootGroupName',
-        isGroupRow: true,
         id: 10000,
         state: 'down',
         children: [{
@@ -209,7 +207,6 @@ moduleForEmberTable('table with two group rows',
         }]
       }, {
         groupName: 'thirdRootGroupName',
-        isGroupRow: true,
         id: 20000,
         state: 'down',
         children: [{
@@ -245,22 +242,20 @@ moduleForEmberTable('table with two level of grouped rows',
       width: 700,
       content: [{
         groupName: 'first-level',
-        isGroupRow: true,
         id: 100,
         state: 'up',
         children: [{
           groupName: 'second-level-row1',
           id: 1001,
           state: 'up'
-          },{
+        }, {
           groupName: 'second-level-row2',
-          isGroupRow: true,
           id: 1002,
           state: 'down',
           children: [{
             id: 10021,
             state: 'up'
-          },{
+          }, {
             id: 10022,
             state: 'down'
           }]
@@ -280,10 +275,10 @@ test('expand first level row', function (assert) {
   firstLevelRowIndicator.click();
 
   var secondLevelRow1 = helper.rowGroupingIndicator(1);
-  assert.equal(secondLevelRow1.length, 0, "second-level-row1 should have no indicator");
+  assert.equal(secondLevelRow1.length, 0, "second-level-row1 should hide indicator");
 
   var secondLevelRow2Indicator = helper.rowGroupingIndicator(2);
-  assert.equal(secondLevelRow2Indicator.length, 1,"second-level-row2 should show indicator");
+  assert.equal(secondLevelRow2Indicator.length, 1, "second-level-row2 should show indicator");
   assert.ok(!secondLevelRow2Indicator.hasClass('unfold'), "second-level-row2 should have expand indicator");
 });
 
@@ -363,22 +358,18 @@ moduleForEmberTable('table with five level of grouped rows',
       width: 700,
       content: [{
         groupName: 'first-level',
-        isGroupRow: true,
         id: 100,
         state: 'up',
         children: [{
           groupName: 'second-level',
-          isGroupRow: true,
           id: 200,
           state: 'down',
           children: [{
             groupName: 'third-level',
-            isGroupRow: true,
             id: 300,
             state: 'down',
             children: [{
               groupName: 'fourth-level',
-              isGroupRow: true,
               id: 400,
               state: 'down',
               children: [{
@@ -456,4 +447,39 @@ test('collapse unlimited grouped data', function(assert){
   assert.equal(rowCount, 1, "body should show first level row and hidden others");
   var firstLevelRowId = helper.bodyCell(0, 0).text().trim();
   assert.equal(firstLevelRowId, 100, "first level row id should be equal to 100");
+});
+
+moduleForEmberTable('table with two levels of grouped rows', function() {
+  return EmberTableFixture.create({
+      height: 330,
+      width: 700,
+      hasGroupingColumn: true,
+      content: [
+        {
+          groupName: 'first level row 1',
+          id: 1
+        },
+        {
+          groupName: 'first level row 2',
+          id: 2,
+          children: [
+            { id: 21 }
+          ]
+        }
+      ]
+    });
+  }
+);
+
+test('grouped row indicator style', function(assert){
+  var component = this.subject();
+  this.render();
+  var helper = EmberTableHelper.create({
+    _assert: assert,
+    _component: component
+  });
+  var noChildrenRowIndicator = helper.rowGroupingIndicator(0);
+  assert.equal(noChildrenRowIndicator.length, 0, "no-children row should hide indicator");
+  var hasChildrenRowIndicator = helper.rowGroupingIndicator(1);
+  assert.equal(hasChildrenRowIndicator.length, 1, "has-children row should show indicator");
 });

@@ -19,7 +19,7 @@ export default TableCell.extend(
     return classNames.join(' ');
   }).property('_isExpanded'),
 
-  isGroupRow: Ember.computed.oneWay('row.isGroupRow'),
+  hasChildren: Ember.computed.oneWay('row.hasChildren'),
 
   actions: {
     toggleExpansionState: function() {

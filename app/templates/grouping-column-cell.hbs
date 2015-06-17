@@ -1,8 +1,10 @@
-{{#if view.isGroupRow}}
-  <div {{bind-attr class="view.indicatorClass"}} {{action 'toggleExpansionState' target=view}}>
-    <div class="hor"></div>
-    <div class="ver"></div>
-  </div>
+{{#if view.hasChildren}}
+	<div {{bind-attr class="view.indicatorClass"}} {{action 'toggleExpansionState' target=view}}>	
+		<div class="hor"></div>
+		<div class="ver"></div>
+	</div>
+{{else}}
+	<div {{bind-attr class="view.indicatorClass"}}></div>
 {{/if}}
 <span class="ember-table-content">
   {{view.cellContent}}
