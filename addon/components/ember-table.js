@@ -102,6 +102,11 @@ StyleBindingsMixin, ResizeHandlerMixin, {
 
   setSortConditionBy: null,
 
+  // By default the indicator view should be supported by ember-table. 
+  // if you want to custom grouped row view should set a custom view which inherit
+  // from 'grouped-row-indicator'.
+  groupedRowInidcatorView: null,
+
   // ---------------------------------------------------------------------------
   // API - Outputs
   // ---------------------------------------------------------------------------
@@ -335,7 +340,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
 
   _groupingColumn: Ember.computed(function () {
     return ColumnDefinition.create({
-      headerCellName: 'GroupingColumn', //Todo: Fix grouping header name
+      headerCellName: '', //Todo: Fix grouping header name
       textAlign: 'text-align-left',
       isResizable: false,
       isSortable: false,

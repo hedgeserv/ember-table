@@ -21,6 +21,7 @@ export default function moduleForEmberTable(description, subject) {
       'view:table-cell',
       'view:table-row',
       'view:header-group',
+      'view:grouped-row-indicator',
       'view:header-groups-block',
       'view:grouping-column-cell',
       'template:body-table-container',
@@ -31,7 +32,8 @@ export default function moduleForEmberTable(description, subject) {
       'template:scroll-container',
       'template:table-cell',
       'template:table-row',
-      'template:grouping-column-cell'
+      'template:grouping-column-cell',
+      'template:grouped-row-indicator'
     ],
     subject: subject
   });
