@@ -2,11 +2,8 @@ import Ember from 'ember';
 import { test } from 'ember-qunit';
 import moduleForEmberTable from '../../helpers/module-for-ember-table';
 import EmberTableFixture from '../../fixture/ember-table';
-import LazyArray from 'ember-table/models/lazy-array';
-import TableFixture from '../../fixture/table';
 import EmberTableHelper from '../../helpers/ember-table-helper';
 
-var tableFixture = TableFixture.create();
 var content = [{
   groupName: 'firstRootGroupName',
   id: 100,
