@@ -10,6 +10,7 @@ export default Ember.Component.extend({
     ' columns=columns ' +
     ' hasFooter=hasFooter ' +
     ' hasGroupingColumn=hasGroupingColumn ' +
+    ' groupedRowIndicatorView=groupedRowIndicatorView ' +
     ' content=content' +
     ' enableContentSelection=true' +
     ' numFixedColumns=numFixedColumns' +
@@ -30,5 +31,6 @@ export default Ember.Component.extend({
   enableContentSelection: true,
   content: [],
   numFixedColumns: 0,
-  hasGroupingColumn: false
+  hasGroupingColumn: false,
+  groupedRowIndicatorView: null,
 });

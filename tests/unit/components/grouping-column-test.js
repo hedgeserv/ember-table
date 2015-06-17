@@ -4,6 +4,7 @@ import moduleForEmberTable from '../../helpers/module-for-ember-table';
 import EmberTableFixture from '../../fixture/ember-table';
 import LazyArray from 'ember-table/models/lazy-array';
 import TableFixture from '../../fixture/table';
+import GroupedRowIndicator from 'ember-table/views/grouped-row-indicator';
 import EmberTableHelper from '../../helpers/ember-table-helper';
 
 var tableFixture = TableFixture.create();
@@ -17,7 +18,6 @@ var content = [{
   state: 'up'
 }, {
   groupName: 'thirdRootGroupName',
-  isGroupRow: true,
   id: 10000,
   state: 'down',
   children: [{
@@ -68,14 +68,14 @@ test('it should render group indicator in grouping column when the loan is group
   assert.equal(indicator.length, 1);
 });
 
-test('it should not render group indicator in grouping column when the loan is not grouped data', function(assert) {
+test('it should hide group indicator in grouping column when the loan is not grouped data', function(assert) {
   var component = this.subject();
   this.render();
   var helper = EmberTableHelper.create({_assert: assert, _component: component});
 
   var indicator = helper.rowGroupingIndicator(1);
 
-  assert.equal(indicator.length, 0);
+  assert.equal(indicator.length, 0, "it should hide grouped row indicator");
 });
 
 test('it should render columns data in columns', function(assert) {
@@ -117,7 +117,7 @@ test('lock grouping column', function(assert) {
     helper.resizeColumn('Column1', 100);
     helper.scrollBodyLeft(10);
   });
-  assert.equal(helper.nthColumnHeader(1).find('span').text().trim(), 'GroupingColumn', 'first column should be grouping column');
+  assert.equal(helper.nthColumnHeader(1).find('span').text().trim(), '', "first column header should be blank");
 
   var offsetAfter = [helper.nthColumnHeader(1).offset()];
   assert.deepEqual(offsetAfter, offsetBefore, 'grouping column 1 should not be scrolled left');
@@ -150,7 +150,7 @@ test('lock grouping column in addition', function(assert) {
   });
   var nonFixedOffsetAfter = [helper.nthColumnHeader(4).offset()];
 
-  assert.deepEqual(helper.nthColumnHeader(1).find('span').text().trim(), 'GroupingColumn', 'first column should be grouping column');
+  assert.deepEqual(helper.nthColumnHeader(1).find('span').text().trim(), '', "first column header should be blank");
   assert.deepEqual(offsetBefore, offsetAfter, 'grouping column and fixed columns should not be scrolled left');
   assert.notDeepEqual(nonFixedOffsetAfter, nonFixedOffsetBefore, 'non-fixed columns should be scrolled left');
 
@@ -197,7 +197,6 @@ moduleForEmberTable('table with two group rows',
         state: 'up'
       }, {
         groupName: 'secondRootGroupName',
-        isGroupRow: true,
         id: 10000,
         state: 'down',
         children: [{
@@ -209,7 +208,6 @@ moduleForEmberTable('table with two group rows',
         }]
       }, {
         groupName: 'thirdRootGroupName',
-        isGroupRow: true,
         id: 20000,
         state: 'down',
         children: [{
@@ -245,22 +243,20 @@ moduleForEmberTable('table with two level of grouped rows',
       width: 700,
       content: [{
         groupName: 'first-level',
-        isGroupRow: true,
         id: 100,
         state: 'up',
         children: [{
           groupName: 'second-level-row1',
           id: 1001,
           state: 'up'
-          },{
+        }, {
           groupName: 'second-level-row2',
-          isGroupRow: true,
           id: 1002,
           state: 'down',
           children: [{
             id: 10021,
             state: 'up'
-          },{
+          }, {
             id: 10022,
             state: 'down'
           }]
@@ -280,10 +276,10 @@ test('expand first level row', function (assert) {
   firstLevelRowIndicator.click();
 
   var secondLevelRow1 = helper.rowGroupingIndicator(1);
-  assert.equal(secondLevelRow1.length, 0, "second-level-row1 should have no indicator");
+  assert.equal(secondLevelRow1.length, 0, "second-level-row1 should hide indicator");
 
   var secondLevelRow2Indicator = helper.rowGroupingIndicator(2);
-  assert.equal(secondLevelRow2Indicator.length, 1,"second-level-row2 should show indicator");
+  assert.equal(secondLevelRow2Indicator.length, 1, "second-level-row2 should show indicator");
   assert.ok(!secondLevelRow2Indicator.hasClass('unfold'), "second-level-row2 should have expand indicator");
 });
 
@@ -363,22 +359,18 @@ moduleForEmberTable('table with five level of grouped rows',
       width: 700,
       content: [{
         groupName: 'first-level',
-        isGroupRow: true,
         id: 100,
         state: 'up',
         children: [{
           groupName: 'second-level',
-          isGroupRow: true,
           id: 200,
           state: 'down',
           children: [{
             groupName: 'third-level',
-            isGroupRow: true,
             id: 300,
             state: 'down',
             children: [{
               groupName: 'fourth-level',
-              isGroupRow: true,
               id: 400,
               state: 'down',
               children: [{
@@ -457,3 +449,82 @@ test('collapse unlimited grouped data', function(assert){
   var firstLevelRowId = helper.bodyCell(0, 0).text().trim();
   assert.equal(firstLevelRowId, 100, "first level row id should be equal to 100");
 });
+
+moduleForEmberTable('table with two levels of grouped rows', function() {
+  return EmberTableFixture.create({
+      height: 330,
+      width: 700,
+      hasGroupingColumn: true,
+      content: [
+        {
+          groupName: 'first level row 1',
+          id: 1
+        },
+        {
+          groupName: 'first level row 2',
+          id: 2,
+          children: [
+            { id: 21 }
+          ]
+        }
+      ]
+    });
+  }
+);
+
+test('grouped row indicator style', function(assert){
+  var component = this.subject();
+  this.render();
+  var helper = EmberTableHelper.create({
+    _assert: assert,
+    _component: component
+  });
+  var noChildrenRowIndicator = helper.rowGroupingIndicator(0);
+  assert.equal(noChildrenRowIndicator.length, 0, "no-children row should hide indicator");
+  var hasChildrenRowIndicator = helper.rowGroupingIndicator(1);
+  assert.equal(hasChildrenRowIndicator.length, 1, "has-children row should show indicator");
+  hasChildrenRowIndicator.click();
+  var secondLevelRowId = helper.bodyCell(2, 0).text().trim();
+  assert.equal(secondLevelRowId, '21', 'it should show second level rows');
+});
+
+moduleForEmberTable('table with custom grouped row indicator view', function() {
+  var indicatorView = GroupedRowIndicator.extend({
+    indicatorClass: 'custom-grouped-row-indicator'
+  });
+    return EmberTableFixture.create({
+      height: 330,
+      width: 700,
+      hasGroupingColumn: true,
+      groupedRowIndicatorView: indicatorView,
+      content: [
+        {
+          groupName: 'first level row 1',
+          id: 1
+        },
+        {
+          groupName: 'first level row 2',
+          id: 2,
+          children: [
+            { id: 21 }
+          ]
+        }
+      ]
+    });
+  }
+);
+
+test('display custom grouped row indicator', function(assert){
+  var component = this.subject();
+  this.render();
+  var helper = EmberTableHelper.create({
+    _assert: assert,
+    _component: component
+  });
+
+  var secondLevelRowCell = helper.fixedBodyCell(1, 0);
+  assert.equal(secondLevelRowCell.find('.custom-grouped-row-indicator').length, 1, "custom grouped row should show custom indicator view"); 
+});
+
+
+

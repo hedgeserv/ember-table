@@ -11,6 +11,10 @@ export default Ember.ObjectProxy.extend({
       this.get('parentController').setSelected(this, val);
     }
     return this.get('parentController').isSelected(this);
-  }).property('parentController.selection.[]')
+  }).property('parentController.selection.[]'),
 
+  hasChildren: Ember.computed(function(){
+    var children = this.get('content.children');
+    return (!!children) && children.length > 0;
+  }).property('content.children')
 });

@@ -87,7 +87,7 @@ export default Ember.Object.extend({
       '.ember-table-left-table-block ' +
       ('.ember-table-table-row:eq(%@) '.fmt(rowIndex)) +
       '.ember-table-cell:eq(0) ' +
-      '.grouping-column-indicator');
+      '.grouping-column-indicator:has(div)');
   },
 
   fixedBodyCell: function fixedBodyCell(rowIndex, colIndex) {

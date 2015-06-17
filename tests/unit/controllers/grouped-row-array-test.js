@@ -19,9 +19,9 @@ test('object at for grouping row', function(assert) {
   });
 
   assert.equal(subject.objectAt(0).get('id'), 1, 'should return first object id');
-  assert.ok(subject.objectAt(0).get('content'),'should has content');
-  assert.ok(subject.objectAt(0).get('isShowing'),'should showing');
-  assert.ok(subject.get('length') === 2,'should has length === 2');
+  assert.ok(subject.objectAt(0).get('content'), 'should has content');
+  assert.ok(subject.objectAt(0).get('isShowing'), 'should showing');
+  assert.ok(subject.get('length') === 2, 'should has length === 2');
 });
 
 test('init state', function(assert) {
@@ -62,18 +62,6 @@ test('access first object', function(assert) {
   var rowController = subject.objectAt(1);
 
   assert.equal(rowController.get('id'), 20);
-});
-
-test('proxy content properties', function(assert) {
-  var subject = GroupedRowArrayController.create({
-    content: [{ id: 10, isGroupRow: true}],
-    itemController: Row
-  });
-
-
-  var rowController = subject.objectAt(0);
-
-  assert.ok(rowController.get('isGroupRow'), 'should proxy isGroupRow');
 });
 
 test('expand grouped row', function(assert) {
