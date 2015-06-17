@@ -496,7 +496,7 @@ moduleForEmberTable('table with custom grouped row indicator view', function() {
       height: 330,
       width: 700,
       hasGroupingColumn: true,
-      groupedRowInidcatorView: indicatorView,
+      groupedRowIndicatorView: indicatorView,
       content: [
         {
           groupName: 'first level row 1',

@@ -105,7 +105,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
   // By default the indicator view should be supported by ember-table. 
   // if you want to custom grouped row view should set a custom view which inherit
   // from 'grouped-row-indicator'.
-  groupedRowInidcatorView: null,
+  groupedRowIndicatorView: null,
 
   // ---------------------------------------------------------------------------
   // API - Outputs
