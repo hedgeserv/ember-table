@@ -65,7 +65,6 @@ export default RowArrayController.extend({
   },
 
   length: Ember.computed(function() {
-    var content = this.get('content');
     var controllersMap = this.get('_controllersMap');
     var expandedChildrenCount = 0;
     var self = this;
