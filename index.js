@@ -10,6 +10,7 @@ module.exports = {
     app.import(app.bowerDirectory + '/antiscroll/antiscroll.css');
     app.import(app.bowerDirectory + '/jquery-ui/jquery-ui.js');
     app.import(app.bowerDirectory + '/jquery-mousewheel/jquery.mousewheel.js');
+    app.import('vendor/ember-table/images/loading.gif');
   },
 
   afterInstall: function() {

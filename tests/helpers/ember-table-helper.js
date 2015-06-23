@@ -108,6 +108,13 @@ export default Ember.Object.extend({
       '.ember-table-table-row');
   },
 
+   bodyRows: function(){
+    var component = this.get('_component');
+    return component.$('.ember-table-body-container ' +
+      '.ember-table-right-table-block ' +
+      '.ember-table-table-row');
+  },
+
   bodyCell: function bodyCell (rowIndex, colIndex) {
     return this.findCell('right', rowIndex, colIndex);
   },

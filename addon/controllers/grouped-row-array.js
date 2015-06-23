@@ -71,7 +71,8 @@ export default RowArrayController.extend({
     var self = this;
     controllersMap.forEach(function(value) {
       if (value.get('isExpanded') && self.isParentControllerExpanded(value)) {
-        expandedChildrenCount += value.get('children.length');
+        var childrenLength = value.get('hasLoadedChildren') ? value.get('children.length') : 1;
+        expandedChildrenCount += childrenLength;
       }
     });
 
@@ -134,6 +135,9 @@ export default RowArrayController.extend({
     var childrenRows = this.get('_childrenRows');
 
     while (childrenRows.has(theObject)) {
+      if(theObject.hasLoadedChildren === false){
+        return {object: this._loadingObjectFor(theObject), level: theLevel, parent: theObject};
+      }
       var children = childrenRows.get(theObject);
       theParent = theObject;
       theObject =  children.objectAt(this.arrayLength(children) -1);
@@ -170,6 +174,10 @@ export default RowArrayController.extend({
   },
 
   depthFirstTravers: function(content, callback, level) {
+    if (content.hasLoadedChildren === false) {
+      callback(this._loadingObjectFor(content), content, level || 0);
+      return;
+    }
     var _this = this;
     var children = content.get && content.get('children') || content.children;
     for (var i = 0; i < this.arrayLength(children); i++) {
@@ -183,6 +191,24 @@ export default RowArrayController.extend({
         _this.depthFirstTravers(child, callback, (level || 0) + 1);
       }
     }
+  },
+
+  _loadingObjectFor: function(content){
+    var self = this;
+    var controlerMaps = self.get('_controllersMap');
+    var childrenRows = self.get('_childrenRows');
+    return  Ember.Object.extend({
+      parent: null,
+      _isLoading: true,
+      onParentLoadingChildrenChanged: function(){
+        self.toggleProperty('_resetLength');
+        self.removeObserver('parent.hasLoadedChildren');
+        controlerMaps.delete(this);
+        childrenRows.delete(this);
+      }.observes('parent.hasLoadedChildren')
+    }).create({
+      parent: content
+    });
   },
 
   arrayLength: function(array) {
