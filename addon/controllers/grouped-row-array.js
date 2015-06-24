@@ -30,7 +30,9 @@ export default RowArrayController.extend({
 
   expandChildren: function(row) {
     row.set('isExpanded', true);
-    var childrenRow = row.get('children') || [];
+    var childrenRow = row.get('children');
+    var self = this;
+    childrenRow.addObserver('length', this, 'lengthDidChange');
     if (this.arrayLength(childrenRow) > 0) {
       var childrenRows = this.get('_childrenRows');
       childrenRows.set(row.get('content'), childrenRow);
@@ -40,6 +42,11 @@ export default RowArrayController.extend({
         this.set('_expandedDepth', expandLevelAfterExpand);
       }
     }
+  },
+
+  lengthDidChange: function(sender) {
+    this.toggleProperty('_resetLength');
+    sender.removeObserver('length', this, 'lengthDidChange');
   },
 
   maxExpandedDepthAfterExpand: function maxExpandedDepthAfterExpand(row) {

@@ -12,8 +12,8 @@ export default Ember.View.extend({
   row: Ember.computed.alias('parentView.row'),
 
   isShown: Ember.computed(function(){
-    return this.get('hasChildren') || this.get('row.hasLoadedChildren') === false;
-  }),
+    return this.get('hasChildren');
+  }).property('hasChildren'),
 
   expandLevel: 0,
 
