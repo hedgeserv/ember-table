@@ -28,5 +28,12 @@ export default Ember.ObjectProxy.extend({
       parentQuery: this.get('selfQuery')
     });
     return lazyArray;
-  }).property()
+  }).property(),
+
+  sort: function (callback) {
+    var children = this.get('children');
+    if(!!children) {
+      children.sort(callback);
+    }
+  }
 });

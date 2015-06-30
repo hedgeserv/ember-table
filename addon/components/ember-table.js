@@ -184,6 +184,8 @@ StyleBindingsMixin, ResizeHandlerMixin, {
 
   _reloadBody: false,
 
+  sortCondition: null,
+
   // TODO(azirbel): Document
   actions: {
     addColumn: Ember.K,
@@ -191,6 +193,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
       var sortFn = column.sortFn();
       if(sortFn){
         this.set('_sortedColumn', column);
+        this.set('sortCondition', [{id: column.get('headerCellName'), direction: column.get('currentDirect')}]);
         var content = this.get('content');
         this.sendAction('setSortConditionBy', column);
         content.sort(sortFn);
