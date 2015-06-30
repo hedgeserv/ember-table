@@ -16,6 +16,7 @@ export default Ember.ArrayProxy.extend({
   loadOneChunk: function(chunkIndex) {
     return this.loadChildren(chunkIndex, this.get('parentQuery') || {});
   },
+
   wrapLoadedContent: function (row) {
     if (this.get('isGroupingRow')) {
       var groupingMetadata = this.get('groupingMetadata');
@@ -28,6 +29,23 @@ export default Ember.ArrayProxy.extend({
       });
     } else {
       return row;
+    }
+  },
+
+  sort: function (callback){
+    var groupingMetadata = this.get('groupingMetadata');
+    var groupingLevel = this.get('groupingLevel');
+
+    if (groupingLevel === groupingMetadata.length) {
+      var sortedContent = this.get('content').sort(callback);
+      this.set('content', sortedContent || []);
+    }
+    else {
+      (this.get('content') || []).forEach(function (item) {
+        if (!!item.get('content')) {
+          item.get('content').sort(callback);
+        }
+      });
     }
   },
 
@@ -95,6 +113,12 @@ export default Ember.ArrayProxy.extend({
       'isLoaded': true
     });
   },
+
+  isCompleted: Ember.computed(function(){
+    var content = this.get('content');
+    var hasUnloaded = content.getEach('isLoaded').any(function(isLoaded){ return !isLoaded; });
+    return  !hasUnloaded && content.length === this.get('totalCount');
+  }).property('content.[]', 'content.@each', 'totalCount'),
 
   totalCount: null,
 
