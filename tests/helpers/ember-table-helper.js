@@ -11,6 +11,16 @@ export default Ember.Object.extend({
     return groupHeader;
   },
 
+  getHeaderCell: function getHeaderCell (colIndex)  {
+    var component = this.get('_component');
+    return component.$(
+      ".ember-table-right-table-block " +
+      ".ember-table-header-row " +
+      ".ember-table-header-cell:eq(%@) ".fmt(colIndex) +
+      ".ember-table-content-container"
+    );
+  },
+
   assertGroupColumnHeader: function assertGroupColumnHeader(colIndex, headerCellName, message) {
     var assert = this.get('_assert');
     var groupHeader = this.getGroupHeaderCell(colIndex);

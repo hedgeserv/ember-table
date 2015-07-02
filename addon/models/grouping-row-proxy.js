@@ -33,7 +33,8 @@ export default Ember.ObjectProxy.extend({
       loadChildren: this.loadChildren,
       groupingLevel: this.get('groupingLevel') + 1,
       groupingMetadata: this.get('groupingMetadata'),
-      parentQuery: this.get('selfQuery')
+      parentQuery: this.get('selfQuery'),
+      parent: this
     });
     return lazyArray;
   }).property(),
@@ -44,5 +45,7 @@ export default Ember.ObjectProxy.extend({
       return this.get(groupingName);
     }
     return "";
-  }).property('groupingName', 'content')
+  }).property('groupingName', 'content'),
+
+  _sortConditions: Ember.computed.alias('parent._sortConditions')
 });

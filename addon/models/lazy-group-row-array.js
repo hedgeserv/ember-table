@@ -6,6 +6,7 @@ export default Ember.ArrayProxy.extend({
   groupingLevel: 0,
   groupingMetadata: null,
   parentQuery: {},
+  parent: null,
 
   init: function () {
     this.set('content', Ember.A());
@@ -14,8 +15,14 @@ export default Ember.ArrayProxy.extend({
   },
 
   loadOneChunk: function(chunkIndex) {
-    return this.loadChildren(chunkIndex, this.get('parentQuery') || {});
+    var query = {};
+    Ember.setProperties(query, this.get('parentQuery'));
+    if(this.get('isLeafParent')){
+      Ember.setProperties(query, this.get('_sortConditions'));
+    }
+    return this.loadChildren(chunkIndex, query);
   },
+
   wrapLoadedContent: function (row) {
     if (this.get('isGroupingRow')) {
       var groupingMetadata = this.get('groupingMetadata');
@@ -24,6 +31,7 @@ export default Ember.ArrayProxy.extend({
         groupingLevel: this.get('groupingLevel'),
         content: row,
         loadChildren: this.loadChildren,
+        parent: this,
         parentQuery: this.get('parentQuery')
       });
     } else {
@@ -31,10 +39,43 @@ export default Ember.ArrayProxy.extend({
     }
   },
 
+  isLeafParent: Ember.computed(function(){
+    return this.get('groupingLevel') === this.get('groupingMetadata.length');
+  }).property('groupLevel', 'groupingMetadata.[]'),
+
+  sort: function (callback){
+    var isLeafParent = this.get('isLeafParent');
+    var isCompleted = this.get('isCompleted');
+    if (isLeafParent) {
+      if(isCompleted) {
+        var sortedContent = this.get('content').sort(callback);
+        this.set('content', sortedContent || []);
+      } else {
+        this.get('content').clear();
+        this.addLoadingPlaceHolder();
+      }
+    } else {
+      var loadedLength = this.get('length');
+      if(!isCompleted){
+        loadedLength--;
+      }
+      for(var i=0; i < loadedLength; i++){
+        var item = this.objectAt(i);
+        var itemContent = item.get('content');
+        if (itemContent && itemContent.cacheFor('children')) {
+          item.get('children').sort(callback);
+        }
+      }
+    }
+  },
+
+  // As a root data provider, `_sortConditions` should be set when sort.
+  _sortConditions: Ember.computed.oneWay('parent._sortConditions'),
+
   /*---------------Override ArrayProxy -----------------------*/
   objectAtContent: function (index) {
     var object = this._super(index);
-    if (object.get('isLoading') && !this.get('_hasInProgressLoading')) {
+    if (object && object.get('isLoading') && !this.get('_hasInProgressLoading')) {
       this.triggerLoading(index);
     }
     return object;
@@ -95,6 +136,13 @@ export default Ember.ArrayProxy.extend({
       'isLoaded': true
     });
   },
+
+  isCompleted: Ember.computed(function(){
+    var content = this.get('content');
+    return !content.some(function(item){
+      return item.get('isLoading');
+    });
+  }).property('content.[]', 'content.@each', 'totalCount'),
 
   totalCount: null,
 
