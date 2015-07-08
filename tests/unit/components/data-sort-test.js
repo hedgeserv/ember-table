@@ -1561,40 +1561,41 @@ test('click with command key to sort partial data', function (assert) {
 });
 
 test('sort completed descending data to unsorted state with command key', function (assert) {
-  var defers = DefersPromise.create({count: 5});
+  var defers = DefersPromise.create({count: 7});
   var options = {defers: defers, height: 180};
   var component = this.subject(options);
   this.render();
-  var helper = EmberTableHelper.create({_assert: assert, _component: component});
+  var table = TableDom.create({content: component.$()});
   defers.ready(function () {
     Ember.run(function() {
-      helper.getHeaderCell(0).click();
+      table.headerRows(0).cell(1).click();
     });
     Ember.run(function() {
-      helper.getHeaderCell(0).click();
+      table.headerRows(0).cell(1).click();
     });
     Ember.run(function() {
-      helper.rowGroupingIndicator(0).click();
+      table.rows(0).groupIndicator().click();
     });
   }, [0]);
 
   defers.ready(function () {
-    helper.rowGroupingIndicator(3).click();
+    table.rows(3).groupIndicator().click();
   }, [1, 2]);
 
   defers.ready(function () {
-    helper.assertCellContent(4, 0, '810', 'should sort descending when click header cell');
-    helper.scrollTop(150);
+    assert.deepEqual(table.cellsContent([4],[1]), [['810']], 'should sort descending when click header cell');
+    table.scrollTop(defers.next(), 5);
   }, [3]);
 
-  return defers.ready(function () {
+  defers.ready(function () {
     Ember.run(function() {
-      helper.clickHeaderCellWithCommand(0);
+      table.headerRows(0).cell(1).clickWithCommand();
     });
-    helper.scrollTop(-150);
-    Ember.run.later(function() {
-      helper.assertCellContent(4, 0, '810', 'should keep descending');
-    });
+    table.scrollTop(defers.next(), -5);
+  }, [4, 5]);
+
+  return defers.ready(function () {
+    assert.deepEqual(table.cellsContent([4],[1]), [['810']], 'should keep descending');
   });
 });
 
