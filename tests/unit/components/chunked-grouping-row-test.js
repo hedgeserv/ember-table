@@ -67,10 +67,12 @@ test('collapse chunked top level rows', function (assert) {
 
   defers.ready(function () {
     helper.rowGroupingIndicator(0).click();
-    helper.rowGroupingIndicator(0).click();
   }, [0, 1]);
 
   return defers.ready(function () {
+    Ember.run(function() {
+      helper.rowGroupingIndicator(0).click();
+    });
     assert.equal(helper.rowGroupingIndicator(0).hasClass("unfold"), false, 'grouping row is collapsed');
     assert.equal(helper.fixedBodyRows().length, 12, 'children rows are collapsed');
   });

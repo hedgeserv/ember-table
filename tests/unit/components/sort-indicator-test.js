@@ -31,10 +31,14 @@ test('should show indicator when sort by column', function (assert) {
   return defers.ready(function () {
     var helper = EmberTableHelper.create({_assert: assert, _component: component});
 
-    helper.getHeaderCell(0).click();
+    Ember.run(function () {
+      helper.getHeaderCell(0).click();
+    });
     helper.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
 
-    helper.getHeaderCell(0).click();
+    Ember.run(function () {
+      helper.getHeaderCell(0).click();
+    });
     helper.assertDescendingIndicatorInHeaderCell(0, 'should show descending indicator while changing indicator');
   });
 });
