@@ -1551,9 +1551,15 @@ test('sort completed descending data to unsorted state with command key', functi
   this.render();
   var helper = EmberTableHelper.create({_assert: assert, _component: component});
   defers.ready(function () {
-    helper.getHeaderCell(0).click();
-    helper.getHeaderCell(0).click();
-    helper.rowGroupingIndicator(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.rowGroupingIndicator(0).click();
+    });
   }, [0]);
 
   defers.ready(function () {
