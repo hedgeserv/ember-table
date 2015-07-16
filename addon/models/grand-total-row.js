@@ -42,7 +42,7 @@ export default Ember.ArrayProxy.extend({
       content: row,
       loadChildren: this.loadChildren,
       parentQuery: this.get('parentQuery'),
-      parent: this
+      root: this
     });
   },
 

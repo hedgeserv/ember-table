@@ -8,7 +8,6 @@ export default Ember.ArrayProxy.extend({
   groupingLevel: 0,
   groupingMetadata: null,
   parentQuery: {},
-  parent: null,
   sortFn: Ember.K,
   isEmberTableContent: true,
 
@@ -17,7 +16,7 @@ export default Ember.ArrayProxy.extend({
     if(!this.get('status')){
       this.set('status', Ember.Object.create({
         loadingCount: 0
-      }));  
+      }));
     }
     this._super();
     this.addLoadingPlaceHolder();
@@ -43,7 +42,8 @@ export default Ember.ArrayProxy.extend({
         onLoadError: this.onLoadError,
         parent: this,
         parentQuery: this.get('parentQuery'),
-        status: this.get('status')
+        status: this.get('status'),
+        root: this.get('root') || this
       });
     } else {
       return row;
@@ -72,7 +72,7 @@ export default Ember.ArrayProxy.extend({
   }).property('_sortConditions'),
 
   // As a root data provider, `_sortConditions` should be set when sort.
-  _sortConditions: Ember.computed.oneWay('parent._sortConditions'),
+  _sortConditions: Ember.computed.oneWay('root._sortConditions'),
 
   /*---------------Override ArrayProxy -----------------------*/
   objectAtContent: function (index) {

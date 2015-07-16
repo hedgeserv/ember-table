@@ -37,7 +37,8 @@ export default Ember.ObjectProxy.extend({
       groupingMetadata: this.get('groupingMetadata'),
       parentQuery: this.get('selfQuery'),
       parent: this,
-      status: this.get('status')
+      status: this.get('status'),
+      root: this.get('root')
     });
     return lazyArray;
   }).property(),
@@ -50,5 +51,5 @@ export default Ember.ObjectProxy.extend({
     return "";
   }).property('groupingName', 'content'),
 
-  _sortConditions: Ember.computed.alias('parent._sortConditions')
+  _sortConditions: Ember.computed.oneWay('root._sortConditions')
 });

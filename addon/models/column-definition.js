@@ -12,7 +12,7 @@ export default Ember.Object.extend({
   cellStyle: undefined,
 
   sortBy: function(prev, next){
-    return Ember.get(prev, 'id') - Ember.get(next, 'id');
+    return Ember.compare(this.getCellContent(prev), this.getCellContent(next));
   },
 
   sortIndicatorStyles: Ember.computed(function() {
@@ -113,11 +113,8 @@ export default Ember.Object.extend({
     return this.get('width') === this.get('maxWidth');
   }).property('width', 'maxWidth'),
 
-  sortFn: function(){
-    var self = this;
-    return function(prev, next){
-      return self.get('_sortState') * self.sortBy(prev, next);
-    };
+  sortFn: function(prev, next){
+    return this.get('_sortState') * this.sortBy(prev, next);
   },
 
   // if you want to change sort order, you should invoke this function

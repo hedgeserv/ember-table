@@ -6,18 +6,25 @@ export default Ember.ArrayProxy.extend({
   grandTotalTitle: Ember.computed.alias('content.grandTotalTitle'),
 
   _sortConditions: null,
-
+  sortingColumns: null,
   loadGrandTotal: Ember.computed.alias('content.loadGrandTotal'),
 
   _content: Ember.computed(function() {
     var sortDirect = this.get('_sortConditions.sortDirect');
     var sortFn = this.get('_sortConditions.sortFn');
     var content = this.get('content');
-    if(sortDirect){
-      return content.slice().sort(sortFn);
+    var sortingColumns = this.get('sortingColumns');
+    if (sortingColumns && sortingColumns.get('isNotEmpty')) {
+      return content.slice().sort(function(prev, next) {
+        return sortingColumns.sortBy(prev, next);
+      });
+    } else {
+      if(sortDirect){
+        return content.slice().sort(sortFn);
+      }
+      return content.slice();
     }
-    return content.slice();
-  }).property('_sortConditions'),
+  }).property('sortingColumns', '_sortConditions'),
 
   objectAt: function(index){
     return this.get('_content').objectAt(index);

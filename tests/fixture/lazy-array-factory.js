@@ -34,9 +34,13 @@ export function defaultFixture(options) {
     },
 
     initChunk: function (pageIndex, query) {
+      if (options.multipleColumns) {
+        return options.chunks[pageIndex];
+      }
+      var sortDirection = options.sortDirection || "normal";
       var self = this;
       var resultMap = {
-        '': function () {
+        normal: function () {
           var index, chunk = [];
           var chunkSize = self.get('chunkSize');
           for (var i = 1; i <= chunkSize; i++) {
@@ -45,7 +49,7 @@ export function defaultFixture(options) {
           }
           return chunk;
         },
-        'sortDirect=asc&sortName=ID': function () {
+        asc: function () {
           var index, chunk = [];
           var chunkSize = self.get('chunkSize');
           for (var i = 0; i < chunkSize; i++) {
@@ -54,7 +58,7 @@ export function defaultFixture(options) {
           }
           return chunk;
         },
-        'sortDirect=desc&sortName=ID': function () {
+        desc: function () {
           var index, chunk = [];
           var chunkSize = self.get('chunkSize');
           for (var i = 1; i <= chunkSize; i++) {
@@ -64,7 +68,7 @@ export function defaultFixture(options) {
           return chunk;
         }
       };
-      return resultMap[toQuery(query)]();
+      return resultMap[sortDirection]();
     }
   });
 }

@@ -7,6 +7,7 @@ export default Ember.ArrayProxy.extend({
   loadingCount: 0,
 
   _sortConditions: {},
+  sortingColumns: null,
 
   // Function to get next chunk of rows.
   // The callback should return a promise which will return an array of rows.
@@ -23,9 +24,9 @@ export default Ember.ArrayProxy.extend({
   sortFn: Ember.K,
 
   _query: Ember.computed(function(){
-    var sortConditons = this.get('_sortConditions');
-    if(Ember.get(sortConditons, 'sortDirect')){
-      return Ember.getProperties(sortConditons, 'sortDirect', 'sortName');
+    var sortConditions = this.get('_sortConditions');
+    if(Ember.get(sortConditions, 'sortDirect')){
+      return Ember.getProperties(sortConditions, 'sortDirect', 'sortName');
     }
     return {};
   }).property('_sortConditions'),
@@ -33,16 +34,20 @@ export default Ember.ArrayProxy.extend({
 
   // This is a content or _lazyContent cache for sortable order
   _contentCache: Ember.computed(function() {
-    var sortDirect = this.get('_sortConditions.sortDirect');
-    var sortFn = this.get('_sortConditions.sortFn');
+    var sortingColumns = this.get('sortingColumns');
+    var needSort = sortingColumns && sortingColumns.get('isNotEmpty');
     var content = this.get('content');
-    if(this.get('isCompleted') && sortDirect){
-      return content.slice().sort(sortFn);
-    } else if(sortDirect){
-      return Ember.A();
+    if (needSort) {
+      if(this.get('isCompleted')){
+        return content.slice().sort(function (prev, next) {
+          return sortingColumns.sortBy(prev, next);
+        });
+      } else{
+        return Ember.A();
+      }
     }
     return content;
-  }).property('_sortConditions'),
+  }).property('sortingColumns'),
 
   isEmberTableContent: true,
 

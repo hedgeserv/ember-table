@@ -14,6 +14,7 @@ export default Ember.Component.extend({
     ' content=content' +
     ' enableContentSelection=true' +
     ' numFixedColumns=numFixedColumns' +
+    ' sortAction="sortAction"' +
     '}} '),
   columns: Ember.computed(function () {
     var columnFixture = ColumnFixture.create();
@@ -32,5 +33,14 @@ export default Ember.Component.extend({
   content: [],
   numFixedColumns: 0,
   groupedRowIndicatorView: null,
-  rowLoadingIndicatorView: null
+  rowLoadingIndicatorView: null,
+  testOptions: null,
+  actions: {
+    sortAction: function(sortCondition) {
+      var testOptions = this.get('testOptions');
+      if (sortCondition && testOptions) {
+        testOptions.sortDirection = sortCondition.get('sortDirect');
+      }
+    }
+  }
 });

@@ -7,11 +7,8 @@ export default Ember.Object.extend({
     return ColumnDefinition.create({
       textAlign: 'text-align-left',
       headerCellName: 'Column1',
-      sortBy: function (prev, next) {
-        return prev.get('id') - next.get('id');
-      },
       getCellContent: function (row) {
-        return row.get('id');
+        return Ember.get(row, "id");
       }
     });
   }),
@@ -20,11 +17,8 @@ export default Ember.Object.extend({
     return ColumnDefinition.create({
       textAlign: 'text-align-left',
       headerCellName: 'Column2',
-      sortBy: function (prev, next) {
-        return prev.get('id') - next.get('id');
-      },
       getCellContent: function (row) {
-        return row.get('activity');
+        return Ember.get(row, 'activity');
       }
     });
   }),
@@ -34,7 +28,7 @@ export default Ember.Object.extend({
       textAlign: 'text-align-left',
       headerCellName: 'Column3',
       getCellContent: function (row) {
-        return row.get('state');
+        return Ember.get(row, 'state');
       }
     });
   }),
@@ -43,7 +37,7 @@ export default Ember.Object.extend({
     return ColumnDefinition.create({
       headerCellName: 'Column4',
       getCellContent: function (row) {
-        return row.get('d');
+        return Ember.get(row, 'd');
       }
     });
   }),
@@ -52,7 +46,7 @@ export default Ember.Object.extend({
     return ColumnDefinition.create({
       headerCellName: 'Column5',
       getCellContent: function (row) {
-        return row.get('e');
+        return Ember.get(row, 'e');
       }
     });
   }),
@@ -86,7 +80,7 @@ export default Ember.Object.extend({
       textAlign: 'text-align-left',
       headerCellName: 'ID',
       getCellContent: function (row) {
-        return row.get('id');
+        return Ember.get(row, 'id');
       }
     });
   })

@@ -165,6 +165,20 @@ export default Ember.Object.extend({
     return this.findCell('right', rowIndex, colIndex);
   },
 
+  bodyCellsContent: function bodyCellsContent(rowIndexes, colIndexes) {
+    var result = [];
+    var self = this;
+    (rowIndexes || []).forEach(function (rowIndex) {
+      var row = [];
+      (colIndexes || []).forEach(function (colIndex) {
+        var bodyCell = self.bodyCell(rowIndex, colIndex);
+        row.push(bodyCell.text().trim());
+      });
+      result.push(row);
+    });
+    return result;
+  },
+
   findCell: function(blockPosition, rowIndex, colIndex) {
     var component = this.get('_component');
     return component.$('.ember-table-body-container ' +

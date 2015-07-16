@@ -25,11 +25,8 @@ module('column definition with sortBy', {
 
 test('sortFn should reverse sort order on second time ', function (assert) {
   column.toggleSortState();
-  var ascSortFn = column.sortFn();
+  assert.equal( column.sortFn({id: 2}, {id: 3}), -1);
 
-  assert.equal(ascSortFn({id: 2}, {id: 3}), -1);
   column.toggleSortState();
-  var descSortFn = column.sortFn();
-
-  assert.equal(descSortFn({id: 2}, {id: 3}), 1);
+  assert.equal( column.sortFn({id: 2}, {id: 3}), 1);
 });
