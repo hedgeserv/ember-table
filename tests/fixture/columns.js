@@ -73,15 +73,5 @@ export default Ember.Object.extend({
       lastColumnStyle: 'group-2-last-column',
       innerColumns: [this.get('fourthColumn'), this.get('fifthColumn')]
     });
-  }),
-
-  noSortFnID: Ember.computed(function () {
-    return ColumnDefinition.create({
-      textAlign: 'text-align-left',
-      headerCellName: 'ID',
-      getCellContent: function (row) {
-        return Ember.get(row, 'id');
-      }
-    });
   })
 });

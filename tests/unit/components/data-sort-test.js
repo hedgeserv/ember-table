@@ -444,15 +444,13 @@ moduleForEmberTable('Grand total row as ember-table content', function (options)
   var groupedRowDataProvider = GroupedRowDataProvider.create({
     defers: options.defers,
     delayTime: options.delayTime || 0,
-    groupingMetadata: [{id: 'accountSection'}, {id: "accountType"}],
-    columnName: "ID"
+    groupingMetadata: [{id: 'accountSection'}, {id: "accountType"}]
   });
 
   var columns = Columns.create();
   return EmberTableFixture.create({
     content: groupedRowDataProvider.get('grandTotalRowContent'),
-    height: options.height,
-    columns: [columns.get('noSortFnID')]
+    height: options.height
   });
 });
 
@@ -601,5 +599,29 @@ test('sort completed descending data to unsorted state with command key', functi
 
   return defers.ready(function () {
     helper.assertCellContent(4, 0, '303', 'should sort when state changed to unsort');
+  });
+});
+
+test('multiple columns sort completed data', function (assert) {
+  var defers = DefersPromise.create({count: 5});
+  var component = this.subject({defers: defers, height: 1000});
+  this.render();
+  var helper = EmberTableHelper.create({_assert: assert, _component: component});
+  defers.ready(function () {
+    helper.rowGroupingIndicator(0).click();
+  }, [0]);
+  defers.ready(function () {
+    helper.rowGroupingIndicator(1).click();
+  }, [1, 2]);
+  return defers.ready(function () {
+    helper.getHeaderCell(1).click();
+    helper.clickHeaderCellWithCommand(2);
+    var sortedContent = [
+      ["activity-0", "state-1"],
+      ["activity-0", "state-3"],
+      ["activity-0", "state-5"]
+    ];
+    var bodyCellsContent = helper.bodyCellsContent([2, 3, 4], [1, 2]);
+    assert.deepEqual(bodyCellsContent, sortedContent, "content should be sorted by multiple columns");
   });
 });
