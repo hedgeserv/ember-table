@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import LazyGroupRowArray from 'ember-table/models/lazy-group-row-array';
+import GrandTotalRow from 'ember-table/models/grand-total-row';
 
 var DataProvider = function(options) {
   options = options || {};
@@ -27,6 +28,15 @@ var DataProvider = function(options) {
     });
   };
   var sortDataMap = Ember.Object.create();
+  sortDataMap.set('empty', function () {
+    var index, chunk = [];
+    var chunkSize = 5;
+    for (var i = 1; i <= chunkSize; i++) {
+      index = (i + 2) % chunkSize;
+      chunk.push({id: index});
+    }
+    return chunk;
+  });
   sortDataMap.set('chunkIndex=0', function () {
     return makeJsonArray([1, 2, 3, 4, 5]);
   });
@@ -76,12 +86,42 @@ var DataProvider = function(options) {
     function () {
       return makeJsonArray([8, 7, 9, 10, 6], 100);
     });
+  sortDataMap.set(
+    'accountSection=3&chunkIndex=0',
+    function () {
+      return makeJsonArray([3, 4, 5, 1, 2], 300);
+    });
+  sortDataMap.set(
+    'accountSection=3&chunkIndex=1',
+    function () {
+      return makeJsonArray([8, 9, 10, 6, 7], 300);
+    });
+  sortDataMap.set(
+    'accountSection=3&chunkIndex=0&sortDirect=desc&sortName=%@'.fmt(this.columnName),
+    function () {
+      return makeJsonArray([10, 9, 8, 7, 6], 300);
+    });
+  sortDataMap.set(
+    'accountSection=3&chunkIndex=1&sortDirect=desc&sortName=%@'.fmt(this.columnName),
+    function () {
+      return makeJsonArray([5, 4, 3, 2, 1], 300);
+    });
+  sortDataMap.set(
+    'accountSection=3&chunkIndex=0&sortDirect=asc&sortName=%@'.fmt(this.columnName),
+    function () {
+      return makeJsonArray([1, 2, 3, 4, 5], 300);
+    });
+  sortDataMap.set(
+    'accountSection=3&chunkIndex=1&sortDirect=asc&sortName=%@'.fmt(this.columnName),
+    function () {
+      return makeJsonArray([6, 7, 8, 9, 10], 300);
+    });
 
   this.sortData = function (chunkIndex, query) {
     var queryObj = {};
     Ember.setProperties(queryObj, query);
     Ember.setProperties(queryObj, {chunkIndex: chunkIndex});
-    return sortDataMap.get(toQuery(queryObj))();
+    return sortDataMap.get(toQuery(queryObj) || "empty")();
   };
 };
 
@@ -103,21 +143,40 @@ export default Ember.Object.extend({
   totalCount: 10,
   chunkSize: 5,
   delayTime: 0,
+  doLoadChildren: function (chunkIndex, parentQuery) {
+    var dataProvider = new DataProvider({columnName: this.get('columnName')});
+    var defer = this.get('defers').next();
+    var result = {
+      content: dataProvider.sortData(chunkIndex, parentQuery),
+      meta: {totalCount: this.get('totalCount'), chunkSize: this.get('chunkSize')}
+    };
+    delayResolve(defer, result, this.get('delayTime'));
+    this.incrementProperty('loadChunkCount');
+    return defer.promise;
+  },
   content: Ember.computed(function () {
     var self = this;
-    var dataProvider = new DataProvider({columnName: this.get('columnName')});
     return LazyGroupRowArray.create({
       loadChildren: function (chunkIndex, parentQuery) {
-        var defer = self.get('defers').next();
-        var result = {
-          content: dataProvider.sortData(chunkIndex, parentQuery),
-          meta: {totalCount: self.get('totalCount'), chunkSize: self.get('chunkSize')}
-        };
-        delayResolve(defer, result, self.get('delayTime'));
-        self.incrementProperty('loadChunkCount');
-        return defer.promise;
+        return self.doLoadChildren(chunkIndex, parentQuery);
       },
       groupingMetadata: this.get('groupingMetadata')
+    });
+  }),
+  grandTotalRowContent: Ember.computed(function() {
+    var self = this;
+    return GrandTotalRow.create({
+      loadChildren: function (chunkIndex, parentQuery) {
+        return self.doLoadChildren(chunkIndex, parentQuery);
+      },
+
+      loadGrandTotal: function () {
+        var defer = self.get('defers').next();
+        defer.resolve({id: 'grand total'});
+        return defer.promise;
+      },
+      groupingMetadata: this.get('groupingMetadata'),
+      grandTotalTitle: "Total"
     });
   })
 });

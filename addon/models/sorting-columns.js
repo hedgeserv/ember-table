@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 
 export default Ember.Object.extend({
-  
+
   init:  function() {
     this.set('_columns', Ember.A());
   },

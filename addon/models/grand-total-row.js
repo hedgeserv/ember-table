@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import GroupingRowProxy from './grouping-row-proxy';
 
-export default Ember.ArrayProxy.extend({
+var GrandTotalRow = Ember.ArrayProxy.extend({
   loadChildren: Ember.K,
   loadGrandTotal: Ember.K,
   groupingMetadata: null,
@@ -59,3 +59,5 @@ export default Ember.ArrayProxy.extend({
     });
   }
 });
+
+export default GrandTotalRow;

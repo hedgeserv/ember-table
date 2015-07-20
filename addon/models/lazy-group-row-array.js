@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import GroupingRowProxy from './grouping-row-proxy';
 
-export default Ember.ArrayProxy.extend({
+var LazyGroupRowArray = Ember.ArrayProxy.extend({
   status: null,
   loadChildren: Ember.K,
   onLoadError: Ember.K,
@@ -189,3 +189,5 @@ export default Ember.ArrayProxy.extend({
 
   loadingCount: Ember.computed.oneWay('status.loadingCount')
 });
+
+export default LazyGroupRowArray;
