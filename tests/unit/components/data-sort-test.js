@@ -172,6 +172,29 @@ test('regular click to sort column of id by partial data', function (assert) {
   });
 });
 
+test('multiple columns sort by partial data', function (assert) {
+  var defers = DefersPromise.create({count: 6});
+  var component = this.subject({defers:defers, height: 200});
+  this.render();
+  var helper = EmberTableHelper.create({_assert: assert, _component: component});
+  defers.ready(function () {
+    helper.getHeaderCell(1).click();
+  }, [0, 1]);
+  defers.ready(function () {
+    helper.clickHeaderCellWithCommand(2);
+  }, [2, 3]);
+
+  return defers.ready(function () {
+    var sortedContent = [
+      ["activity-0", "state-1"],
+      ["activity-0", "state-3"],
+      ["activity-0", "state-5"]
+    ];
+    var bodyCellsContent = helper.bodyCellsContent([0, 1, 2], [1, 2]);
+    assert.deepEqual(bodyCellsContent, sortedContent, "content should be sorted by multiple columns");
+  });
+});
+
 test('sort quickly twice', function (assert) {
   var defers = DefersPromise.create({count: 4});
   var component = this.subject({defers:defers, height: 200, delayTime: 500});

@@ -33,42 +33,97 @@ export function defaultFixture(options) {
       return defer.promise;
     },
 
-    initChunk: function (pageIndex, query) {
+    initChunk: function (pageIndex) {
       if (options.multipleColumns) {
         return options.chunks[pageIndex];
       }
-      var sortDirection = options.sortDirection || "normal";
+      function makeJsonArray(arr) {
+        return arr.map(function (i) {
+          return {
+            id: i,
+            name: 'name-' + i,
+            activity: 'activity-' + (i%2),
+            state: 'state-' + (11 - i)
+          };
+        });
+      }
+      function makeAscChunk(pageIndex) {
+        var ids = [];
+        var chunkSize = self.get('chunkSize');
+        for (var i = 0; i < chunkSize; i++) {
+          ids.push(i + pageIndex * chunkSize);
+        }
+        return makeJsonArray(ids);
+      }
+
+      function makeDescChunk(pageIndex) {
+        var ids = [];
+        var chunkSize = self.get('chunkSize');
+        for (var i = 1; i <= chunkSize; i++) {
+          ids.push(self.get('_totalCount') - (i + pageIndex * chunkSize));
+        }
+        return makeJsonArray(ids);
+      }
+
+      function makeNormalChunk(pageIndex) {
+        var ids = [];
+        var chunkSize = self.get('chunkSize');
+        for (var i = 1; i <= chunkSize; i++) {
+          ids.push((i + 2) % chunkSize + pageIndex * chunkSize);
+        }
+        return makeJsonArray(ids);
+      }
+
+      var query = "";
+      if (options.sortingColumns) {
+        query = options.sortingColumns.map(function(column) {
+          return column.get('contentPath') + ':' + column.get('sortDirect');
+        }).join(',');
+      }
+      if (query) {
+        query += ",";
+      }
+      query += "chunkIndex:" + pageIndex;
       var self = this;
       var resultMap = {
-        normal: function () {
-          var index, chunk = [];
-          var chunkSize = self.get('chunkSize');
-          for (var i = 1; i <= chunkSize; i++) {
-            index = (i + 2) % chunkSize + pageIndex * chunkSize;
-            chunk.push({id: index});
-          }
-          return chunk;
+        "chunkIndex:0": function () {
+          return makeNormalChunk(0);
         },
-        asc: function () {
-          var index, chunk = [];
-          var chunkSize = self.get('chunkSize');
-          for (var i = 0; i < chunkSize; i++) {
-            index = i + pageIndex * chunkSize;
-            chunk.push({id: index});
-          }
-          return chunk;
+        "chunkIndex:1": function () {
+          return makeNormalChunk(1);
         },
-        desc: function () {
-          var index, chunk = [];
-          var chunkSize = self.get('chunkSize');
-          for (var i = 1; i <= chunkSize; i++) {
-            index = self.get('_totalCount') - (i + pageIndex * chunkSize);
-            chunk.push({id: index});
-          }
-          return chunk;
+        "chunkIndex:2": function () {
+          return makeNormalChunk(2);
+        },
+        "chunkIndex:3": function () {
+          return makeNormalChunk(3);
+        },
+        "id:asc,chunkIndex:0": function () {
+          return makeAscChunk(0);
+        },
+        "id:asc,chunkIndex:1": function () {
+          return makeAscChunk(1);
+        },
+        "id:desc,chunkIndex:0": function () {
+          return makeDescChunk(0);
+        },
+        "id:desc,chunkIndex:1": function () {
+          return makeDescChunk(1);
+        },
+        "activity:asc,chunkIndex:0": function() {
+          return makeJsonArray([2, 4, 6, 8, 10]);
+        },
+        "activity:asc,chunkIndex:1": function() {
+          return makeJsonArray([1, 3, 5, 7, 9]);
+        },
+        "activity:asc,state:asc,chunkIndex:0": function() {
+          return makeJsonArray([10, 8, 6, 4, 2]);
+        },
+        "activity:asc,state:asc,chunkIndex:1": function() {
+          return makeJsonArray([9, 7, 5, 3, 1]);
         }
       };
-      return resultMap[sortDirection]();
+      return resultMap[query]();
     }
   });
 }

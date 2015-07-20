@@ -36,10 +36,11 @@ export default Ember.Component.extend({
   rowLoadingIndicatorView: null,
   testOptions: null,
   actions: {
-    sortAction: function(sortCondition) {
+    sortAction: function(sortCondition, sortingColumns) {
       var testOptions = this.get('testOptions');
       if (sortCondition && testOptions) {
         testOptions.sortDirection = sortCondition.get('sortDirect');
+        testOptions.sortingColumns = sortingColumns;
       }
     }
   }

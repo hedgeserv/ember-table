@@ -7,6 +7,7 @@ export default Ember.Object.extend({
     return ColumnDefinition.create({
       textAlign: 'text-align-left',
       headerCellName: 'Column1',
+      contentPath: "id",
       getCellContent: function (row) {
         return Ember.get(row, "id");
       }
@@ -17,6 +18,7 @@ export default Ember.Object.extend({
     return ColumnDefinition.create({
       textAlign: 'text-align-left',
       headerCellName: 'Column2',
+      contentPath: "activity",
       getCellContent: function (row) {
         return Ember.get(row, 'activity');
       }
@@ -27,6 +29,7 @@ export default Ember.Object.extend({
     return ColumnDefinition.create({
       textAlign: 'text-align-left',
       headerCellName: 'Column3',
+      contentPath: "state",
       getCellContent: function (row) {
         return Ember.get(row, 'state');
       }

@@ -237,7 +237,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
           return column.sortFn(prev, next);
         }
       });
-      this.sendAction('sortAction', sortCondition);
+      this.sendAction('sortAction', sortCondition, sortingColumns);
       //TODO: remove after sortingColumns ready for lazy and group data
       this.set('_sortedColumn', column);
       this.set('sortCondition', {sortName: column.get('headerCellName'), sortDirect: column.get('sortDirect')});
