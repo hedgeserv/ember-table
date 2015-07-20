@@ -643,12 +643,10 @@ test('sort completed descending data to unsorted state with command key', functi
 
   defers.ready(function () {
     helper.assertCellContent(4, 0, '310', 'should sort descending when click header cell');
-    console.log("before scroll 150");
     helper.scrollTop(150);
   }, [2]);
 
   defers.ready(function () {
-    console.log("before command click");
     helper.clickHeaderCellWithCommand(0);
   }, [3]);
 
