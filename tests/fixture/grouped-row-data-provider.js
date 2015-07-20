@@ -47,17 +47,17 @@ var DataProvider = function(options) {
     return makeJsonArray([2, 1, 5, 4, 3], 100);
   });
   sortDataMap.set(
-    'accountSection=1&chunkIndex=0&sortDirect=asc&sortName=%@'.fmt(this.columnName),
+    'accountSection=1&chunkIndex=0&sortDirect[0]=asc&sortName[0]=id',
     function () {
       return makeJsonArray([1, 2, 3, 4, 5], 100);
     });
   sortDataMap.set(
-    'accountSection=1&chunkIndex=0&sortDirect=desc&sortName=%@'.fmt(this.columnName),
+    'accountSection=1&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id',
     function () {
       return makeJsonArray([10, 9, 8, 7, 6], 100);
     });
   sortDataMap.set(
-    'accountSection=1&chunkIndex=1&sortDirect=desc&sortName=%@'.fmt(this.columnName),
+    'accountSection=1&chunkIndex=1&sortDirect[0]=desc&sortName[0]=id',
     function () {
       return makeJsonArray([5, 4, 3, 2, 1], 100);
     });
@@ -72,12 +72,12 @@ var DataProvider = function(options) {
       return makeJsonArray([7, 9, 10, 6, 8], 1000);
     });
   sortDataMap.set(
-    'accountSection=1&accountType=102&chunkIndex=0&sortDirect=asc&sortName=%@'.fmt(this.columnName),
+    'accountSection=1&accountType=102&chunkIndex=0&sortDirect[0]=asc&sortName[0]=id',
     function () {
       return makeJsonArray([1, 2, 3, 4, 5], 1000);
     });
   sortDataMap.set(
-    'accountSection=1&accountType=102&chunkIndex=0&sortDirect=desc&sortName=%@'.fmt(this.columnName),
+    'accountSection=1&accountType=102&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id',
     function () {
       return makeJsonArray([10, 9, 8, 7, 6], 1000);
     });
@@ -97,31 +97,45 @@ var DataProvider = function(options) {
       return makeJsonArray([8, 9, 10, 6, 7], 300);
     });
   sortDataMap.set(
-    'accountSection=3&chunkIndex=0&sortDirect=desc&sortName=%@'.fmt(this.columnName),
+    'accountSection=3&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id',
     function () {
       return makeJsonArray([10, 9, 8, 7, 6], 300);
     });
   sortDataMap.set(
-    'accountSection=3&chunkIndex=1&sortDirect=desc&sortName=%@'.fmt(this.columnName),
+    'accountSection=3&chunkIndex=1&sortDirect[0]=desc&sortName[0]=id',
     function () {
       return makeJsonArray([5, 4, 3, 2, 1], 300);
     });
-  sortDataMap.set(
-    'accountSection=3&chunkIndex=0&sortDirect=asc&sortName=%@'.fmt(this.columnName),
-    function () {
-      return makeJsonArray([1, 2, 3, 4, 5], 300);
-    });
-  sortDataMap.set(
-    'accountSection=3&chunkIndex=1&sortDirect=asc&sortName=%@'.fmt(this.columnName),
-    function () {
-      return makeJsonArray([6, 7, 8, 9, 10], 300);
-    });
+  var items = [
+    ['accountSection=3&chunkIndex=1&sortDirect[0]=asc&sortName[0]=id', [6, 7, 8, 9, 10], 300],
+    ['accountSection=3&chunkIndex=0&sortDirect[0]=asc&sortName[0]=id', [1, 2, 3, 4, 5], 300],
+    ['accountSection=1&chunkIndex=0&sortDirect[0]=asc&sortName[0]=activity', [2, 4, 6, 8, 10], 100],
+    ['accountSection=1&chunkIndex=0&sortDirect[0]=asc&sortName[0]=activity&sortDirect[1]=asc&sortName[1]=state',
+      [10, 8, 6, 4, 2], 100]
 
-  this.sortData = function (chunkIndex, query) {
+  ];
+  items.forEach(function(item) {
+    sortDataMap.set(item[0], function () {
+      return makeJsonArray(item[1], item[2]);
+    });
+  });
+  this.sortData = function (chunkIndex, query, testOptions, groupingMetadata) {
+    testOptions = testOptions || {};
+    var sortingColumns = testOptions.sortingColumns;
     var queryObj = {};
     Ember.setProperties(queryObj, query);
     Ember.setProperties(queryObj, {chunkIndex: chunkIndex});
-    return sortDataMap.get(toQuery(queryObj) || "empty")();
+    var isSecondLastLevel = queryObj.hasOwnProperty(groupingMetadata[groupingMetadata.length - 2].id);
+    delete queryObj.sortDirect;
+    delete queryObj.sortName;
+    var theQueryString = toQuery(queryObj) || "empty";
+    if(isSecondLastLevel && sortingColumns && sortingColumns.get('isNotEmpty')) {
+      theQueryString += "&" + sortingColumns.map(function (column, index) {
+          return "sortDirect[%@]=%@&sortName[%@]=%@".fmt(
+            index, column.get("sortDirect"), index, column.get("contentPath"));
+        }).join("&");
+    }
+    return sortDataMap.get(theQueryString)();
   };
 };
 
@@ -143,11 +157,12 @@ export default Ember.Object.extend({
   totalCount: 10,
   chunkSize: 5,
   delayTime: 0,
-  doLoadChildren: function (chunkIndex, parentQuery) {
+  testOptions: null,
+  doLoadChildren: function (chunkIndex, parentQuery, testOptions, groupingMetadata) {
     var dataProvider = new DataProvider({columnName: this.get('columnName')});
     var defer = this.get('defers').next();
     var result = {
-      content: dataProvider.sortData(chunkIndex, parentQuery),
+      content: dataProvider.sortData(chunkIndex, parentQuery, testOptions, groupingMetadata),
       meta: {totalCount: this.get('totalCount'), chunkSize: this.get('chunkSize')}
     };
     delayResolve(defer, result, this.get('delayTime'));
@@ -158,7 +173,8 @@ export default Ember.Object.extend({
     var self = this;
     return LazyGroupRowArray.create({
       loadChildren: function (chunkIndex, parentQuery) {
-        return self.doLoadChildren(chunkIndex, parentQuery);
+        return self.doLoadChildren(chunkIndex, parentQuery,
+          self.get('testOptions'), self.get('groupingMetadata'));
       },
       groupingMetadata: this.get('groupingMetadata')
     });
@@ -167,7 +183,8 @@ export default Ember.Object.extend({
     var self = this;
     return GrandTotalRow.create({
       loadChildren: function (chunkIndex, parentQuery) {
-        return self.doLoadChildren(chunkIndex, parentQuery);
+        return self.doLoadChildren(chunkIndex, parentQuery,
+          self.get('testOptions'), self.get('groupingMetadata'));
       },
 
       loadGrandTotal: function () {
