@@ -2,7 +2,12 @@ import Ember from 'ember';
 
 
 export default Ember.Object.extend({
-  _columns: Ember.A(),
+  
+  init:  function() {
+    this.set('_columns', Ember.A());
+  },
+
+  _columns: null,
 
   update: function (column, event) {
     var columns = this.get('_columns');

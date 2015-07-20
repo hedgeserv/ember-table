@@ -51,5 +51,6 @@ export default Ember.ObjectProxy.extend({
     return "";
   }).property('groupingName', 'content'),
 
-  _sortConditions: Ember.computed.oneWay('root._sortConditions')
+  _sortConditions: Ember.computed.oneWay('root._sortConditions'),
+  sortingColumns: Ember.computed.oneWay('root.sortingColumns')
 });

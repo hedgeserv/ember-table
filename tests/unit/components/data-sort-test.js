@@ -250,18 +250,14 @@ test('multiple columns sort with complete data', function(assert) {
 });
 
 moduleForEmberTable('lazy-grouped-row-array as ember-table content', function (options) {
-  var columns = Columns.create();
-  var column = columns.get('noSortFnID');
   var provider = GroupedRowDataProvider.create({
     defers: options.defers,
     delayTime: options.delayTime || 0,
-    groupingMetadata: [{id: 'accountSection'}, {id: 'accountType'}],
-    columnName: column.get('headerCellName')
+    groupingMetadata: [{id: 'accountSection'}, {id: 'accountType'}]
   });
   return EmberTableFixture.create({
     height: options.height,
-    content: provider.get('content'),
-    columns: [column]
+    content: provider.get('content')
   });
 });
 
@@ -282,6 +278,30 @@ test('regular click to sort completed data for lazy group row array', function (
     helper.assertCellContent(1, 0, '110', 'should sort descending');
     helper.getHeaderCell(0).click();
     helper.assertCellContent(1, 0, '101', 'should sort ascending');
+  });
+});
+
+test('multiple columns sort completed data for lazy group row array', function (assert) {
+  var defers = DefersPromise.create({count: 4});
+  var component = this.subject({defers: defers, height: 1000});
+  var helper = EmberTableHelper.create({_assert: assert, _component: component});
+
+  this.render();
+  defers.ready(function () {
+    helper.rowGroupingIndicator(0).click();
+  }, [0, 1]);
+
+  return defers.ready(function () {
+    helper.getHeaderCell(1).click();
+    helper.clickHeaderCellWithCommand(2);
+
+    var sortedContent = [
+      ["activity-0", "state-1"],
+      ["activity-0", "state-3"],
+      ["activity-0", "state-5"]
+    ];
+    var bodyCellsContent = helper.bodyCellsContent([1, 2, 3], [1, 2]);
+    assert.deepEqual(bodyCellsContent, sortedContent, "content should be sorted by multiple columns");
   });
 });
 

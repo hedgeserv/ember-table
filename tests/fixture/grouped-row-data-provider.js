@@ -19,6 +19,8 @@ var DataProvider = function(options) {
       return {
         id: i + baseNum,
         name: 'name-' + i,
+        activity: 'activity-' + (i%2),
+        state: 'state-' + (11 - i),
         accountType: i + baseNum,
         accountCode: i + baseNum
       };

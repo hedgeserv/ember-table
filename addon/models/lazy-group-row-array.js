@@ -59,20 +59,27 @@ export default Ember.ArrayProxy.extend({
     if(!this.get('isLeafParent')){
       return content;
     }
-    var sortDirect = this.get('_sortConditions.sortDirect');
-    var sortFn = this.get('_sortConditions.sortFn');
-    if(this.get('isCompleted') && sortDirect){
-      return content.slice().sort(sortFn);
-    } else if(sortDirect){
-      return Ember.A([
-        Ember.ObjectProxy.create({"isLoading": true, "isLoaded": false, "isError":false})
-      ]);
+    var sortingColumns = this.get('sortingColumns');
+    var needSort = sortingColumns && sortingColumns.get('isNotEmpty');
+
+    if (needSort) {
+      if (this.get('isCompleted')) {
+        return content.slice().sort(function (prev, next) {
+          return sortingColumns.sortBy(prev, next);
+        });
+      } else {
+        return Ember.A([
+          Ember.ObjectProxy.create({"isLoading": true, "isLoaded": false, "isError": false})
+        ]);
+      }
     }
     return content;
-  }).property('_sortConditions'),
+  }).property('sortingColumns'),
 
   // As a root data provider, `_sortConditions` should be set when sort.
+  // TODO: remove _sortConditions after partial sort is completed.
   _sortConditions: Ember.computed.oneWay('root._sortConditions'),
+  sortingColumns: Ember.computed.oneWay('root.sortingColumns'),
 
   /*---------------Override ArrayProxy -----------------------*/
   objectAtContent: function (index) {
