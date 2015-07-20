@@ -685,3 +685,36 @@ test('multiple columns sort completed data', function (assert) {
     assert.deepEqual(bodyCellsContent, sortedContent, "content should be sorted by multiple columns");
   });
 });
+
+test('multiple columns sort partial data', function (assert) {
+  var defers = DefersPromise.create({count: 5});
+  var component = this.subject({defers: defers, height: 120});
+  var helper = EmberTableHelper.create({_assert: assert, _component: component});
+
+  this.render();
+  defers.ready(function () {
+    helper.rowGroupingIndicator(0).click();
+  }, [0]);
+
+  defers.ready(function () {
+    helper.rowGroupingIndicator(1).click();
+  }, [1]);
+
+  defers.ready(function () {
+    helper.getHeaderCell(1).click();
+  }, [2]);
+
+  defers.ready(function () {
+    helper.clickHeaderCellWithCommand(2);
+  }, [3]);
+
+  return defers.ready(function () {
+    var sortedContent = [
+      ["activity-0", "state-1"],
+      ["activity-0", "state-3"],
+      ["activity-0", "state-5"]
+    ];
+    var bodyCellsContent = helper.bodyCellsContent([2, 3, 4], [1, 2]);
+    assert.deepEqual(bodyCellsContent, sortedContent, "content should be sorted by multiple columns");
+  });
+});
