@@ -1,4 +1,4 @@
-# Ember Table
+# Ember Table [![Build Status](https://secure.travis-ci.org/Addepar/ember-table.svg?branch=master)](http://travis-ci.org/Addepar/ember-table)
 
 A table built using [Ember.js](http://emberjs.com/) that lazily renders rows.
 [![Build Status](https://travis-ci.org/hedgeserv/ember-table-addon.svg?branch=master)](https://travis-ci.org/hedgeserv/ember-table-addon)
