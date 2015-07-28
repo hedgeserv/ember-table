@@ -25,14 +25,22 @@ export default RowArrayController.extend({
         var groupingMetadata = this.get('content.groupingMetadata');
         groupingKey = groupingMetadata[groupingLevel].id;
       }
+
+      var parentRow = controllersMap.get(target.parent);
+      if (!parentRow) {
+        parentRow = this.get('_virtualRootRow');
+      }
       controller = this.get('itemController').create({
         target: this,
         parentController: this.get('parentController') || this,
         content: object,
         expandLevel: expandLevel,
         parentContent: target.parent,
-        groupingKey: groupingKey
+        groupingKey: groupingKey,
+        _childrenRow: Ember.A()
       });
+      parentRow.get('_childrenRow').pushObject(controller);
+
       if (idx === 0 && this.get('content.grandTotalTitle')) {
         controller.set('grandTotalTitle', this.get('content.grandTotalTitle'));
       }
@@ -46,23 +54,10 @@ export default RowArrayController.extend({
     row.addObserver('children.length', this, 'childrenLengthDidChange');
     row.set('isExpanded', true);
     if (this.arrayLength(childrenRow) > 0) {
-      var childrenRows = this.get('_expandedGroupRowToChildrenMap');
-      childrenRows.set(row.get('content'), childrenRow);
+      var map = this.get('_expandedGroupRowToChildrenMap');
+      map.set(row.get('content'), childrenRow);
       this.toggleProperty('_forceContentLengthRecalc');
-      this.set('_expandedDepth', this.getMaxExpandedDepth());
     }
-  },
-
-  getMaxExpandedDepth: function() {
-    var controllersMap = this.get('_controllersMap');
-    var self = this;
-    var result = 0;
-    controllersMap.forEach(function (value) {
-      if (self.isParentControllerExpanded(value)) {
-        result = Math.max(result, value.get('expandLevel'));
-      }
-    });
-    return result;
   },
 
   childrenLengthDidChange: function() {
@@ -76,7 +71,6 @@ export default RowArrayController.extend({
       var childrenRows = this.get('_expandedGroupRowToChildrenMap');
       childrenRows.delete(row.get('content'));
       this.toggleProperty('_forceContentLengthRecalc');
-      this.set('_expandedDepth', this.getMaxExpandedDepth());
     }
   },
 
@@ -163,18 +157,6 @@ export default RowArrayController.extend({
     return {object: theObject, level: theLevel, parent: theParent};
   },
 
-  extractAllChildren: function extractAllChildren(rowContent) {
-    var controllersMap = this.get('_controllersMap');
-    var allChildren = [];
-    this.depthFirstTraverse(rowContent, function(child) {
-      if (controllersMap.has(child)) {
-        allChildren.push(controllersMap.get(child));
-      }
-      return {needGoDeeper: true };
-    });
-    return allChildren;
-  },
-
   depthFirstTraverse: function(content, visitChild, level) {
     var _this = this;
     var children = Ember.get(content, 'children');
@@ -213,5 +195,18 @@ export default RowArrayController.extend({
   //map between row content and row controller
   _controllersMap: null,
 
-  _expandedDepth: 0
+  _expandedDepth: Ember.computed(function () {
+    var root = this.get('_virtualRootRow');
+    return root.get('_childrenRow').reduce(function (previousValue, item) {
+      var expandedDepth = item.get('expandedDepth');
+      if (expandedDepth > previousValue) {
+        return expandedDepth;
+      }
+      return previousValue;
+    }, 0);
+  }).property('_virtualRootRow._childrenRow.@each.expandedDepth'),
+
+  _virtualRootRow: Ember.computed(function () {
+    return Ember.Object.create({_childrenRow: Ember.A()});
+  })
 });
