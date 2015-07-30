@@ -208,5 +208,13 @@ export default RowArrayController.extend({
 
   _virtualRootRow: Ember.computed(function () {
     return Ember.Object.create({_childrenRow: Ember.A()});
-  })
+  }),
+
+  _expandedCount: Ember.computed(function () {
+    var root = this.get('_virtualRootRow');
+    var subRowsCount = root.get('_childrenRow').reduce(function (previousValue, item) {
+      return item.get('subRowsCount') + previousValue;
+    }, 0);
+    return root.get('_childrenRow.length') + subRowsCount;
+  }).property('_virtualRootRow._childrenRow.@each.subRowsCount')
 });
