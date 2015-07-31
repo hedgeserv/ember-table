@@ -1,5 +1,12 @@
 import Ember from 'ember';
 import RowArrayController from 'ember-table/controllers/row-array';
+import SubRowArray from './sub-row-array';
+
+var VirtualRootRow = Ember.Object.extend({
+  defineSubRow: function (row) {
+    this.get('_childrenRow').defineController(row);
+  }
+});
 
 export default RowArrayController.extend({
 
@@ -36,10 +43,9 @@ export default RowArrayController.extend({
         content: object,
         expandLevel: expandLevel,
         parentContent: target.parent,
-        groupingKey: groupingKey,
-        _childrenRow: Ember.A()
+        groupingKey: groupingKey
       });
-      parentRow.get('_childrenRow').pushObject(controller);
+      parentRow.defineSubRow(controller);
 
       if (idx === 0 && this.get('content.grandTotalTitle')) {
         controller.set('grandTotalTitle', this.get('content.grandTotalTitle'));
@@ -136,6 +142,26 @@ export default RowArrayController.extend({
     return {object: theObject, level: theLevel, parent: theParent};
   },
 
+  _findRow: function(idx) {
+    var topLevelRows = this.get('_virtualRootRow._childrenRow');
+    var p = idx;
+    for(var i = 0; i<topLevelRows.get('length'); i++) {
+      if (p === 0) {
+        return topLevelRows.objectAt(i);
+      }
+      var row = topLevelRows.objectAt(i);
+      p --;
+      if (row) {
+        var subRowsCount = row.get('subRowsCount');
+        if (p < subRowsCount) {
+          return row.findRow(p);
+        } else {
+          p -= subRowsCount;
+        }
+      }
+    }
+    return undefined;
+  },
   /**
    * ember-table will find last object on init, we don't want to access invisible content.
    * @returns {*}
@@ -197,24 +223,27 @@ export default RowArrayController.extend({
 
   _expandedDepth: Ember.computed(function () {
     var root = this.get('_virtualRootRow');
-    return root.get('_childrenRow').reduce(function (previousValue, item) {
+    return root.get('_childrenRow').definedControllers().reduce(function (previousValue, item) {
+      if (!item) {
+        return previousValue;
+      }
       var expandedDepth = item.get('expandedDepth');
       if (expandedDepth > previousValue) {
         return expandedDepth;
       }
       return previousValue;
     }, 0);
-  }).property('_virtualRootRow._childrenRow.@each.expandedDepth'),
+  }).property('_virtualRootRow._childrenRow.@each.expandedDepth',  '_virtualRootRow._childrenRow.definedControllersCount'),
 
   _virtualRootRow: Ember.computed(function () {
-    return Ember.Object.create({_childrenRow: Ember.A()});
-  }),
+    return VirtualRootRow.create({_childrenRow: SubRowArray.create({content: this.get('content')})});
+  }).property('content'),
 
   _expandedCount: Ember.computed(function () {
     var root = this.get('_virtualRootRow');
-    var subRowsCount = root.get('_childrenRow').reduce(function (previousValue, item) {
+    var subRowsCount = root.get('_childrenRow').definedControllers().reduce(function (previousValue, item) {
       return item.get('subRowsCount') + previousValue;
     }, 0);
     return root.get('_childrenRow.length') + subRowsCount;
-  }).property('_virtualRootRow._childrenRow.@each.subRowsCount')
+  }).property('_virtualRootRow._childrenRow.@each.subRowsCount', '_virtualRootRow._childrenRow.definedControllersCount')
 });

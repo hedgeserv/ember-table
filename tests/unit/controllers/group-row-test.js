@@ -30,14 +30,7 @@ module('grouping row is expanded', {
     groupRow = GroupRow.create({
       expandLevel: 0,
       isExpanded: true,
-      content: {id: 1, children: [{id: 11}]},
-      _childrenRow: Ember.A([
-        GroupRow.create({
-          expandLevel: 1,
-          _childrenRow: Ember.A(),
-          content: {id: 11}
-        })
-      ])
+      content: {id: 1, children: [{id: 11}]}
     });
   },
   afterEach: function() {
@@ -62,13 +55,7 @@ module('grouping row is collapsed', {
     groupRow = GroupRow.create({
       expandLevel: 0,
       isExpanded: false,
-      content: {id: 1, children: [{id: 11}]},
-      _childrenRow: Ember.A([
-        GroupRow.create({
-          expandLevel: 1,
-          _childrenRow: Ember.A()
-        })
-      ])
+      content: {id: 1, children: [{id: 11}]}
     });
   },
   afterEach: function() {
@@ -92,8 +79,7 @@ module('grouping row is expanded but has no children row', {
   beforeEach: function() {
     groupRow = GroupRow.create({
       expandLevel: 0,
-      isExpanded: true,
-      _childrenRow: Ember.A()
+      isExpanded: true
     });
   },
   afterEach: function() {
@@ -113,28 +99,4 @@ test('subRowsCount', function(assert) {
   assert.equal(subRowsCount, 0);
 });
 
-module('grouping row has children but do not has _childrenRow', {
-  beforeEach: function() {
-    groupRow = GroupRow.create({
-      expandLevel: 0,
-      content: {id: 1, key: 'groupName', children: [{id: 11}, {id: 12}]},
-      isExpanded: true,
-      _childrenRow: Ember.A()
-    });
-  },
-  afterEach: function() {
-    groupRow = null;
-  }
-});
 
-test('expandedDepth', function(assert) {
-  var expandedDepth = groupRow.get('expandedDepth');
-
-  assert.equal(expandedDepth, 1);
-});
-
-test("subRowsCount", function (assert) {
-  var subRowsCount = groupRow.get('subRowsCount');
-
-  assert.equal(subRowsCount, 2);
-});
