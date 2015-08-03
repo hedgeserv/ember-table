@@ -4,6 +4,7 @@ import SubRowArray from './sub-row-array';
 
 var VirtualRootRow = Ember.Object.extend({
   defineSubRow: function (row) {
+    row.set('expandLevel', 0);
     this.get('_childrenRow').defineController(row);
   }
 });
@@ -41,7 +42,6 @@ export default RowArrayController.extend({
         target: this,
         parentController: this.get('parentController') || this,
         content: object,
-        expandLevel: expandLevel,
         parentContent: target.parent,
         groupingKey: groupingKey
       });

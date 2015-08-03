@@ -47,6 +47,7 @@ var GroupRow = Row.extend({
     }).property('content'),
 
     defineSubRow: function(row) {
+      row.set('expandLevel', (this.get('expandLevel') || 0) + 1);
       this.get('_childrenRow').defineController(row);
     },
 
