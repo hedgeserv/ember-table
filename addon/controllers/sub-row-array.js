@@ -4,10 +4,6 @@ var SubRowArray = Ember.ArrayController.extend({
   objectAt: function (idx) {
     return this._subControllers[idx];
   },
-  defineController: function (controller) {
-    var idx = this.get('content').indexOf(controller.get('content'));
-    this.setControllerAt(controller, idx);
-  },
 
   setControllerAt: function( controller, idx) {
     this._subControllers[idx] = controller;

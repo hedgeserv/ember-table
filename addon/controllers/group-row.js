@@ -40,15 +40,19 @@ var GroupRow = Row.extend({
         }, 0);
       }
       return childrenCount + childrenExpandedCount;
-    }).property('isExpanded', '_childrenRow.length', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount'),
+    }).property('isExpanded', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount'),
 
     _childrenRow: null,
 
     rowExpanded: Ember.observer('isExpanded', function() {
+      Ember.run.once(this, 'createChildrenRow');
+    }),
+
+    createChildrenRow: function() {
       if (!this.get('_childrenRow')) {
         this.set('_childrenRow', SubRowArray.create({content: this.get('children')}));
       }
-    }),
+    },
 
     findRow: function(idx) {
       var subRows = this.get('_childrenRow');
@@ -83,7 +87,7 @@ var GroupRow = Row.extend({
       for(var i = 0; i<topLevelRows.get('length'); i++) {
         if (p === 0) {
           var content = topLevelRows.objectAtContent(i);
-            var newRow = this.get('itemController').create({
+          var newRow = this.get('itemController').create({
             target: this.get('target'),
             parentController: this.get('parentController'),
             content: content,
