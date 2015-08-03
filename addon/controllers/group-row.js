@@ -50,7 +50,7 @@ var GroupRow = Row.extend({
       row.set('expandLevel', (this.get('expandLevel') || 0) + 1);
       row.set('grandTotalTitle', this.get('grandTotalTitle'));
       row.set('groupingMetadata', this.get('groupingMetadata'));
-
+      row.set('parentRow', this);
       this.get('_childrenRow').defineController(row);
     },
 
@@ -106,7 +106,11 @@ var GroupRow = Row.extend({
 
     hasGrandTotalRow: Ember.computed(function() {
       return !!this.get('grandTotalTitle');
-    }).property('grandTotalTitle')
+    }).property('grandTotalTitle'),
+
+    parentRow: null,
+
+    parentContent: Ember.computed.oneWay('parentRow.content')
   }
 );
 

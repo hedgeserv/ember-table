@@ -7,6 +7,7 @@ var VirtualRootRow = Ember.Object.extend({
     row.set('expandLevel', this.get('expandLevel'));
     row.set('grandTotalTitle', this.get('grandTotalTitle'));
     row.set('groupingMetadata', this.get('groupingMetadata'));
+    row.set('parentRow', null);
     this.get('_childrenRow').defineController(row);
   }
 });
@@ -32,14 +33,10 @@ export default RowArrayController.extend({
       controller = this.get('itemController').create({
         target: this,
         parentController: this.get('parentController') || this,
-        content: object,
-        parentContent: target.parent
+        content: object
       });
       parentRow.defineSubRow(controller);
 
-      if (idx === 0 && this.get('content.grandTotalTitle')) {
-        controller.set('grandTotalTitle', this.get('content.grandTotalTitle'));
-      }
       controllersMap.set(object, controller);
     }
     return controller;
