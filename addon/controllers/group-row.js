@@ -70,7 +70,24 @@ var GroupRow = Row.extend({
         }
       }
       return undefined;
-    }
+    },
+
+    isExpanded: false,
+    expandLevel: null,
+    grandTotalTitle: null,
+    groupingKey: null,
+    hasChildren: Ember.computed(function () {
+      var children = this.get('content.children');
+      return (!!children) && children.length > 0;
+    }).property('content.children'),
+
+    groupName: Ember.computed(function() {
+      var grandTotalTitle = this.get('grandTotalTitle');
+      if (grandTotalTitle) {
+        return grandTotalTitle;
+      }
+      return this.get('content.' + this.get('groupingKey'));
+    }).property('content', 'content.isLoaded', 'groupingKey')
   }
 );
 
