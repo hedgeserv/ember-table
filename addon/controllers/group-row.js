@@ -48,6 +48,9 @@ var GroupRow = Row.extend({
 
     defineSubRow: function(row) {
       row.set('expandLevel', (this.get('expandLevel') || 0) + 1);
+      row.set('grandTotalTitle', this.get('grandTotalTitle'));
+      row.set('groupingMetadata', this.get('groupingMetadata'));
+
       this.get('_childrenRow').defineController(row);
     },
 
@@ -74,8 +77,15 @@ var GroupRow = Row.extend({
 
     isExpanded: false,
     expandLevel: null,
+    groupingMetadata: null,
     grandTotalTitle: null,
-    groupingKey: null,
+    groupingKey: Ember.computed(function () {
+      var groupingLevel = this.get('groupingLevel');
+      if (groupingLevel >= 0) {
+        return this.get('groupingMetadata')[groupingLevel].id;
+      }
+      return null;
+    }).property('groupingLevel', 'groupingMetadata'),
     hasChildren: Ember.computed(function () {
       var children = this.get('content.children');
       return (!!children) && children.length > 0;
@@ -87,7 +97,16 @@ var GroupRow = Row.extend({
         return grandTotalTitle;
       }
       return this.get('content.' + this.get('groupingKey'));
-    }).property('content', 'content.isLoaded', 'groupingKey')
+    }).property('content', 'content.isLoaded', 'groupingKey'),
+
+    groupingLevel: Ember.computed(function() {
+      var expandLevel = this.get('expandLevel');
+      return this.get('hasGrandTotalRow') ? expandLevel - 1 : expandLevel;
+    }).property('expandLevel', 'hasGrandTotalRow'),
+
+    hasGrandTotalRow: Ember.computed(function() {
+      return !!this.get('grandTotalTitle');
+    }).property('grandTotalTitle')
   }
 );
 

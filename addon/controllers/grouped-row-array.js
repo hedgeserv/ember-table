@@ -4,7 +4,9 @@ import SubRowArray from './sub-row-array';
 
 var VirtualRootRow = Ember.Object.extend({
   defineSubRow: function (row) {
-    row.set('expandLevel', 0);
+    row.set('expandLevel', this.get('expandLevel'));
+    row.set('grandTotalTitle', this.get('grandTotalTitle'));
+    row.set('groupingMetadata', this.get('groupingMetadata'));
     this.get('_childrenRow').defineController(row);
   }
 });
@@ -20,20 +22,9 @@ export default RowArrayController.extend({
   objectAtContent: function(idx) {
     var target = this._findObject(idx);
     var object = target.object;
-    var expandLevel = target.level;
     var controllersMap = this.get('_controllersMap');
     var controller = controllersMap.get(object);
     if (!controller) {
-      var groupingKey;
-      var groupingLevel = expandLevel;
-      if (this.get('content.grandTotalTitle')) {
-        groupingLevel -= 1;
-      }
-      if (groupingLevel > -1) {
-        var groupingMetadata = this.get('content.groupingMetadata');
-        groupingKey = groupingMetadata[groupingLevel].id;
-      }
-
       var parentRow = controllersMap.get(target.parent);
       if (!parentRow) {
         parentRow = this.get('_virtualRootRow');
@@ -42,8 +33,7 @@ export default RowArrayController.extend({
         target: this,
         parentController: this.get('parentController') || this,
         content: object,
-        parentContent: target.parent,
-        groupingKey: groupingKey
+        parentContent: target.parent
       });
       parentRow.defineSubRow(controller);
 
@@ -236,7 +226,12 @@ export default RowArrayController.extend({
   }).property('_virtualRootRow._childrenRow.@each.expandedDepth',  '_virtualRootRow._childrenRow.definedControllersCount'),
 
   _virtualRootRow: Ember.computed(function () {
-    return VirtualRootRow.create({_childrenRow: SubRowArray.create({content: this.get('content')})});
+    return VirtualRootRow.create({
+      _childrenRow: SubRowArray.create({content: this.get('content')}),
+      groupingMetadata: this.get('content.groupingMetadata'),
+      expandLevel: 0,
+      grandTotalTitle: this.get('content.grandTotalTitle')
+    });
   }).property('content'),
 
   _expandedCount: Ember.computed(function () {
