@@ -27,8 +27,8 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
         loadingCount: 0
       }));
     }
-    this._super();
     this.addLoadingPlaceHolder();
+    this._super();
   },
 
   loadOneChunk: function(chunkIndex) {

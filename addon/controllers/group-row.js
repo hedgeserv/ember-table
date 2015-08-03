@@ -29,7 +29,7 @@ var GroupRow = Row.extend({
       if (!this.get('isExpanded')) {
         return 0;
       }
-      var childrenCount = this.get('children.length') || 0;
+      var childrenCount = this.get('_childrenRow.length') || 0;
       var childrenExpandedCount = 0;
       if (this.get('_childrenRow.length') > 0) {
         childrenExpandedCount = this.get('_childrenRow').definedControllers().reduce(function (previousValue, item) {
@@ -40,22 +40,21 @@ var GroupRow = Row.extend({
         }, 0);
       }
       return childrenCount + childrenExpandedCount;
-    }).property('isExpanded', 'children.length', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount'),
+    }).property('isExpanded', '_childrenRow.length', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount'),
 
-    _childrenRow: Ember.computed(function () {
-      return SubRowArray.create({content: this.get('children')});
-    }).property('content'),
+    _childrenRow: null,
 
-    defineSubRow: function(row) {
-      row.set('expandLevel', (this.get('expandLevel') || 0) + 1);
-      row.set('grandTotalTitle', this.get('grandTotalTitle'));
-      row.set('groupingMetadata', this.get('groupingMetadata'));
-      row.set('parentRow', this);
-      this.get('_childrenRow').defineController(row);
-    },
+    rowExpanded: Ember.observer('isExpanded', function() {
+      if (!this.get('_childrenRow')) {
+        this.set('_childrenRow', SubRowArray.create({content: this.get('children')}));
+      }
+    }),
 
     findRow: function(idx) {
       var subRows = this.get('_childrenRow');
+      if (!subRows) {
+        return undefined;
+      }
       var p = idx;
       for(var i = 0; i<subRows.get('length'); i++) {
         if (p === 0) {
@@ -63,10 +62,46 @@ var GroupRow = Row.extend({
         }
         var row = subRows.objectAt(i);
         p --;
-        if (row) {
+        if (row && row.get('isExpanded')) {
           var subRowsCount = row.get('subRowsCount');
           if (p < subRowsCount) {
             return row.findRow(p);
+          } else {
+            p -= subRowsCount;
+          }
+        }
+      }
+      return undefined;
+    },
+
+    createRow: function (idx) {
+      var topLevelRows = this.get('_childrenRow');
+      if (!topLevelRows) {
+        return undefined;
+      }
+      var p = idx;
+      for(var i = 0; i<topLevelRows.get('length'); i++) {
+        if (p === 0) {
+          var content = topLevelRows.objectAtContent(i);
+            var newRow = this.get('itemController').create({
+            target: this.get('target'),
+            parentController: this.get('parentController'),
+            content: content,
+            expandLevel: this.get('expandLevel') + 1,
+            grandTotalTitle: this.get('grandTotalTitle'),
+            groupingMetadata: this.get('groupingMetadata'),
+            itemController: this.get('itemController'),
+            parentRow: this
+          });
+          topLevelRows.setControllerAt(newRow, i);
+          return newRow;
+        }
+        var row = topLevelRows.objectAt(i);
+        p --;
+        if (row && row.get('isExpanded')) {
+          var subRowsCount = row.get('subRowsCount');
+          if (p < subRowsCount) {
+            return row.createRow(p);
           } else {
             p -= subRowsCount;
           }

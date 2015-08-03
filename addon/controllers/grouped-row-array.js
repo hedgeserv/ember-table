@@ -3,12 +3,61 @@ import RowArrayController from 'ember-table/controllers/row-array';
 import SubRowArray from './sub-row-array';
 
 var VirtualRootRow = Ember.Object.extend({
-  defineSubRow: function (row) {
-    row.set('expandLevel', this.get('expandLevel'));
-    row.set('grandTotalTitle', this.get('grandTotalTitle'));
-    row.set('groupingMetadata', this.get('groupingMetadata'));
-    row.set('parentRow', null);
-    this.get('_childrenRow').defineController(row);
+  findRow: function(idx) {
+    var topLevelRows = this.get('_childrenRow');
+    var p = idx;
+    for(var i = 0; i<topLevelRows.get('length'); i++) {
+      if (p === 0) {
+        return topLevelRows.objectAt(i);
+      }
+      var row = topLevelRows.objectAt(i);
+      p --;
+      if (row && row.get('isExpanded')) {
+        var subRowsCount = row.get('subRowsCount');
+        if (p < subRowsCount) {
+          return row.findRow(p);
+        } else {
+          p -= subRowsCount;
+        }
+      }
+    }
+    return undefined;
+  },
+
+  createRow: function (idx) {
+    var topLevelRows = this.get('_childrenRow');
+    var p = idx;
+    for(var i = 0; i<topLevelRows.get('length'); i++) {
+      if (p === 0) {
+        var content = topLevelRows.objectAtContent(i);
+          var newRow = this.get('itemController').create({
+          target: this.get('target'),
+          parentController: this.get('parentController'),
+          content: content,
+          expandLevel: this.get('expandLevel'),
+          grandTotalTitle: this.get('grandTotalTitle'),
+          groupingMetadata: this.get('groupingMetadata'),
+          parentRow: null,
+          itemController: this.get('itemController')
+        });
+        if (content && content.get('isLoading')) {
+          this.get('_childrenRow.content').triggerLoading(i);
+        }
+        topLevelRows.setControllerAt(newRow, i);
+        return newRow;
+      }
+      var row = topLevelRows.objectAt(i);
+      p --;
+      if (row && row.get('isExpanded')) {
+        var subRowsCount = row.get('subRowsCount');
+        if (p < subRowsCount) {
+          return row.createRow(p);
+        } else {
+          p -= subRowsCount;
+        }
+      }
+    }
+    return undefined;
   }
 });
 
@@ -21,23 +70,28 @@ export default RowArrayController.extend({
   },
 
   objectAtContent: function(idx) {
-    var target = this._findObject(idx);
-    var object = target.object;
-    var controllersMap = this.get('_controllersMap');
-    var controller = controllersMap.get(object);
+    //var target = this._findObject(idx);
+    //var object = target.object;
+    //var controllersMap = this.get('_controllersMap');
+    //var controller = controllersMap.get(object);
+    //if (!controller) {
+    //  var parentRow = controllersMap.get(target.parent);
+    //  if (!parentRow) {
+    //    parentRow = this.get('_virtualRootRow');
+    //  }
+    //  controller = this.get('itemController').create({
+    //    target: this,
+    //    parentController: this.get('parentController') || this,
+    //    content: object
+    //  });
+    //  parentRow.defineSubRow(controller);
+    //
+    //  controllersMap.set(object, controller);
+    //}
+    var root = this.get('_virtualRootRow');
+    var controller = root.findRow(idx);
     if (!controller) {
-      var parentRow = controllersMap.get(target.parent);
-      if (!parentRow) {
-        parentRow = this.get('_virtualRootRow');
-      }
-      controller = this.get('itemController').create({
-        target: this,
-        parentController: this.get('parentController') || this,
-        content: object
-      });
-      parentRow.defineSubRow(controller);
-
-      controllersMap.set(object, controller);
+      controller = root.createRow(idx);
     }
     return controller;
   },
@@ -67,12 +121,14 @@ export default RowArrayController.extend({
     }
   },
 
-  length: Ember.computed(function() {
-    return this.traverseExpandedControllers(function (prev, value) {
-        var childrenLength = value.get('children.length') || 0;
-        return prev + childrenLength;
-      }, 0) + this.get('content.length');
-  }).property('content.[]', '_forceContentLengthRecalc'),
+  //length: Ember.computed(function() {
+  //  return this.traverseExpandedControllers(function (prev, value) {
+  //      var childrenLength = value.get('children.length') || 0;
+  //      return prev + childrenLength;
+  //    }, 0) + this.get('content.length');
+  //}).property('content.[]', '_forceContentLengthRecalc'),
+
+  length: Ember.computed.oneWay('_expandedCount'),
 
   traverseExpandedControllers: function traverseExpandedControllers(visit, init) {
     var controllersMap = this.get('_controllersMap');
@@ -129,26 +185,7 @@ export default RowArrayController.extend({
     return {object: theObject, level: theLevel, parent: theParent};
   },
 
-  _findRow: function(idx) {
-    var topLevelRows = this.get('_virtualRootRow._childrenRow');
-    var p = idx;
-    for(var i = 0; i<topLevelRows.get('length'); i++) {
-      if (p === 0) {
-        return topLevelRows.objectAt(i);
-      }
-      var row = topLevelRows.objectAt(i);
-      p --;
-      if (row) {
-        var subRowsCount = row.get('subRowsCount');
-        if (p < subRowsCount) {
-          return row.findRow(p);
-        } else {
-          p -= subRowsCount;
-        }
-      }
-    }
-    return undefined;
-  },
+
   /**
    * ember-table will find last object on init, we don't want to access invisible content.
    * @returns {*}
@@ -227,7 +264,10 @@ export default RowArrayController.extend({
       _childrenRow: SubRowArray.create({content: this.get('content')}),
       groupingMetadata: this.get('content.groupingMetadata'),
       expandLevel: 0,
-      grandTotalTitle: this.get('content.grandTotalTitle')
+      grandTotalTitle: this.get('content.grandTotalTitle'),
+      itemController: this.get('itemController'),
+      parentController: this.get('parentController') || this,
+      target: this
     });
   }).property('content'),
 
