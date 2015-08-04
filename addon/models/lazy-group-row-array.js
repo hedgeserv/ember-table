@@ -77,7 +77,7 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
   objectAtContent: function (index) {
     var object = this.get('_content').objectAt(index);
     if (object && object.get('isLoading') && !this.get('_hasInProgressLoading')) {
-      this.triggerLoading(index);
+      //this.triggerLoading(index);
     }
     return object;
   },

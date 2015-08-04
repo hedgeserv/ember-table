@@ -44,14 +44,19 @@ var GroupRow = Row.extend({
 
     _childrenRow: null,
 
-    rowExpanded: Ember.observer('isExpanded', function() {
-      Ember.run.once(this, 'createChildrenRow');
-    }),
+    expandChildren: function () {
+      this.set('isExpanded', true);
+      this.createChildrenRow();
+    },
 
-    createChildrenRow: function() {
+    createChildrenRow: function () {
       if (!this.get('_childrenRow')) {
         this.set('_childrenRow', SubRowArray.create({content: this.get('children')}));
       }
+    },
+
+    collapseChildren: function () {
+      this.set('isExpanded', false);
     },
 
     findRow: function(idx) {

@@ -30,7 +30,7 @@ var VirtualRootRow = Ember.Object.extend({
     for(var i = 0; i<topLevelRows.get('length'); i++) {
       if (p === 0) {
         var content = topLevelRows.objectAtContent(i);
-          var newRow = this.get('itemController').create({
+        var newRow = this.get('itemController').create({
           target: this.get('target'),
           parentController: this.get('parentController'),
           content: content,
@@ -69,11 +69,15 @@ export default RowArrayController.extend({
   },
 
   expandChildren: function(row) {
-    row.set('isExpanded', true);
+    this.propertyWillChange('_expandedCount');
+    row.expandChildren();
+    this.propertyDidChange('_expandedCount');
   },
 
   collapseChildren: function(row) {
-    row.set('isExpanded', false);
+    this.propertyWillChange('_expandedCount');
+    row.collapseChildren();
+    this.propertyDidChange('_expandedCount');
   },
 
   length: Ember.computed.oneWay('_expandedCount'),
