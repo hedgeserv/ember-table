@@ -1,8 +1,43 @@
 import Ember from 'ember';
 import RowArrayController from 'ember-table/controllers/row-array';
 import SubRowArray from './sub-row-array';
+import Grouping from '../models/grouping';
 
 var VirtualRootRow = Ember.Object.extend({
+  sort: function (sortingColumns) {
+    if (this.get('grouping.isLeafParent')) {
+      this.set('_childrenRow', SubRowArray.create({
+        content: sortingColumns.sortContent(this.get('children')),
+        loadWatcher: this.get('target')
+      }));
+      return;
+    }
+    var subRows = this.get('_childrenRow');
+    if (!subRows) {
+      return;
+    }
+
+    subRows.forEach(function(r) {
+      if (r) {
+        r.sort(sortingColumns);
+      }
+    });
+  },
+  groupingLevel: Ember.computed(function() {
+    var expandLevel = this.get('expandLevel');
+    return this.get('hasGrandTotalRow') ? expandLevel - 1 : expandLevel;
+  }).property('expandLevel', 'hasGrandTotalRow'),
+
+  hasGrandTotalRow: Ember.computed(function() {
+    return !!this.get('grandTotalTitle');
+  }).property('grandTotalTitle'),
+  grouping: Ember.computed(function () {
+    return Grouping.create({
+      groupingMetadata: this.get('groupingMetadata'),
+      groupingLevel: this.get('groupingLevel')
+    });
+  }).property('groupingMetadata', 'groupingLevel'),
+
   findRow: function(idx) {
     var topLevelRows = this.get('_childrenRow');
     var p = idx;
@@ -59,6 +94,13 @@ var VirtualRootRow = Ember.Object.extend({
 });
 
 export default RowArrayController.extend({
+  //TODO: temporary, rename to sort after refactoring
+  tempSort: function (sortingColumns) {
+    this.propertyWillChange('length');
+    var root = this.get('_virtualRootRow');
+    root.sort(sortingColumns);
+    this.propertyDidChange('length');
+  },
   objectAt: function(idx) {
     var root = this.get('_virtualRootRow');
     var controller = root.findRow(idx);
@@ -102,6 +144,7 @@ export default RowArrayController.extend({
   _virtualRootRow: Ember.computed(function () {
     return VirtualRootRow.create({
       _childrenRow: SubRowArray.create({content: this.get('content')}),
+      children: this.get('content'),
       groupingMetadata: this.get('content.groupingMetadata'),
       expandLevel: 0,
       grandTotalTitle: this.get('content.grandTotalTitle'),

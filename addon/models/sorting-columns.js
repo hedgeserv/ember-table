@@ -36,6 +36,9 @@ export default Ember.Object.extend({
   isMultipleColumns: Ember.computed.gt('_columns.length', 1),
 
   sortContent: function(content) {
+    if (!content) {
+      return content;
+    }
     var self = this;
     return content.slice().sort(function (prev, next) {
       return self.sortBy(prev, next);

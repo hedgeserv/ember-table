@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import Row from './row';
 import SubRowArray from './sub-row-array';
+import Grouping from '../models/grouping';
 
 var GroupRow = Row.extend({
     init: function () {
@@ -57,6 +58,26 @@ var GroupRow = Row.extend({
 
     collapseChildren: function () {
       this.set('isExpanded', false);
+    },
+
+    sort: function (sortingColumns) {
+      if (this.get('grouping.isLeafParent')) {
+        this.set('_childrenRow', SubRowArray.create({
+          content: sortingColumns.sortContent(this.get('children')),
+          loadWatcher: this.get('target')
+        }));
+        return;
+      }
+      var subRows = this.get('_childrenRow');
+      if (!subRows) {
+        return;
+      }
+
+      subRows.forEach(function(r) {
+        if (r) {
+          r.sort(sortingColumns);
+        }
+      });
     },
 
     findRow: function(idx) {
@@ -122,6 +143,12 @@ var GroupRow = Row.extend({
     isExpanded: false,
     expandLevel: null,
     groupingMetadata: null,
+    grouping: Ember.computed(function () {
+      return Grouping.create({
+        groupingMetadata: this.get('groupingMetadata'),
+        groupingLevel: this.get('groupingLevel')
+      });
+    }).property('groupingMetadata', 'groupingLevel'),
     grandTotalTitle: null,
     groupingKey: Ember.computed(function () {
       var groupingLevel = this.get('groupingLevel');

@@ -5,23 +5,26 @@ var SubRowArray = Ember.ArrayController.extend({
     return this._subControllers[idx];
   },
 
-  setControllerAt: function( controller, idx) {
+  setControllerAt: function (controller, idx) {
     this._subControllers[idx] = controller;
     this.incrementProperty('definedControllersCount', 1);
   },
 
   objectAtContent: function (idx) {
-    var objectAt = this.get('content').objectAt(idx);
+    var content = this.get('content');
+    var objectAt = content.objectAt(idx);
     if (objectAt && Ember.get(objectAt, 'isLoading')) {
-      this.get('content').triggerLoading(idx, this.get('loadWatcher'));
+      if (content.triggerLoading) {
+        content.triggerLoading(idx, this.get('loadWatcher'));
+      }
     }
     return objectAt;
   },
 
-  definedControllersCount:0,
+  definedControllersCount: 0,
 
   definedControllers: function () {
-    return this._subControllers.filter(function(item) {
+    return this._subControllers.filter(function (item) {
       return !!item;
     });
   }
