@@ -51,7 +51,7 @@ var GroupRow = Row.extend({
 
     createChildrenRow: function () {
       if (!this.get('_childrenRow')) {
-        this.set('_childrenRow', SubRowArray.create({content: this.get('children')}));
+        this.set('_childrenRow', SubRowArray.create({content: this.get('children'), loadWatcher: this.get('target')}));
       }
     },
 

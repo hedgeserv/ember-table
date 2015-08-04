@@ -59,7 +59,7 @@ var VirtualRootRow = Ember.Object.extend({
 });
 
 export default RowArrayController.extend({
-  objectAtContent: function(idx) {
+  objectAt: function(idx) {
     var root = this.get('_virtualRootRow');
     var controller = root.findRow(idx);
     if (!controller) {
@@ -69,18 +69,21 @@ export default RowArrayController.extend({
   },
 
   expandChildren: function(row) {
-    this.propertyWillChange('_expandedCount');
+    this.propertyWillChange('length');
     row.expandChildren();
-    this.propertyDidChange('_expandedCount');
+    this.propertyDidChange('length');
   },
 
   collapseChildren: function(row) {
-    this.propertyWillChange('_expandedCount');
+    this.propertyWillChange('length');
     row.collapseChildren();
-    this.propertyDidChange('_expandedCount');
+    this.propertyDidChange('length');
   },
 
-  length: Ember.computed.oneWay('_expandedCount'),
+  /**
+   * arrayContentDidChange will access last object, which may be a invisible loading placeholder.
+   * */
+  arrayContentDidChange: Ember.K,
 
   _expandedDepth: Ember.computed(function () {
     var root = this.get('_virtualRootRow');
@@ -108,7 +111,11 @@ export default RowArrayController.extend({
     });
   }).property('content'),
 
-  _expandedCount: Ember.computed(function () {
+  notifyOneChunkLoaded: function() {
+    this.notifyPropertyChange('length');
+  },
+
+  length: Ember.computed(function () {
     var root = this.get('_virtualRootRow');
     var subRowsCount = root.get('_childrenRow').definedControllers().reduce(function (previousValue, item) {
       return item.get('subRowsCount') + previousValue;
