@@ -27,8 +27,8 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
         loadingCount: 0
       }));
     }
-    this._super();
     this.addLoadingPlaceHolder();
+    this._super();
   },
 
   loadOneChunk: function(chunkIndex) {
@@ -77,13 +77,13 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
   objectAtContent: function (index) {
     var object = this.get('_content').objectAt(index);
     if (object && object.get('isLoading') && !this.get('_hasInProgressLoading')) {
-      this.triggerLoading(index);
+      //this.triggerLoading(index);
     }
     return object;
   },
 
   /*---------------Private methods -----------------------*/
-  triggerLoading: function (index) {
+  triggerLoading: function (index, loadWatcher) {
     this.set('_hasInProgressLoading', true);
     var chunkIndex = this.chunkIndex(index);
     var group = this.get('grouping.key');
@@ -94,6 +94,9 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
       self.set('_hasInProgressLoading', false);
       self.notifyPropertyChange('length');
       self.decrementProperty('status.loadingCount');
+      if (loadWatcher) {
+        loadWatcher.notifyOneChunkLoaded();
+      }
     }).catch(function() {
       self.set('_hasInProgressLoading', false);
       self.onLoadError("Failed to load data.", group, chunkIndex);
