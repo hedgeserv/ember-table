@@ -1,102 +1,6 @@
 import Ember from 'ember';
 import RowArrayController from 'ember-table/controllers/row-array';
-import SubRowArray from './sub-row-array';
-import Grouping from '../models/grouping';
-
-var VirtualRootRow = Ember.Object.extend({
-  sort: function (sortingColumns) {
-    var subRows = this.get('_childrenRow');
-    if (!subRows) {
-      return;
-    }
-    if (this.get('grouping.isLeafParent')) {
-      this.set('_childrenRow', SubRowArray.create({
-        content: sortingColumns.sortContent(this.get('children')),
-        loadWatcher: this.get('target')
-      }));
-      return;
-    }
-    subRows.forEach(function(r) {
-      if (r) {
-        r.sort(sortingColumns);
-      }
-    });
-  },
-  groupingLevel: Ember.computed(function() {
-    var expandLevel = this.get('expandLevel');
-    return this.get('hasGrandTotalRow') ? expandLevel - 1 : expandLevel;
-  }).property('expandLevel', 'hasGrandTotalRow'),
-
-  hasGrandTotalRow: Ember.computed(function() {
-    return !!this.get('grandTotalTitle');
-  }).property('grandTotalTitle'),
-  grouping: Ember.computed(function () {
-    return Grouping.create({
-      groupingMetadata: this.get('groupingMetadata'),
-      groupingLevel: this.get('groupingLevel')
-    });
-  }).property('groupingMetadata', 'groupingLevel'),
-
-  findRow: function(idx) {
-    var topLevelRows = this.get('_childrenRow');
-    var p = idx;
-    for(var i = 0; i<topLevelRows.get('length'); i++) {
-      if (p === 0) {
-        return topLevelRows.objectAt(i);
-      }
-      var row = topLevelRows.objectAt(i);
-      p --;
-      if (row && row.get('isExpanded')) {
-        var subRowsCount = row.get('subRowsCount');
-        if (p < subRowsCount) {
-          return row.findRow(p);
-        } else {
-          p -= subRowsCount;
-        }
-      }
-    }
-    return undefined;
-  },
-
-  createRow: function (idx) {
-    var topLevelRows = this.get('_childrenRow');
-    var p = idx;
-    for(var i = 0; i<topLevelRows.get('length'); i++) {
-      if (p === 0) {
-        var content = topLevelRows.objectAtContent(i);
-        if (content && Ember.get(content, 'isLoading')) {
-          var subRowsContent = this.get('children');
-          if (subRowsContent.triggerLoading) {
-            subRowsContent.triggerLoading(i, this.get('target'));
-          }
-        }
-        var newRow = this.get('itemController').create({
-          target: this.get('target'),
-          parentController: this.get('parentController'),
-          content: content,
-          expandLevel: this.get('expandLevel') + 1,
-          grandTotalTitle: this.get('grandTotalTitle'),
-          groupingMetadata: this.get('groupingMetadata'),
-          parentRow: null,
-          itemController: this.get('itemController')
-        });
-        topLevelRows.setControllerAt(newRow, i);
-        return newRow;
-      }
-      var row = topLevelRows.objectAt(i);
-      p --;
-      if (row && row.get('isExpanded')) {
-        var subRowsCount = row.get('subRowsCount');
-        if (p < subRowsCount) {
-          return row.createRow(p);
-        } else {
-          p -= subRowsCount;
-        }
-      }
-    }
-    return undefined;
-  }
-});
+import GroupRow from './group-row';
 
 export default RowArrayController.extend({
   //TODO: temporary, rename to sort after refactoring
@@ -147,9 +51,8 @@ export default RowArrayController.extend({
   }).property('_virtualRootRow._childrenRow.@each.expandedDepth',  '_virtualRootRow._childrenRow.definedControllersCount'),
 
   _virtualRootRow: Ember.computed(function () {
-    return VirtualRootRow.create({
-      _childrenRow: SubRowArray.create({content: this.get('content')}),
-      children: this.get('content'),
+    var rootRow = GroupRow.create({
+      content: {children: this.get('content')},
       groupingMetadata: this.get('content.groupingMetadata'),
       expandLevel: -1,
       grandTotalTitle: this.get('content.grandTotalTitle'),
@@ -157,6 +60,8 @@ export default RowArrayController.extend({
       parentController: this.get('parentController') || this,
       target: this
     });
+    rootRow.expandChildren();
+    return rootRow;
   }).property('content'),
 
   notifyOneChunkLoaded: function() {
