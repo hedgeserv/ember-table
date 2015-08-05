@@ -53,15 +53,13 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
     }
   },
 
+  resetContent: function () {
+    this.setObjects(Ember.A([LoadingPlaceHolder.create()]));
+  },
+
   _content: Ember.computed(function() {
-    if (!this.get('needSort')) {
-      return this.get('content');
-    }
-    if (this.get('isCompleted')) {
-      return this.get('sortedContent');
-    }
-    return Ember.A([LoadingPlaceHolder.create()]);
-  }).property('sortedContent', 'isCompleted', 'needSort'),
+    return this.get('content');
+  }).property('content'),
 
   sortingColumns: Ember.computed.oneWay('root.sortingColumns'),
 
@@ -157,7 +155,9 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
 
   _hasInProgressLoading: false,
 
-  loadingCount: Ember.computed.oneWay('status.loadingCount')
+  loadingCount: Ember.computed.oneWay('status.loadingCount'),
+
+  isNotCompleted: Ember.computed.oneWay('lastObject.isLoading')
 });
 
 export default LazyGroupRowArray;

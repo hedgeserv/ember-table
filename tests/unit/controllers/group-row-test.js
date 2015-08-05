@@ -29,9 +29,9 @@ module('grouping row is expanded', {
   beforeEach: function() {
     groupRow = GroupRow.create({
       expandLevel: 0,
-      isExpanded: true,
       content: {id: 1, children: [{id: 11}]}
     });
+    groupRow.expandChildren();
   },
   afterEach: function() {
     groupRow = null;

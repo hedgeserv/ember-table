@@ -310,13 +310,7 @@ moduleForEmberTable('table with two level of grouped rows',
             secondLevel: 'second-level-row2',
             id: 1002,
             state: 'down',
-            children: [{
-              id: 10021,
-              state: 'up'
-            }, {
-              id: 10022,
-              state: 'down'
-            }]
+            children: [{ id: 10021, state: 'up'}, { id: 10022, state: 'down'}]
           }]
         }],
         groupingMetadata: [{id: "firstLevel"}, {id: "secondLevel"}, {id: "thirdLevel"}]

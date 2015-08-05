@@ -41,7 +41,7 @@ var GroupRow = Row.extend({
         }, 0);
       }
       return childrenCount + childrenExpandedCount;
-    }).property('isExpanded', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount'),
+    }).property('isExpanded', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount', '_childrenRow.length'),
 
     _childrenRow: null,
 
@@ -52,7 +52,10 @@ var GroupRow = Row.extend({
 
     createChildrenRow: function () {
       if (!this.get('_childrenRow')) {
-        this.set('_childrenRow', SubRowArray.create({content: this.get('children'), loadWatcher: this.get('target')}));
+        this.set('_childrenRow', SubRowArray.create({
+          content: this.get('children'),
+          loadWatcher: this.get('target')
+        }));
       }
     },
 
@@ -60,19 +63,33 @@ var GroupRow = Row.extend({
       this.set('isExpanded', false);
     },
 
-    sort: function (sortingColumns) {
-      if (this.get('grouping.isLeafParent')) {
-        this.set('_childrenRow', SubRowArray.create({
-          content: sortingColumns.sortContent(this.get('children')),
-          loadWatcher: this.get('target')
-        }));
-        return;
+    subRowsCountDidChange: Ember.observer('subRowsCount', function () {
+      var parentRow = this.get('parentRow');
+      if (parentRow) {
+        parentRow.notifyPropertyChange('subRowsCount');
       }
+    }),
+
+    sort: function (sortingColumns) {
       var subRows = this.get('_childrenRow');
       if (!subRows) {
         return;
       }
-
+      if (this.get('grouping.isLeafParent')) {
+        subRows.willDestroy();
+        var newContent;
+        if (this.get('children.isNotCompleted')) {
+          newContent = this.get('children');
+          newContent.resetContent();
+        } else {
+          newContent = sortingColumns.sortContent(this.get('children'));
+        }
+        this.set('_childrenRow', SubRowArray.create({
+          content: newContent,
+          loadWatcher: this.get('target')
+        }));
+        return;
+      }
       subRows.forEach(function(r) {
         if (r) {
           r.sort(sortingColumns);

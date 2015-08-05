@@ -20,7 +20,7 @@ var GrandTotalRow = Ember.ArrayProxy.extend({
   objectAtContent: function (index) {
     var object = this._super(index);
     if (object.get('isLoading') && !this.get('_hasInProgressLoading')) {
-      this.triggerLoading(index);
+      //this.triggerLoading(index);
     }
     return object;
   },

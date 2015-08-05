@@ -7,7 +7,6 @@ import Row from 'ember-table/controllers/row';
 import GroupRow from 'ember-table/controllers/group-row';
 import ColumnDefinition from 'ember-table/models/column-definition';
 import TableContent from 'ember-table/models/table-content';
-import GroupedArray from 'ember-table/models/grouped-array';
 import SortingColumns from 'ember-table/models/sorting-columns';
 
 export default Ember.Component.extend(
@@ -205,8 +204,9 @@ StyleBindingsMixin, ResizeHandlerMixin, {
     var self = this;
     var content = this.get('content');
     if(!content.get('isEmberTableContent')){
-      var contentClass = content.get('groupingMetadata') ?  GroupedArray : TableContent;
-      content = contentClass.create({content: content, sortingColumns: this.get('sortingColumns')});
+      if (!content.get('groupingMetadata')) {
+        content = TableContent.create({content: content, sortingColumns: this.get('sortingColumns')});
+      }
     }
     if(!content.get('status')){
       content.set('status', Ember.Object.create({

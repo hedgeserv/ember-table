@@ -5,6 +5,10 @@ import Grouping from '../models/grouping';
 
 var VirtualRootRow = Ember.Object.extend({
   sort: function (sortingColumns) {
+    var subRows = this.get('_childrenRow');
+    if (!subRows) {
+      return;
+    }
     if (this.get('grouping.isLeafParent')) {
       this.set('_childrenRow', SubRowArray.create({
         content: sortingColumns.sortContent(this.get('children')),
@@ -12,11 +16,6 @@ var VirtualRootRow = Ember.Object.extend({
       }));
       return;
     }
-    var subRows = this.get('_childrenRow');
-    if (!subRows) {
-      return;
-    }
-
     subRows.forEach(function(r) {
       if (r) {
         r.sort(sortingColumns);
