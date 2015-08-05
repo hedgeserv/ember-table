@@ -130,6 +130,12 @@ var GroupRow = Row.extend({
       for(var i = 0; i<topLevelRows.get('length'); i++) {
         if (p === 0) {
           var content = topLevelRows.objectAtContent(i);
+          if (content && Ember.get(content, 'isLoading')) {
+            var subRowsContent = this.get('children');
+            if (subRowsContent.triggerLoading) {
+              subRowsContent.triggerLoading(i, this.get('target'));
+            }
+          }
           var newRow = this.get('itemController').create({
             target: this.get('target'),
             parentController: this.get('parentController'),

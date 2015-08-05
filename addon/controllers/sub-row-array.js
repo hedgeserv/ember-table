@@ -12,13 +12,7 @@ var SubRowArray = Ember.ArrayController.extend({
 
   objectAtContent: function (idx) {
     var content = this.get('content');
-    var objectAt = content.objectAt(idx);
-    if (objectAt && Ember.get(objectAt, 'isLoading')) {
-      if (content.triggerLoading) {
-        content.triggerLoading(idx, this.get('loadWatcher'));
-      }
-    }
-    return objectAt;
+    return content.objectAt(idx);
   },
 
   definedControllersCount: 0,
