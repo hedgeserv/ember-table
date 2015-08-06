@@ -7,7 +7,6 @@ import Columns from '../../fixture/columns';
 import LazyArray from 'ember-table/models/lazy-array';
 import DefersPromise from '../../fixture/defer-promises';
 import GroupedRowDataProvider from '../../fixture/grouped-row-data-provider';
-import GrandTotalRow from 'ember-table/models/grand-total-row';
 import { defaultFixture } from '../../fixture/lazy-array-factory';
 
 var normalArray = [{

@@ -3,7 +3,6 @@ import { test } from 'ember-qunit';
 import moduleForEmberTable from '../../helpers/module-for-ember-table';
 import EmberTableFixture from '../../fixture/ember-table';
 import EmberTableHelper from '../../helpers/ember-table-helper';
-import GrandTotalRow from 'ember-table/models/grand-total-row';
 import DeferPromises from '../../fixture/defer-promises';
 
 moduleForEmberTable('grand total', function () {
@@ -52,7 +51,7 @@ moduleForEmberTable('grand total with lazy load',
     return EmberTableFixture.create({
       height: 600,
       width: 700,
-      content: GrandTotalRow.create(
+      content: Ember.Object.create(
         {
           loadChildren: function getChunk(chunkIndex, sortingColumn, groupQuery) {
             var defer = defers.next();

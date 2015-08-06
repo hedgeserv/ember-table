@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import LazyGroupRowArray from 'ember-table/models/lazy-group-row-array';
-import GrandTotalRow from 'ember-table/models/grand-total-row';
 
 var DataProvider = function(options) {
   options = options || {};
@@ -116,7 +115,7 @@ export default Ember.Object.extend({
   }),
   grandTotalRowContent: Ember.computed(function() {
     var self = this;
-    return GrandTotalRow.create({
+    return Ember.Object.create({
       loadChildren: function (chunkIndex, sortingColumns, groupQuery) {
         return self.doLoadChildren(chunkIndex,
           sortingColumns, self.get('groupingMetadata'), groupQuery);
