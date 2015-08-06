@@ -3,9 +3,6 @@ import Row from './row';
 import SubRowArray from './sub-row-array';
 
 var GroupRow = Row.extend({
-    init: function () {
-      this._super();
-    },
     expandedDepth: Ember.computed(function () {
       var expandLevel = this.get('expandLevel');
       if (this.get('isExpanded')) {

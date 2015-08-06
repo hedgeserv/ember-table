@@ -6,7 +6,6 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
   status: null,
   loadChildren: Ember.K,
   onLoadError: Ember.K,
-  sortFn: Ember.K,
   isEmberTableContent: true,
 
   init: function () {
@@ -18,10 +17,6 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
     }
     this.addLoadingPlaceHolder();
     this._super();
-  },
-
-  loadOneChunk: function(chunkIndex, sortingColumns, grouping) {
-    return this.loadChildren(chunkIndex, sortingColumns, grouping.get('query'));
   },
 
   wrapLoadedContent: function (content) {
@@ -40,10 +35,9 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
   /*---------------Private methods -----------------------*/
   triggerLoading: function (index, target, grouping) {
     var chunkIndex = this.chunkIndex(index);
-    var group = this.get('grouping.key');
     var self = this;
     this.incrementProperty('status.loadingCount');
-    this.loadOneChunk(chunkIndex, target.get('sortingColumns'), grouping).then(function (result) {
+    this.loadChildren(chunkIndex, target.get('sortingColumns'), grouping.get('query')).then(function (result) {
       self.onOneChunkLoaded(result, grouping);
       self.notifyPropertyChange('length');
       self.decrementProperty('status.loadingCount');
@@ -51,7 +45,7 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
         target.notifyOneChunkLoaded();
       }
     }).catch(function() {
-      self.onLoadError("Failed to load data.", group, chunkIndex);
+      self.onLoadError("Failed to load data.", grouping.get('key'), chunkIndex);
       self.decrementProperty('status.loadingCount');
     });
   },
