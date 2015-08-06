@@ -54,7 +54,7 @@ moduleForEmberTable('grand total with lazy load',
       width: 700,
       content: GrandTotalRow.create(
         {
-          loadChildren: function getChunk(chunkIndex, parentQuery) {
+          loadChildren: function getChunk(chunkIndex, parentQuery, sortingColumn, groupQuery) {
             var defer = defers.next();
             var result = {
               content: [],
@@ -64,7 +64,12 @@ moduleForEmberTable('grand total with lazy load',
             for (var i = 0; i < chunkSize; i++) {
               result.content.push({id: i});
             }
-            parentQueries.push(parentQuery);
+
+            var queryObj = {};
+            groupQuery.upperGroupings.forEach(function(x) {
+              queryObj[x[0]] = Ember.get(x[1], 'id');
+            });
+            parentQueries.push(queryObj);
             defer.resolve(result);
             return defer.promise;
           },

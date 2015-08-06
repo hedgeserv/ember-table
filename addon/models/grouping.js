@@ -28,8 +28,8 @@ var Grouping = Ember.Object.extend({
   isGrandTotal: Ember.computed.equal('groupingLevel', -1),
 
   nextLevel: function (content) {
-    var contents = this.get('contents');
-    if (!this.get('isGrandTotal')) {
+    var contents = this.get('contents').slice();
+    if (this.get('groupingLevel') >= 0) {
       contents = contents.concat([content]);
     }
     return Grouping.create({

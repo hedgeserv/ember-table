@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import RowArrayController from 'ember-table/controllers/row-array';
 import GroupRow from './group-row';
+import Grouping from '../models/grouping';
 
 export default RowArrayController.extend({
   //TODO: temporary, rename to sort after refactoring
@@ -51,14 +52,19 @@ export default RowArrayController.extend({
     }, 0);
   }).property('_virtualRootRow._childrenRow.@each.expandedDepth',  '_virtualRootRow._childrenRow.definedControllersCount'),
 
+
   _virtualRootRow: Ember.computed(function () {
+    var groupingLevel = this.get('content.grandTotalTitle') ? -2 : -1;
     var rootRow = GroupRow.create({
       content: {children: this.get('content')},
-      groupingMetadata: this.get('content.groupingMetadata'),
       expandLevel: -1,
       grandTotalTitle: this.get('content.grandTotalTitle'),
       itemController: this.get('itemController'),
       parentController: this.get('parentController') || this,
+      grouping: Grouping.create({
+        groupingMetadata: this.get('content.groupingMetadata'),
+        groupingLevel: groupingLevel
+      }),
       target: this
     });
     rootRow.expandChildren();

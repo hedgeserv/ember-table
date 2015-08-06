@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import { module, test } from 'qunit';
 import GroupRow from 'ember-table/controllers/group-row';
+import Grouping from 'ember-table/models/grouping';
 
 var groupRow;
 
@@ -8,8 +9,11 @@ var groupRow;
 module('grouping row', {
   beforeEach: function () {
     groupRow = GroupRow.create({
-      content: {id: 1, key: 'groupName', children: [{id: 11}, {id: 12}]},
-      groupingKey: 'key'
+      content: {id: 1, section: 'groupName', children: [{id: 11}, {id: 12}]},
+      grouping: Grouping.create({
+        groupingMetadata: [{id: "section"}, {id: "type"}],
+        groupingLevel: 0
+      })
     });
   },
   afterEach: function () {

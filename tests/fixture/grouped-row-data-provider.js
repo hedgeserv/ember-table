@@ -58,7 +58,7 @@ var DataProvider = function(options) {
   this.sortData = function (chunkIndex, sortingColumns, groupingMetadata, groupQuery) {
     var queryObj = {};
     groupQuery.upperGroupings.forEach(function(x) {
-      queryObj[x[0]] = x[1].id;
+      queryObj[x[0]] = Ember.get(x[1], 'id');
     });
     Ember.setProperties(queryObj, {chunkIndex: chunkIndex});
     var isSecondLastLevel = queryObj.hasOwnProperty(groupingMetadata[groupingMetadata.length - 2].id);

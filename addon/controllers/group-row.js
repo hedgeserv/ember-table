@@ -1,7 +1,6 @@
 import Ember from 'ember';
 import Row from './row';
 import SubRowArray from './sub-row-array';
-import Grouping from '../models/grouping';
 
 var GroupRow = Row.extend({
     init: function () {
@@ -133,7 +132,7 @@ var GroupRow = Row.extend({
           if (content && Ember.get(content, 'isLoading')) {
             var subRowsContent = this.get('children');
             if (subRowsContent.triggerLoading) {
-              subRowsContent.triggerLoading(i, this.get('target'));
+              subRowsContent.triggerLoading(i, this.get('target'), this.get('nextLevelGrouping'));
             }
           }
           var newRow = this.get('itemController').create({
@@ -142,7 +141,7 @@ var GroupRow = Row.extend({
             content: content,
             expandLevel: this.get('expandLevel') + 1,
             grandTotalTitle: this.get('grandTotalTitle'),
-            groupingMetadata: this.get('groupingMetadata'),
+            grouping: this.get('nextLevelGrouping'),
             itemController: this.get('itemController'),
             parentRow: this
           });
@@ -163,44 +162,28 @@ var GroupRow = Row.extend({
       return undefined;
     },
 
-    isExpanded: false,
-    expandLevel: null,
-    groupingMetadata: null,
-    grouping: Ember.computed(function () {
-      return Grouping.create({
-        groupingMetadata: this.get('groupingMetadata'),
-        groupingLevel: this.get('groupingLevel')
-      });
-    }).property('groupingMetadata', 'groupingLevel'),
-    grandTotalTitle: null,
-    groupingKey: Ember.computed(function () {
-      var groupingLevel = this.get('groupingLevel');
-      if (groupingLevel >= 0) {
-        return this.get('groupingMetadata')[groupingLevel].id;
-      }
-      return null;
-    }).property('groupingLevel', 'groupingMetadata'),
     hasChildren: Ember.computed(function () {
       var children = this.get('content.children');
       return (!!children) && children.length > 0;
     }).property('content.children'),
 
+    isExpanded: false,
+
+    expandLevel: null,
+    grandTotalTitle: null,
+    grouping: null,
+    groupingKey: Ember.computed.oneWay('grouping.key'),
     groupName: Ember.computed(function() {
-      var grandTotalTitle = this.get('grandTotalTitle');
-      if (grandTotalTitle) {
-        return grandTotalTitle;
+      if (this.get('grouping.isGrandTotal')) {
+        return this.get('grandTotalTitle');
       }
-      return this.get('content.' + this.get('groupingKey'));
-    }).property('content', 'content.isLoaded', 'groupingKey'),
+      return this.get('content.' + this.get('grouping.key'));
+    }).property('content', 'content.isLoaded', 'grouping.key'),
 
-    groupingLevel: Ember.computed(function() {
-      var expandLevel = this.get('expandLevel');
-      return this.get('hasGrandTotalRow') ? expandLevel - 1 : expandLevel;
-    }).property('expandLevel', 'hasGrandTotalRow'),
-
-    hasGrandTotalRow: Ember.computed(function() {
-      return !!this.get('grandTotalTitle');
-    }).property('grandTotalTitle'),
+    nextLevelGrouping: Ember.computed(function() {
+      var grouping = this.get('grouping');
+      return grouping.nextLevel(this.get('content'));
+    }).property('content', 'grouping'),
 
     parentRow: null,
 
