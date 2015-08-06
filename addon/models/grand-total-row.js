@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import GroupingRowProxy from './grouping-row-proxy';
-import Grouping from './grouping';
 import LoadingPlaceHolder from './loading-place-holder';
 
 var GrandTotalRow = Ember.ArrayProxy.extend({
@@ -28,14 +27,7 @@ var GrandTotalRow = Ember.ArrayProxy.extend({
   },
 
   wrapLoadedContent: function (row) {
-    return GroupingRowProxy.create({
-      grouping: Grouping.create({
-        groupingMetadata: this.get('groupingMetadata'),
-        groupingLevel: -1
-      }),
-      content: row,
-      loadChildren: this.loadChildren
-    });
+    return GroupingRowProxy.create({ content: row});
   },
 
   addLoadingPlaceHolder: function () {

@@ -9,12 +9,12 @@ var Grouping = Ember.Object.extend({
   }).property('groupingLevel', 'groupingMetadata.[]'),
 
   isGroup: Ember.computed(function () {
-    return this.get('groupingLevel') < this.get('groupingMetadata.length');
+    return this.get('groupingLevel') < this.get('groupingMetadata.length') - 1;
   }).property('groupingMetadata.[]', 'groupingLevel'),
 
   key: Ember.computed(function () {
     var groupingLevel = this.get('groupingLevel');
-    if (this.get('isGroup') && groupingLevel >= 0) {
+    if (groupingLevel >= 0) {
       return this.getKey(groupingLevel);
     }
     return null;

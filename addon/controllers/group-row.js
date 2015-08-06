@@ -159,10 +159,7 @@ var GroupRow = Row.extend({
       return undefined;
     },
 
-    hasChildren: Ember.computed(function () {
-      var children = this.get('content.children');
-      return (!!children) && children.length > 0;
-    }).property('content.children'),
+    hasChildren: Ember.computed.oneWay('grouping.isGroup'),
 
     isExpanded: false,
 

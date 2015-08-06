@@ -209,9 +209,9 @@ StyleBindingsMixin, ResizeHandlerMixin, {
       }
     }
     if(!content.get('status')){
-      content.set('status', Ember.Object.create({
-        loadingCount: 0
-      }));
+      var status = Ember.Object.create({ loadingCount: 0});
+      content.set('status', status);
+      this.set('status', status);
     }
     content.set('onLoadError', function(errorMessage, groupingName, chunkIndex) {
       self.sendAction('handleDataLoadingError', errorMessage, groupingName, chunkIndex);
@@ -225,7 +225,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
   actions: {
     addColumn: Ember.K,
     sortByColumn: function(column, event){
-      if (this.get('content.loadingCount')){
+      if (this.get('status.loadingCount') || this.get('content.loadingCount')){
         return;
       }
       var sortingColumns = this.get('sortingColumns');

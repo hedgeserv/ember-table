@@ -15,6 +15,18 @@ export default RowArrayController.extend({
         grandTotalTitle: content.get('grandTotalTitle')
       }));
     }
+
+    if (content.loadChildren) {
+      this.set('loadChildren', content.loadChildren);
+    }
+
+    if (content.onLoadError) {
+      this.set('onLoadError', content.onLoadError);
+    }
+
+    if (content.status) {
+      this.set('status', content.status);
+    }
   },
 
   //TODO: temporary, rename to sort after refactoring
