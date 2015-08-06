@@ -8,7 +8,6 @@ var GrandTotalRow = Ember.ArrayProxy.extend({
   loadGrandTotal: Ember.K,
   groupingMetadata: null,
   parentQuery: {},
-  sortingColumns: null,
   isEmberTableContent: true,
 
   init: function () {

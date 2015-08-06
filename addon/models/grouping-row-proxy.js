@@ -30,9 +30,7 @@ var GroupRowProxy = Ember.ObjectProxy.extend({
       status: this.get('status'),
       root: this.get('root')
     });
-  }).property(),
-
-  sortingColumns: Ember.computed.oneWay('root.sortingColumns')
+  }).property()
 });
 
 export default GroupRowProxy;

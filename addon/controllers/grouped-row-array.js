@@ -5,6 +5,7 @@ import GroupRow from './group-row';
 export default RowArrayController.extend({
   //TODO: temporary, rename to sort after refactoring
   tempSort: function (sortingColumns) {
+    this.set('sortingColumns', sortingColumns);
     this.propertyWillChange('length');
     var root = this.get('_virtualRootRow');
     root.sort(sortingColumns);
