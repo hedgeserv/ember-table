@@ -11,8 +11,8 @@ var GrandTotalRow = Ember.ArrayProxy.extend({
 
   init: function () {
     this.set('content', Ember.A());
-    this._super();
     this.addLoadingPlaceHolder();
+    this._super();
   },
 
   triggerLoading: function () {

@@ -21,7 +21,7 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
   },
 
   loadOneChunk: function(chunkIndex, sortingColumns, grouping) {
-    return this.loadChildren(chunkIndex, {}, sortingColumns, grouping.get('query'));
+    return this.loadChildren(chunkIndex, sortingColumns, grouping.get('query'));
   },
 
   wrapLoadedContent: function (content) {

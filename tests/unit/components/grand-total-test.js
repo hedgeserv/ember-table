@@ -54,7 +54,7 @@ moduleForEmberTable('grand total with lazy load',
       width: 700,
       content: GrandTotalRow.create(
         {
-          loadChildren: function getChunk(chunkIndex, parentQuery, sortingColumn, groupQuery) {
+          loadChildren: function getChunk(chunkIndex, sortingColumn, groupQuery) {
             var defer = defers.next();
             var result = {
               content: [],
