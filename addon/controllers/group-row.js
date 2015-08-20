@@ -119,8 +119,7 @@ var GroupRow = Row.extend({
       this.set('_childrenRow', SubRowArray.create({
         content: this.get('children'),
         oldObject: this.get('_childrenRow'),
-        isLazyLoadContent: true,
-        target: this.get('target')
+        isLazyLoadContent: true
       }));
     },
 

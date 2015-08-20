@@ -29,6 +29,9 @@ var DataProvider = function(options) {
   var sortDataMap = Ember.Object.create();
   var items = [
     ['chunkIndex=0', [1, 2, 3, 4, 5], 0],
+    ['chunkIndex=0&sortDirect[0]=asc&sortName[0]=id', [1, 2, 3, 4, 5], 0],
+    ['chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 0],
+    ['chunkIndex=1&sortDirect[0]=desc&sortName[0]=id', [5, 4, 3, 2, 1], 0],
     ['chunkIndex=0&sortDirect[0]=desc&sortName[0]=accountSection', [10, 9, 8, 7, 6], 0],
     ['chunkIndex=1&sortDirect[0]=desc&sortName[0]=accountSection', [5, 4, 3, 2, 1], 0],
     ['chunkIndex=1', [6, 7, 8, 9, 10], 0],
@@ -45,6 +48,8 @@ var DataProvider = function(options) {
     ['accountSection=1&chunkIndex=1', [8, 7, 9, 10, 6], 100],
     ['accountSection=10&chunkIndex=0', [3, 4, 5, 1, 2], 100],
     ['accountSection=10&chunkIndex=0&sortDirect[0]=asc&sortName[0]=id', [1, 2, 3, 4, 5], 100],
+    ['accountSection=10&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 100],
+    ['accountSection=10&chunkIndex=1&sortDirect[0]=desc&sortName[0]=id', [5, 4, 3, 2, 1], 100],
     ['accountSection=3&chunkIndex=0', [3, 4, 5, 1, 2], 300],
     ['accountSection=3&chunkIndex=1', [8, 9, 10, 6, 7], 300],
     ['accountSection=3&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 300],
