@@ -90,19 +90,9 @@ var GroupRow = Row.extend({
       if (groupingRowAffectedByColumnSort) {
         if (!this.get('nextLevelGrouping.sortDirection')) {
           if (this.get('children.isNotCompleted')) {
-            this.set('children', LazyGroupRowArray.create());
-            this.set('_childrenRow', SubRowArray.create({
-              content: this.get('children'),
-              oldObject: this.get('_childrenRow'),
-              isLazyLoadContent: true,
-              target: this.get('target')
-            }));
+            this.recreateChildrenRow();
           } else {
-            var newSubRowArray = SubRowArray.create({
-              content: sortingColumns.sortContent(this.get('children')),
-              oldObject: this.get('_childrenRow')
-            });
-            this.set('_childrenRow', newSubRowArray);
+            this.recreateSortedChildrenRow(sortingColumns);
           }
         }
       } else {
@@ -124,6 +114,23 @@ var GroupRow = Row.extend({
       this.invokeSortOnSubRows(sortingColumns);
     },
 
+    recreateChildrenRow: function() {
+      this.set('children', LazyGroupRowArray.create());
+      this.set('_childrenRow', SubRowArray.create({
+        content: this.get('children'),
+        oldObject: this.get('_childrenRow'),
+        isLazyLoadContent: true,
+        target: this.get('target')
+      }));
+    },
+
+    recreateSortedChildrenRow: function(sorter) {
+      this.set('_childrenRow', SubRowArray.create({
+        content: sorter.sortContent(this.get('children')),
+        oldObject: this.get('_childrenRow')
+      }));
+    },
+
     invokeSortOnSubRows: function(sortingColumns) {
       var subRows = this.get('_childrenRow');
       subRows.forEach(function (r) {
@@ -139,20 +146,9 @@ var GroupRow = Row.extend({
         return;
       }
       if (this.get('children.isNotCompleted')) {
-        this.set('children', LazyGroupRowArray.create());
-        this.set('_childrenRow', SubRowArray.create({
-          content: this.get('children'),
-          oldObject: this.get('_childrenRow'),
-          isLazyLoadContent: true,
-          target: this.get('target')
-        }));
+        this.recreateChildrenRow();
       } else {
-        var grouping = this.get('nextLevelGrouping');
-        var sortContent = grouping.sortContent(children);
-        this.set('_childrenRow', SubRowArray.create({
-          content: sortContent,
-          oldObject: this.get('_childrenRow')
-        }));
+        this.recreateSortedChildrenRow(this.get('nextLevelGrouping'));
       }
     }),
 
