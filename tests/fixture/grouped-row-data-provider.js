@@ -43,6 +43,8 @@ var DataProvider = function(options) {
     ['accountSection=1&accountType=102&chunkIndex=0&sortDirect[0]=asc&sortName[0]=id', [1, 2, 3, 4, 5], 1000],
     ['accountSection=1&accountType=102&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 1000],
     ['accountSection=1&chunkIndex=1', [8, 7, 9, 10, 6], 100],
+    ['accountSection=10&chunkIndex=0', [3, 4, 5, 1, 2], 100],
+    ['accountSection=10&chunkIndex=0&sortDirect[0]=asc&sortName[0]=id', [1, 2, 3, 4, 5], 100],
     ['accountSection=3&chunkIndex=0', [3, 4, 5, 1, 2], 300],
     ['accountSection=3&chunkIndex=1', [8, 9, 10, 6, 7], 300],
     ['accountSection=3&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 300],
@@ -63,16 +65,19 @@ var DataProvider = function(options) {
     groupQuery.upperGroupings.forEach(function(x) {
       queryObj[x[0]] = Ember.get(x[1], 'id');
     });
-    if (groupQuery.key && groupQuery.sortDirection) {
+    Ember.setProperties(queryObj, {chunkIndex: chunkIndex});
+    var isSortByGrouper = groupQuery.key && groupQuery.sortDirection;
+    if (isSortByGrouper) {
       queryObj['sortName[0]'] = groupQuery.key;
       queryObj['sortDirect[0]'] = groupQuery.sortDirection;
     }
-    Ember.setProperties(queryObj, {chunkIndex: chunkIndex});
     var isSecondLastLevel = queryObj.hasOwnProperty(groupingMetadata[groupingMetadata.length - 2].id);
-    delete queryObj.sortDirect;
-    delete queryObj.sortName;
+    var groupingRowAffectedByColumnSort = groupQuery.groupingRowAffectedByColumnSort;
+    var needColumnSorting =
+      (!groupingRowAffectedByColumnSort && isSecondLastLevel) ||
+      (groupingRowAffectedByColumnSort && !isSortByGrouper);
     var theQueryString = toQuery(queryObj);
-    if(isSecondLastLevel && sortingColumns && sortingColumns.get('isNotEmpty')) {
+    if(needColumnSorting && sortingColumns && sortingColumns.get('isNotEmpty')) {
       theQueryString += "&" + sortingColumns.map(function (column, index) {
           return "sortDirect[%@]=%@&sortName[%@]=%@".fmt(
             index, column.get("sortDirect"), index, column.get("contentPath"));

@@ -717,7 +717,6 @@ test('multiple column sort partial data for lazy group row array', function (ass
   });
 });
 
-
 moduleForEmberTable('sort lazy-grouped-row-array by groupers', function (options) {
   return EmberTableFixture.create({
     height: options.height,
@@ -843,6 +842,34 @@ test('expand grouping row after sorted by grouper accountSection', function(asse
       ['at-109', '109'],
       ['at-108', '108'],
       ['at-107', '107']
+    ]);
+  });
+});
+
+test('sort by column after expand and sorted by grouper accountSection', function(assert) {
+  var defers = DefersPromise.create({count: 4});
+  var component = this.subject({defers: defers, height: 120});
+  this.render();
+  var table = TableDom.create({content: component.$()});
+
+  defers.ready(function () {
+    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
+  }, [0]);
+
+  defers.ready(function() {
+    table.rows(0).groupIndicator().click();
+  }, [1]);
+
+  defers.ready(function() {
+    table.headerRows(0).cell(1).click();
+  }, [2]);
+
+  return defers.ready(function() {
+    assert.deepEqual(table.cellsContent([0, 1, 2, 3], [0, 1]), [
+      ['as-10', '10'],
+      ['at-101', '101'],
+      ['at-102', '102'],
+      ['at-103', '103']
     ]);
   });
 });

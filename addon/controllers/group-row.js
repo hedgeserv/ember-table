@@ -89,11 +89,21 @@ var GroupRow = Row.extend({
       var groupingRowAffectedByColumnSort = this.get('target.groupMeta.groupingRowAffectedByColumnSort');
       if (groupingRowAffectedByColumnSort) {
         if (!this.get('nextLevelGrouping.sortDirection')) {
-          var newSubRowArray = SubRowArray.create({
-            content: sortingColumns.sortContent(this.get('children')),
-            oldObject: this.get('_childrenRow')
-          });
-          this.set('_childrenRow', newSubRowArray);
+          if (this.get('children.isNotCompleted')) {
+            this.set('children', LazyGroupRowArray.create());
+            this.set('_childrenRow', SubRowArray.create({
+              content: this.get('children'),
+              oldObject: this.get('_childrenRow'),
+              isLazyLoadContent: true,
+              target: this.get('target')
+            }));
+          } else {
+            var newSubRowArray = SubRowArray.create({
+              content: sortingColumns.sortContent(this.get('children')),
+              oldObject: this.get('_childrenRow')
+            });
+            this.set('_childrenRow', newSubRowArray);
+          }
         }
       } else {
         if (this.get('grouping.isLeafParent')) {
