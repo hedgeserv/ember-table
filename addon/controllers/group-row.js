@@ -146,6 +146,7 @@ var GroupRow = Row.extend({
       }
       if (this.get('children.isNotCompleted')) {
         this.recreateChildrenRow();
+        this.notifyLengthChange();
       } else {
         var grouper = this.get('nextLevelGrouping');
         if (grouper && grouper.get('sortDirection')) {
