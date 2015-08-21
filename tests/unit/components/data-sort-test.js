@@ -608,40 +608,7 @@ moduleForEmberTable('lazy-grouped-row-array as ember-table content, enabled set 
   });
 });
 
-//test('change column sorting three times', function(assert) {
-//  var defers = DefersPromise.create({count: 50});
-//  var component = this.subject({defers: defers, height: 120});
-//  this.render();
-//  var table = TableDom.create({content: component.$()});
-//  defers.ready(function () {
-//    table.rows(0).groupIndicator().click();
-//  }, [0]);
-//
-//  defers.ready(function () {
-//    table.headerRows(0).cell(1).click();
-//  }, [1]);
-//
-//  defers.ready(function () {
-//    table.headerRows(0).cell(1).click();
-//  }, [2]);
-//
-//  defers.ready(function () {
-//    table.headerRows(0).cell(1).click();
-//  }, [3]);
-//
-//  return defers.ready(function () {
-//    var sortedContent = [
-//      ["as-1", "1"],
-//      ["at-1", "101"],
-//      ["at-2", "102"]
-//    ];
-//    var bodyCellsContent = table.cellsContent(3, [0, 1]);
-//    assert.deepEqual(bodyCellsContent, sortedContent, "expand state should be kept");
-//  });
-//
-//});
-
-test('multiple columns sort completed data for lazy group row array', function (assert) {
+test('sort multiple columns, completed data', function (assert) {
   var defers = DefersPromise.create({count: 4});
   var component = this.subject({defers: defers, height: 1000});
   this.render();
@@ -669,6 +636,39 @@ test('multiple columns sort completed data for lazy group row array', function (
     assert.deepEqual(bodyCellsContent, sortedContent, "content should be sorted by multiple columns");
   });
 });
+
+test('sort by id column three times, partial data', function(assert) {
+  var defers = DefersPromise.create({count: 7});
+  var component = this.subject({defers: defers, height: 120});
+  this.render();
+  var table = TableDom.create({content: component.$()});
+  defers.ready(function () {
+    table.rows(0).groupIndicator().click();
+  }, [0]);
+
+  defers.ready(function () {
+    table.headerRows(0).cell(1).click();
+  }, [1]);
+
+  defers.ready(function () {
+    table.headerRows(0).cell(1).click();
+  }, [2, 3]);
+
+  defers.ready(function () {
+    table.headerRows(0).cell(1).click();
+  }, [4]);
+
+  return defers.ready(function () {
+    var sortedContent = [
+      ["as-1", "1"],
+      ["at-101", "101"],
+      ["at-102", "102"]
+    ];
+    var bodyCellsContent = table.cellsContent(3, [0, 1]);
+    assert.deepEqual(bodyCellsContent, sortedContent, "expand state should be kept");
+  });
+});
+
 
 moduleForEmberTable('lazy-grouped-row-array as ember-table content', function (options) {
   return EmberTableFixture.create({
