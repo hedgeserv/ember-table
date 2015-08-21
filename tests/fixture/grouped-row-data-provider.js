@@ -32,6 +32,8 @@ var DataProvider = function(options) {
     ['chunkIndex=0&sortDirect[0]=asc&sortName[0]=id', [1, 2, 3, 4, 5], 0],
     ['chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 0],
     ['chunkIndex=1&sortDirect[0]=desc&sortName[0]=id', [5, 4, 3, 2, 1], 0],
+    ['chunkIndex=0&sortDirect[0]=asc&sortName[0]=accountSection', [1, 2, 3, 4, 5], 0],
+    ['chunkIndex=1&sortDirect[0]=asc&sortName[0]=accountSection', [6, 7, 8, 9, 10], 0],
     ['chunkIndex=0&sortDirect[0]=desc&sortName[0]=accountSection', [10, 9, 8, 7, 6], 0],
     ['chunkIndex=1&sortDirect[0]=desc&sortName[0]=accountSection', [5, 4, 3, 2, 1], 0],
     ['chunkIndex=1', [6, 7, 8, 9, 10], 0],
