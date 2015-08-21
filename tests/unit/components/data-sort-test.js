@@ -114,7 +114,7 @@ test('sort grouped row array by id column, expand', function(assert) {
   assert.deepEqual(helper.bodyCellsContent([0,1,2,3,4,5], [0]), expectedContent);
 });
 
-test('sort with grouped row array', function(assert) {
+test('sort grouped row array by id column, expand two levels ', function(assert) {
   var content = [
     {
       id: 1,
@@ -181,6 +181,42 @@ test('sort with grouped row array', function(assert) {
         ['122'],
         ['121'],
       ['11']
+  ]);
+});
+
+test('sort group row array by column id, expanded row invisible', function(assert) {
+  var content = [
+    {
+      id: 5,
+      children: [
+        {id: 52},
+        {id: 53},
+        {id: 51}
+      ]
+    },
+    {id: 1},
+    {id: 2},
+    {id: 3},
+    {id: 4}
+  ];
+  var groupMeta = {
+    groupingMetadata: [{id: 'accountSection'}, {id: 'accountType'}, {id: 'accountCode'}],
+    groupingRowAffectedByColumnSort: true
+  };
+  var component = this.subject({
+    content: content,
+    groupMeta: groupMeta,
+    height: 120
+  });
+  this.render();
+  var table = TableDom.create({content: component.$()});
+
+  table.rows(0).groupIndicator().click();
+  table.headerRows(0).cell(1).click(); //ascending by id
+  table.headerRows(0).cell(1).click(); //descending by id
+
+  assert.deepEqual(table.cellsContent([0, 1, 2], [1]), [
+    ['5'], ['53'], ['52']
   ]);
 });
 
