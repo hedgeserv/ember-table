@@ -4,9 +4,12 @@ var LoadingPlaceHolder = Ember.ObjectProxy.extend({
   isLoading: true,
   isLoaded: false,
   isError:false,
+  contentLoadedHandler: Ember.K,
   contentLoaded: Ember.observer('content', function() {
     this.set('isLoaded', true);
     this.set('isLoading', false);
+    var contentLoadedHandler = this.get('contentLoadedHandler');
+    contentLoadedHandler(this.get('content'));
   })
 });
 

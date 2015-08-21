@@ -88,6 +88,7 @@ var DataProvider = function(options) {
             index, column.get("sortDirect"), index, column.get("contentPath"));
         }).join("&");
     }
+    console.log(theQueryString);
     return sortDataMap.get(theQueryString)();
   };
 };

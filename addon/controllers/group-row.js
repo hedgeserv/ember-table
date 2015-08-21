@@ -118,7 +118,7 @@ var GroupRow = Row.extend({
       this.set('children', LazyGroupRowArray.create());
       this.set('_childrenRow', SubRowArray.create({
         content: this.get('children'),
-        oldObject: this.get('_childrenRow'),
+        oldControllersMap: this.get('_childrenRow').getAvailableControllersMap(),
         isLazyLoadContent: true
       }));
     },
@@ -126,7 +126,7 @@ var GroupRow = Row.extend({
     recreateSortedChildrenRow: function(sorter) {
       this.set('_childrenRow', SubRowArray.create({
         content: sorter.sortContent(this.get('children')),
-        oldObject: this.get('_childrenRow')
+        oldControllersMap: this.get('_childrenRow').getAvailableControllersMap()
       }));
     },
 
@@ -185,6 +185,9 @@ var GroupRow = Row.extend({
         if (p === 0) {
           var content = subRows.objectAtContent(i);
           if (content && Ember.get(content, 'isLoading')) {
+            Ember.set(content, 'contentLoadedHandler', function(content) {
+              subRows.refreshControllerAt(i, content);
+            });
             var subRowsContent = this.get('children');
             if (subRowsContent.triggerLoading) {
               subRowsContent.triggerLoading(i, this.get('target'), this.get('nextLevelGrouping'));

@@ -545,6 +545,39 @@ moduleForEmberTable('lazy-grouped-row-array as ember-table content, enabled set 
   });
 });
 
+test('change column sorting three times', function(assert) {
+  var defers = DefersPromise.create({count: 50});
+  var component = this.subject({defers: defers, height: 120});
+  this.render();
+  var table = TableDom.create({content: component.$()});
+  defers.ready(function () {
+    table.rows(0).groupIndicator().click();
+  }, [0]);
+
+  defers.ready(function () {
+    table.headerRows(0).cell(1).click();
+  }, [1]);
+
+  defers.ready(function () {
+    table.headerRows(0).cell(1).click();
+  }, [2]);
+
+  defers.ready(function () {
+    table.headerRows(0).cell(1).click();
+  }, [3]);
+
+  return defers.ready(function () {
+    var sortedContent = [
+      ["as-1", "1"],
+      ["at-1", "101"],
+      ["at-2", "102"]
+    ];
+    var bodyCellsContent = table.cellsContent(3, [0, 1]);
+    assert.deepEqual(bodyCellsContent, sortedContent, "expand state should be kept");
+  });
+
+});
+
 test('multiple columns sort completed data for lazy group row array', function (assert) {
   var defers = DefersPromise.create({count: 4});
   var component = this.subject({defers: defers, height: 1000});
