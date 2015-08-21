@@ -89,11 +89,11 @@ var GroupRow = Row.extend({
       var groupingRowAffectedByColumnSort = this.get('target.groupMeta.groupingRowAffectedByColumnSort');
       if (groupingRowAffectedByColumnSort) {
         if (!this.get('nextLevelGrouping.sortDirection')) {
-          var newSubRowArray = SubRowArray.create({
-            content: sortingColumns.sortContent(this.get('children')),
-            oldObject: this.get('_childrenRow')
-          });
-          this.set('_childrenRow', newSubRowArray);
+          if (this.get('children.isNotCompleted')) {
+            this.recreateChildrenRow();
+          } else {
+            this.recreateSortedChildrenRow(sortingColumns);
+          }
         }
       } else {
         if (this.get('grouping.isLeafParent')) {
@@ -114,6 +114,22 @@ var GroupRow = Row.extend({
       this.invokeSortOnSubRows(sortingColumns);
     },
 
+    recreateChildrenRow: function() {
+      this.set('children', LazyGroupRowArray.create());
+      this.set('_childrenRow', SubRowArray.create({
+        content: this.get('children'),
+        oldControllersMap: this.get('_childrenRow').getAvailableControllersMap(),
+        isLazyLoadContent: true
+      }));
+    },
+
+    recreateSortedChildrenRow: function(sorter) {
+      this.set('_childrenRow', SubRowArray.create({
+        content: sorter.sortContent(this.get('children')),
+        oldControllersMap: this.get('_childrenRow').getAvailableControllersMap()
+      }));
+    },
+
     invokeSortOnSubRows: function(sortingColumns) {
       var subRows = this.get('_childrenRow');
       subRows.forEach(function (r) {
@@ -129,20 +145,9 @@ var GroupRow = Row.extend({
         return;
       }
       if (this.get('children.isNotCompleted')) {
-        this.set('children', LazyGroupRowArray.create());
-        this.set('_childrenRow', SubRowArray.create({
-          content: this.get('children'),
-          oldObject: this.get('_childrenRow'),
-          isLazyLoadContent: true,
-          target: this.get('target')
-        }));
+        this.recreateChildrenRow();
       } else {
-        var grouping = this.get('nextLevelGrouping');
-        var sortContent = grouping.sortContent(children);
-        this.set('_childrenRow', SubRowArray.create({
-          content: sortContent,
-          oldObject: this.get('_childrenRow')
-        }));
+        this.recreateSortedChildrenRow(this.get('nextLevelGrouping'));
       }
     }),
 
@@ -180,6 +185,9 @@ var GroupRow = Row.extend({
         if (p === 0) {
           var content = subRows.objectAtContent(i);
           if (content && Ember.get(content, 'isLoading')) {
+            Ember.set(content, 'contentLoadedHandler', function(content) {
+              subRows.refreshControllerAt(i, content);
+            });
             var subRowsContent = this.get('children');
             if (subRowsContent.triggerLoading) {
               subRowsContent.triggerLoading(i, this.get('target'), this.get('nextLevelGrouping'));

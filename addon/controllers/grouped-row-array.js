@@ -68,7 +68,8 @@ export default RowArrayController.extend({
       parentController: this.get('parentController') || this,
       grouping: Grouping.create({
         groupingMetadata: this.get('groupMeta.groupingMetadata'),
-        groupingLevel: groupingLevel
+        groupingLevel: groupingLevel,
+        groupingRowAffectedByColumnSort: this.get('groupMeta.groupingRowAffectedByColumnSort')
       }),
       target: this
     });
