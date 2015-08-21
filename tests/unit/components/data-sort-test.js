@@ -886,19 +886,6 @@ test('expand partial data, sort by column "id", then sort by grouper "accountTyp
   });
 });
 
-
-
-moduleForEmberTable('lazy-grouped-row-array as ember-table content', function (options) {
-  return EmberTableFixture.create({
-    height: options.height,
-    groupMeta: GroupedRowDataProvider.create({
-      defers: options.defers,
-      delayTime: options.delayTime || 0,
-      groupingMetadata: [{id: 'accountSection'}, {id: 'accountType'}]
-    })
-  });
-});
-
 test('click grouping-column header cell', function(assert) {
   var defers = DefersPromise.create({count: 2});
   var component = this.subject({defers: defers, height: 1000});
@@ -907,11 +894,11 @@ test('click grouping-column header cell', function(assert) {
   defers.ready(function () {
     var groupingColumnHeader = tableDom.headerRow(0).cell(0);
     groupingColumnHeader.click();
-    assert.noSortIndicatorOn(groupingColumnHeader, 'it should not appear ascending indicator');
+    assert.noSortIndicatorOn(groupingColumnHeader, 'should not appear ascending indicator');
   }, [0, 1]);
 });
 
-test('click with command key to sort completed data for lazy group row array', function (assert) {
+test('click with command key to sort completed data', function (assert) {
   var defers = DefersPromise.create({count: 4});
   var component = this.subject({defers: defers, height: 1000});
   this.render();
@@ -935,8 +922,8 @@ test('click with command key to sort completed data for lazy group row array', f
   });
 });
 
-test('regular click to sort partial data for lazy group row array', function (assert) {
-  var defers = DefersPromise.create({count: 5});
+test('regular click to sort partial data', function (assert) {
+  var defers = DefersPromise.create({count: 7});
   var options = {defers: defers, height: 120};
   var component = this.subject(options);
   this.render();
@@ -953,20 +940,20 @@ test('regular click to sort partial data for lazy group row array', function (as
   defers.ready(function () {
     helper.assertCellContent(1, 0, '101', 'should sort ascending');
     helper.getHeaderCell(0).click();
-  }, [2]);
+  }, [2, 3]);
 
   defers.ready(function () {
-    helper.assertCellContent(1, 0, '110', 'should sort descending');
+    helper.assertCellContent(1, 0, '9', 'should sort descending');
     helper.getHeaderCell(0).click();
-  }, [3]);
+  }, [4]);
 
   return defers.ready(function () {
     helper.assertCellContent(1, 0, '101', 'should sort ascending');
   });
 });
 
-test('click with command key to sort partial data for lazy group row array', function (assert) {
-  var defers = DefersPromise.create({count: 7});
+test('click with command key to sort partial data', function (assert) {
+  var defers = DefersPromise.create({count: 11});
   var component = this.subject({defers: defers, height: 120});
   this.render();
   var helper = EmberTableHelper.create({_assert: assert, _component: component});
@@ -982,49 +969,71 @@ test('click with command key to sort partial data for lazy group row array', fun
   defers.ready(function () {
     helper.assertCellContent(1, 0, '101', 'should sort ascending');
     helper.clickHeaderCellWithCommand(0);
-  }, [2]);
+  }, [2, 3]);
 
   defers.ready(function () {
     helper.assertCellContent(1, 0, '102', 'should unsorted');
     helper.getHeaderCell(0).click(); //make it sort ascending again
-  }, [3]);
+  }, [4, 5]);
 
   defers.ready(function () {
     helper.getHeaderCell(0).click(); //make it descending again
-  }, [4]);
+  }, [6, 7]);
 
   defers.ready(function () {
     helper.clickHeaderCellWithCommand(0); //cancel sort
-  }, [5]);
+  }, [8]);
 
   return defers.ready(function () {
     helper.assertCellContent(1, 0, '102', 'should unsorted');
-  }, [6]);
+  });
 });
 
-test('sort completed descending data to unsorted state with command key', function (assert) {
-  var defers = DefersPromise.create({count: 3});
+test('sort completed data from descending to unsorted state with command key', function (assert) {
+  var defers = DefersPromise.create({count: 9});
   var component = this.subject({defers: defers, height: 120});
   this.render();
-  var helper = EmberTableHelper.create({_assert: assert, _component: component});
+  var table = TableDom.create({content: component.$()});
+
   defers.ready(function () {
-    helper.getHeaderCell(0).click();
-    helper.getHeaderCell(0).click();
-    helper.rowGroupingIndicator(0).click();
+    table.headerRows(0).cell(1).click();
   }, [0]);
 
   defers.ready(function () {
-    helper.assertCellContent(1, 0, '110', 'should sort descending when click header cell');
-    helper.scrollTop(150);
+    table.headerRows(0).cell(1).click();
   }, [1]);
 
-  return defers.ready(function () {
-    helper.clickHeaderCellWithCommand(0); //will not retrieve unsorted data
-    helper.scrollTop(-150);
-    Ember.run.later(function () {
-      helper.assertCellContent(1, 0, '110', 'should leave data as descending');
-    });
+  defers.ready(function () {
+    table.rows(0).groupIndicator().click();
   }, [2]);
+
+  defers.ready(function () {
+    table.scrollTop(defers.next(), 5);
+  }, [3]);
+
+  defers.ready(function () {
+    table.headerRows(0).cell(1).clickWithCommand();
+  }, [4, 5]);
+
+  defers.ready(function () {
+    table.scrollTop(defers.next(), -5);
+  }, [6, 7]);
+
+  return defers.ready(function () {
+    assert.ok(table.cellWithContent('as-1'), 'should retrieve unsorted data');
+  });
+});
+
+
+moduleForEmberTable('lazy-grouped-row-array as ember-table content', function (options) {
+  return EmberTableFixture.create({
+    height: options.height,
+    groupMeta: GroupedRowDataProvider.create({
+      defers: options.defers,
+      delayTime: options.delayTime || 0,
+      groupingMetadata: [{id: 'accountSection'}, {id: 'accountType'}]
+    })
+  });
 });
 
 test('sort quickly twice', function (assert) {

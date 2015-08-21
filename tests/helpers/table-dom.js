@@ -85,10 +85,15 @@ var TableDom = Ember.ObjectProxy.extend({
   },
 
   scrollTop: function (defer, count) {
+    var delta = 30;
+    if (count < 0) {
+      count = -count;
+      delta = -30;
+    }
     var px = 0;
     var scrollBar = this.find('.antiscroll-box .antiscroll-inner');
     var scroll = function () {
-      px += 30;
+      px += delta;
       scrollBar.scrollTop(px);
       count--;
       if (count > 0) {
