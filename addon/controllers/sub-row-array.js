@@ -27,7 +27,7 @@ var SubRowArray = Ember.ArrayController.extend({
     if (this.get('isLazyLoadContent')) {
       var id = controller.get('id');
       var oldControllersMap = this.get('oldControllersMap');
-      if (oldControllersMap && id!==undefined) {
+      if (oldControllersMap && id !== undefined) {
         var oldExpandedController = oldControllersMap.get(id);
         if (oldExpandedController) {
           this._subControllers[idx] = oldExpandedController;
@@ -41,7 +41,7 @@ var SubRowArray = Ember.ArrayController.extend({
   refreshControllerAt: function(idx, content) {
     var id = Ember.get(content, 'id');
     var oldControllersMap = this.get('oldControllersMap');
-    if (oldControllersMap && id!==undefined) {
+    if (oldControllersMap && id !== undefined) {
       var oldExpandedController = oldControllersMap.get(id);
       if (oldExpandedController) {
         oldExpandedController.set('content', content);
@@ -65,16 +65,21 @@ var SubRowArray = Ember.ArrayController.extend({
   },
 
   getAvailableControllersMap: function () {
-    var map = this._subControllers.reduce(function (res, controller) {
+    var map = Ember.Map.create();
+    this._subControllers.forEach(function (controller) {
       if (controller) {
         var id = controller.get('id');
-        if(id){
-          res.set(id, controller);
+        if (id) {
+          map.set(id, controller);
         }
       }
-      return res;
-    }, Ember.Map.create());
-    return Ember.merge(map, this.get('oldControllersMap') || {});
+    });
+    if (this.get('oldControllersMap')) {
+      this.get('oldControllersMap').forEach(function (value, key) {
+        map.set(key, value);
+      });
+    }
+    return map;
   }
 });
 

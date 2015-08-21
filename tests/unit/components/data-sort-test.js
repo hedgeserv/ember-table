@@ -745,6 +745,39 @@ test('sort by grouper accountSection and accountType, partial data', function(as
   });
 });
 
+test('sort by grouper accountSection then expand, partial data', function(assert) {
+  var defers = DefersPromise.create({count: 6});
+  var component = this.subject({defers: defers, height: 120});
+  this.render();
+  var table = TableDom.create({content: component.$()});
+
+  defers.ready(function () {
+    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
+  }, [0]);
+
+  defers.ready(function () {
+    table.rows(0).groupIndicator().click();
+  }, [1]);
+
+  defers.ready(function () {
+    Ember.run(component, 'setGrouperSortDirection', 0, 'asc');
+  }, [2]);
+
+  defers.ready(function () {
+    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
+  }, [3]);
+
+  return defers.ready(function () {
+    var sortedContent = [
+      ["as-10", "10"],
+      ["at-103", "103"],
+      ["at-104", "104"]
+    ];
+    var bodyCellsContent = table.cellsContent(3, [0, 1]);
+    assert.deepEqual(bodyCellsContent, sortedContent, "should sort by grouper accountSection in desc");
+  });
+});
+
 moduleForEmberTable('lazy-grouped-row-array as ember-table content', function (options) {
   return EmberTableFixture.create({
     height: options.height,
