@@ -147,7 +147,10 @@ var GroupRow = Row.extend({
       if (this.get('children.isNotCompleted')) {
         this.recreateChildrenRow();
       } else {
-        this.recreateSortedChildrenRow(this.get('nextLevelGrouping'));
+        var grouper = this.get('nextLevelGrouping');
+        if (grouper && grouper.get('sortDirection')) {
+          this.recreateSortedChildrenRow(grouper);
+        }
       }
     }),
 

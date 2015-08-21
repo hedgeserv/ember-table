@@ -271,7 +271,7 @@ moduleForEmberTable('Sort a normal JavaScript array by groupers', function () {
   });
 });
 
-test('sort grouper accountSection asc', function(assert) {
+test('sort by grouper accountSection in asc', function(assert) {
   var component = this.subject();
   this.render();
   var table = TableDom.create({content: component.$()});
@@ -285,7 +285,7 @@ test('sort grouper accountSection asc', function(assert) {
   ]);
 });
 
-test('sort grouper accountSection desc', function(assert) {
+test('sort by grouper accountSection in desc', function(assert) {
   var component = this.subject();
   this.render();
   var table = TableDom.create({content: component.$()});
@@ -299,7 +299,7 @@ test('sort grouper accountSection desc', function(assert) {
   ]);
 });
 
-test('change sort grouper accountSection from asc to unsorted', function(assert) {
+test('change grouper accountSection from asc to unsorted', function(assert) {
   var component = this.subject();
   this.render();
   var table = TableDom.create({content: component.$()});
@@ -309,13 +309,13 @@ test('change sort grouper accountSection from asc to unsorted', function(assert)
   });
 
   assert.deepEqual(table.cellsContent([0, 1, 2], [0, 1]), [
-    ['as-2', '1'],
     ['as-1', '2'],
+    ['as-2', '1'],
     ['as-3', '3']
   ]);
 });
 
-test('change sort grouper accountSection to asc with expand state', function (assert) {
+test('change grouper accountSection to asc with expand state', function (assert) {
   var component = this.subject();
   this.render();
   var table = TableDom.create({content: component.$()});
@@ -333,7 +333,7 @@ test('change sort grouper accountSection to asc with expand state', function (as
   ]);
 });
 
-test('change sort grouper accountSection and accountType to asc with expand state', function (assert) {
+test('change grouper accountSection and accountType to asc with expand state', function (assert) {
   var component = this.subject();
   this.render();
   var table = TableDom.create({content: component.$()});
@@ -353,7 +353,7 @@ test('change sort grouper accountSection and accountType to asc with expand stat
   ]);
 });
 
-test('change sort grouper accountSection and accountType to asc with expand state and sorted by id column', function (assert) {
+test('change grouper accountSection and accountType to asc with expand state and sorted by id column', function (assert) {
   var component = this.subject();
   this.render();
   var table = TableDom.create({content: component.$()});
