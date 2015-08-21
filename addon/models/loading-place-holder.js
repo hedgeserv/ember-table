@@ -9,7 +9,7 @@ var LoadingPlaceHolder = Ember.ObjectProxy.extend({
     this.set('isLoaded', true);
     this.set('isLoading', false);
     var contentLoadedHandler = this.get('contentLoadedHandler');
-    contentLoadedHandler(this.get('content'));
+    contentLoadedHandler.get('target').refreshControllerAt(contentLoadedHandler.index, this.get('content'));
   })
 });
 

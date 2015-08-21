@@ -185,9 +185,10 @@ var GroupRow = Row.extend({
         if (p === 0) {
           var content = subRows.objectAtContent(i);
           if (content && Ember.get(content, 'isLoading')) {
-            Ember.set(content, 'contentLoadedHandler', function(content) {
-              subRows.refreshControllerAt(i, content);
-            });
+            Ember.set(content, 'contentLoadedHandler', Ember.Object.create({
+              target: subRows,
+              index: i
+            }));
             var subRowsContent = this.get('children');
             if (subRowsContent.triggerLoading) {
               subRowsContent.triggerLoading(i, this.get('target'), this.get('nextLevelGrouping'));
