@@ -150,9 +150,16 @@ var GroupRow = Row.extend({
         var grouper = this.get('nextLevelGrouping');
         if (grouper && grouper.get('sortDirection')) {
           this.recreateSortedChildrenRow(grouper);
+          this.notifyLengthChange();
         }
       }
     }),
+
+    notifyLengthChange: function() {
+      if (this.get('target')) {
+        this.get('target').notifyPropertyChange('length');
+      }
+    },
 
     findRow: function (idx) {
       var subRows = this.get('_childrenRow');
