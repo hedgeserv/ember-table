@@ -84,10 +84,39 @@ StyleBindingsMixin, RegisterTableComponentMixin, {
       maxWidth: this.get('effectiveMaxWidth'),
       // TODO(azirbel): This is unexpected and needs documentation or removal
       grid: this.get('column.snapGrid'),
-      resize: Ember.$.proxy(this.onColumnResize, this),
-      stop: Ember.$.proxy(this.onColumnResize, this)
+      start: Ember.$.proxy(this.onColumnResizeStart, this),
+      resize: Ember.$.proxy(this.onColumnResizing, this),
+      stop: Ember.$.proxy(this.onColumnResizeStop, this)
     };
   }).property('effectiveMinWidth', 'effectiveMaxWidth'),
+
+  // This flag indicate if the column is resizing, and can not sort.
+  _isResizing: false,
+
+  onColumnResizeStart: function() {
+    this.set('_isResizing', true);
+  },
+
+  onColumnResizing: function(event, ui) {
+    var newWidth = Math.round(ui.size.width);
+    if (this.get('tableComponent.columnMode') === 'standard') {
+      this.get('column').resize(newWidth);
+      this.set('tableComponent.columnsFillTable', false);
+    } else {
+      var diff = this.get('width') - newWidth;
+      this.get('column').resize(newWidth);
+      this.get('nextResizableColumn').resize(
+        this.get('nextResizableColumn.width') + diff);
+    }
+    this.elementSizeDidChange();
+  },
+
+  onColumnResizeStop: function(event ,ui) {
+    this.onColumnResizing(event, ui);
+
+    this.get('tableComponent').elementSizeDidChange();
+    this.set('_isResizing', false);
+  },
 
   didInsertElement: function() {
     // TODO(azirbel): Call this._super()
@@ -110,27 +139,6 @@ StyleBindingsMixin, RegisterTableComponentMixin, {
     }
   }).property('column.isResizable', 'tableComponent.columnMode',
       'nextResizableColumn'),
-
-  // `event` here is a jQuery event
-  onColumnResize: function(event, ui) {
-    var newWidth = Math.round(ui.size.width);
-    if (this.get('tableComponent.columnMode') === 'standard') {
-      this.get('column').resize(newWidth);
-      this.set('tableComponent.columnsFillTable', false);
-    } else {
-      var diff = this.get('width') - newWidth;
-      this.get('column').resize(newWidth);
-      this.get('nextResizableColumn').resize(
-          this.get('nextResizableColumn.width') + diff);
-    }
-
-    this.elementSizeDidChange();
-
-    // Trigger the table resize (and redraw of layout) when resizing is done
-    if (event.type === 'resizestop') {
-      this.get('tableComponent').elementSizeDidChange();
-    }
-  },
 
   elementSizeDidChange: function() {
     var maxHeight = 0;
@@ -163,7 +171,10 @@ StyleBindingsMixin, RegisterTableComponentMixin, {
     }
   },
 
-  click: function(event) {
+  mouseUp: function(event) {
+    if (this.get('_isResizing')) {
+      return;
+    }
     if (!this.get('column.isGroup')) {
       this.get('controller').send('sortByColumn', this.get('content'), event);
     }
