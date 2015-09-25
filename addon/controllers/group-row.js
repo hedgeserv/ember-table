@@ -56,49 +56,52 @@ var GroupRow = Row.extend({
       }
     }),
 
-    sortingColumnsDidChange: Ember.observer('target.sortingColumns._columns', function() {
+    sortingColumnsDidChange: Ember.observer('target.sortingColumns._columns', function () {
       if (this.get('_childrenRow') && !this.get('nextLevelGrouping.sortDirection')) {
-        this.sortingConditionsChanged(this.get('target.sortingColumns'), this.get('target.sortingColumns.isNotEmpty'));
+        this.sortByCondition();
       }
     }),
 
-    sortingGroupersDidChange: Ember.observer('nextLevelGrouping.sortDirection', function() {
+    sortingGroupersDidChange: Ember.observer('nextLevelGrouping.sortDirection', function () {
       if (this.get('_childrenRow')) {
         var previousSortDirection = this.get('_previousGrouperSortDirection');
         var currentSortDirection = this.get('nextLevelGrouping.sortDirection');
         if (previousSortDirection !== currentSortDirection) {
-          this.sortingConditionsChanged(this.get('nextLevelGrouping'), this.get('nextLevelGrouping.sortDirection'));
+          this.sortByCondition();
           this.set('_previousGrouperSortDirection', currentSortDirection);
         }
       }
     }),
 
-    sortingConditionsChanged: function(sorter, isSortConditionNotEmpty) {
+    sorter: Ember.computed('nextLevelGrouping.sortDirection', 'target.sortingColumns._columns', function () {
+      if (this.get('nextLevelGrouping.sortDirection')) {
+        return this.get('nextLevelGrouping');
+      }
+      if (this.get('target.sortingColumns.isNotEmpty')) {
+        return this.get('target.sortingColumns');
+      }
+    }),
+
+    sortByCondition: function () {
       if (this.get('children.isNotCompleted')) {
-        this.recreateChildrenRow();
-        this.notifyLengthChange();
+        var content = LazyGroupRowArray.create();
+        this.set('children', content);
+        this.recreateChildrenRow(content);
       } else {
-        if (isSortConditionNotEmpty) {
-          this.recreateSortedChildrenRow(sorter);
-          this.notifyLengthChange();
+        var sorter = this.get('sorter');
+        if (sorter) {
+          this.recreateChildrenRow(sorter.sortContent(this.get('children')));
         }
       }
     },
 
-    recreateChildrenRow: function() {
-      this.set('children', LazyGroupRowArray.create());
+    recreateChildrenRow: function (content) {
       this.set('_childrenRow', SubRowArray.create({
-        content: this.get('children'),
+        content: content,
         oldControllersMap: this.get('_childrenRow').getAvailableControllersMap(),
-        isContentIncomplete: true
+        isContentIncomplete: this.get('children.isNotCompleted')
       }));
-    },
-
-    recreateSortedChildrenRow: function(sorter) {
-      this.set('_childrenRow', SubRowArray.create({
-        content: sorter.sortContent(this.get('children')),
-        oldControllersMap: this.get('_childrenRow').getAvailableControllersMap()
-      }));
+      this.notifyLengthChange();
     },
 
     notifyLengthChange: function() {

@@ -403,6 +403,22 @@ test('change grouper accountSection and accountType to asc with expand state and
   ]);
 });
 
+test('make grouper unsorted', function (assert) {
+  var component = this.subject();
+  this.render();
+  Ember.run(component, 'setGrouperSortDirection', 0, 'asc');
+  Ember.run(function () {
+    component.getHeaderCell(0).click();
+  });
+  Ember.run(component, 'setGrouperSortDirection', 0, undefined);
+  var res = component.bodyCellsContent([0, 1, 2], [0]);
+  assert.deepEqual(res, [
+    ['1'],
+    ['2'],
+    ['3']
+  ]);
+});
+
 moduleForEmberTable('lazy-array as ember-table content', function (options) {
   return EmberTableFixture.create({
     height: options.height,
