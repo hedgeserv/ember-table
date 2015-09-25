@@ -437,17 +437,6 @@
       overflow: hidden;
     }
 
-    .column-sort-indicator {
-      width: 25px;
-      right: 0px;
-      bottom: 2px;
-      position: absolute;
-      background-color: @table-header-cell-background-color;
-
-      .order {
-        line-height: 2.4;
-      }
-    }
   }
 
   .ember-table-toggle {
@@ -461,8 +450,30 @@
   }
 
   &.sorted {
-    .ember-table-content-container .ember-table-content {
-      padding-right: 25px;
+    padding: 0;
+    position: relative;
+    // Override the jQuery sortable
+    display: block !important;
+    font-size: 12px !important;
+
+    .ember-table-content-container {
+      display: flex;
+      align-items: flex-start;
+      height: 100%;
+
+      .ember-table-content {
+        flex: 1;
+        font-weight: bold;
+        overflow: hidden;
+        align-self: center;
+        position: static;
+      }
+
+      .column-sort-indicator {
+        padding-left: 5px;
+        display: inline;
+        align-self: center;
+      }
     }
   }
 }
