@@ -1,6 +1,49 @@
 # Ember Table Changelog
 
+### Ember Table 0.9.0 _(July 15, 2015)_
+
+_Compatible with Ember 1.12.1_
+
+* Upgrade to Ember-CLI 0.2.7
+* Support for Ember 1.12.1
+    * Unfortunately, the template compiler checks against the version number of
+      precompiled templates - including the patch version (1.12.1). If you are
+      using the globals build (dist/ folder) and a different version of ember,
+      you will need to fork ember-table and recompile with `grunt dist`.
+    * Ember-CLI usage is unchanged.
+
+### Ember Table 0.8.0 _(July 13, 2015)_
+
+_Compatible with Ember 1.11.3_
+
+* Support for Ember 1.11.3
+    * Unfortunately, the template compiler checks against the version number of
+      precompiled templates - including the patch version (1.11.3). If you are
+      using the globals build (dist/ folder) and a different version of ember,
+      you will need to fork ember-table and recompile with `grunt dist`.
+    * Ember-CLI usage is unchanged.
+
+### Ember Table 0.7.0 _(July 13, 2015)_
+
+_Compatible with Ember 1.10_
+
+* Support for Ember 1.10
+    * Precompiled templates (for use outside of ember-cli) are
+      compiled with Htmlbars, so they will work with
+      Ember 1.10 apps.
+
+### Ember Table 0.6.0 _(July 10, 2015)_
+
+_Compatible with Ember 1.9_
+
+* Support for Ember 1.9
+    * Precompiled templates (for use outside of ember-cli) are
+      compiled with Handlebars 2.0, so they will work with
+      Ember 1.9 apps.
+
 ### Ember Table 0.5.1 _(July 7, 2015)_
+
+_Compatible with Ember 1.4 through 1.8_
 
 * Fix antiscroll cleanup
 * Fix lazy container `childView` bug

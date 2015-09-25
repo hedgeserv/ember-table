@@ -435,15 +435,21 @@ test('regular click to sort column of id by completed data', function (assert) {
     var helper = EmberTableHelper.create({_assert: assert, _component: component});
     helper.assertCellContent(0, 0, '3', 'should sort as unsorted');
 
-    helper.getHeaderCell(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
     helper.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
     helper.assertCellContent(0, 0, '0', 'should sort as ascending');
 
-    helper.getHeaderCell(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
     helper.assertDescendingIndicatorInHeaderCell(0, 'should show descending indicator');
     helper.assertCellContent(0, 0, '19', 'should sort as descending');
 
-    helper.getHeaderCell(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
     helper.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
     helper.assertCellContent(0, 0, '0', 'should sort as ascending');
   });
@@ -458,18 +464,28 @@ test('click with command key to sort column of id by completed data', function (
     var helper = EmberTableHelper.create({_assert: assert, _component: component});
     helper.assertCellContent(0, 0, '3', 'should sort as unsorted');
 
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
     helper.assertCellContent(0, 0, '0', 'should sort as ascending');
 
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertNonSortIndicatorInHeaderCell(0, 'should not show loading indicator');
     helper.assertCellContent(0, 0, '0', 'should keep ascending after unsort');
 
-    helper.getHeaderCell(0).click();
-    helper.getHeaderCell(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
 
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertNonSortIndicatorInHeaderCell(0, 'should not show loading indicator');
     helper.assertCellContent(0, 0, '19', 'should keep descending after unsort');
   });
@@ -533,8 +549,12 @@ test('sort quickly twice', function (assert) {
   defers.ready(function () {
     helper.assertCellContent(0, 0, '3', 'should sort as unsorted');
     var idHeaderCell = helper.getHeaderCell(0);
-    idHeaderCell.click();
-    idHeaderCell.click();
+    Ember.run(function() {
+      idHeaderCell.click();
+    });
+    Ember.run(function() {
+      idHeaderCell.click();
+    });
   }, [0, 1]);
 
   return defers.ready(function(){
@@ -593,8 +613,12 @@ test('multiple columns sort with complete data', function(assert) {
   this.render();
 
   return defers.ready(function() {
-    helper.getHeaderCell(0).click();
-    helper.clickHeaderCellWithCommand(1);
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(1);
+    });
 
     var sortedContent = [
       ["1", "a"],
@@ -628,8 +652,12 @@ test('sort completed data by multiple columns', function (assert) {
   }, [0, 1]);
 
   return defers.ready(function () {
-    table.headerRows(0).cell(2).click();
-    table.headerRows(0).cell(3).clickWithCommand();
+    Ember.run(function() {
+      table.headerRows(0).cell(2).click();
+    });
+    Ember.run(function() {
+      table.headerRows(0).cell(3).clickWithCommand();
+    });
 
     var sortedContent = [
       ["activity-0", "state-1"],
@@ -969,15 +997,25 @@ test('click with command key to sort completed data', function (assert) {
 
   return defers.ready(function () {
     helper.assertCellContent(1, 0, '102', 'should unsorted before click header cell');
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertCellContent(1, 0, '101', 'should sort ascending');
 
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertCellContent(1, 0, '101', 'should keep ascending');
 
-    helper.getHeaderCell(0).click();
-    helper.getHeaderCell(0).click();
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertCellContent(10, 0, '110', 'should keep descending');
   });
 });
@@ -1400,11 +1438,17 @@ test('regular click to sort completed data', function (assert) {
   }, [1, 2]);
   return defers.ready(function () {
     helper.assertCellContent(4, 0, '303', 'should unsorted before click header cell');
-    helper.getHeaderCell(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
     helper.assertCellContent(4, 0, '301', 'should sort ascending');
-    helper.getHeaderCell(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
     helper.assertCellContent(9, 0, '310', 'should sort descending');
-    helper.getHeaderCell(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
     helper.assertCellContent(4, 0, '301', 'should sort ascending');
   });
 });
@@ -1422,13 +1466,23 @@ test('click with command key to sort completed data', function (assert) {
   }, [1, 2]);
   return defers.ready(function () {
     helper.assertCellContent(4, 0, '303', 'should unsorted before click header cell');
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertCellContent(4, 0, '301', 'should sort ascending');
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertCellContent(4, 0, '301', 'should keep ascending');
-    helper.getHeaderCell(0).click();
-    helper.getHeaderCell(0).click();
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertCellContent(9, 0, '310', 'should keep descending');
   });
 });
@@ -1453,9 +1507,13 @@ test('regular click to sort partial data', function (assert) {
 
   defers.ready(function () {
     helper.assertCellContent(4, 0, '301', 'should sort ascending');
-    helper.getHeaderCell(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
     helper.assertCellContent(4, 0, '7', 'should sort descending');
-    helper.getHeaderCell(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
   }, [4]);
 
   return defers.ready(function () {
@@ -1492,8 +1550,12 @@ test('click with command key to sort partial data', function (assert) {
   }, [5]);
 
   return defers.ready(function () {
-    helper.getHeaderCell(0).click();
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.assertCellContent(4, 0, '7', 'should keep descending');
   });
 });
@@ -1505,9 +1567,15 @@ test('sort completed descending data to unsorted state with command key', functi
   this.render();
   var helper = EmberTableHelper.create({_assert: assert, _component: component});
   defers.ready(function () {
-    helper.getHeaderCell(0).click();
-    helper.getHeaderCell(0).click();
-    helper.rowGroupingIndicator(0).click();
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.getHeaderCell(0).click();
+    });
+    Ember.run(function() {
+      helper.rowGroupingIndicator(0).click();
+    });
   }, [0]);
 
   defers.ready(function () {
@@ -1520,7 +1588,9 @@ test('sort completed descending data to unsorted state with command key', functi
   }, [3]);
 
   return defers.ready(function () {
-    helper.clickHeaderCellWithCommand(0);
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(0);
+    });
     helper.scrollTop(-150);
     Ember.run.later(function() {
       helper.assertCellContent(4, 0, '810', 'should keep descending');
@@ -1540,8 +1610,12 @@ test('multiple columns sort completed data', function (assert) {
     helper.rowGroupingIndicator(1).click();
   }, [1, 2]);
   return defers.ready(function () {
-    helper.getHeaderCell(1).click();
-    helper.clickHeaderCellWithCommand(2);
+    Ember.run(function() {
+      helper.getHeaderCell(1).click();
+    });
+    Ember.run(function() {
+      helper.clickHeaderCellWithCommand(2);
+    });
     var sortedContent = [
       ["activity-0", "state-1"],
       ["activity-0", "state-3"],

@@ -57,6 +57,7 @@ module.exports = function(defaults) {
    */
   if(app.env === 'test') {
     app.import(app.bowerDirectory + '/jquery-simulate/jquery.simulate.js');
+    app.import(app.bowerDirectory + '/ember/ember-template-compiler.js');
   }
 
   return app.toTree();
