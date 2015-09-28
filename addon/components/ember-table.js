@@ -274,7 +274,8 @@ StyleBindingsMixin, ResizeHandlerMixin, {
       this.set("_innerColumnReordered", !this.get('_innerColumnReordered'));
     }
 
-    return this.prepareTableColumns();
+    this.prepareTableColumns();
+    this.sendAction('onColumnReordered', columns, column, newIndex);
   },
 
   //Do not want to create a new groupedRowController, even if its content length did change as more chunks are loaded.
