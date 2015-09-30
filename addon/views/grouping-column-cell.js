@@ -9,6 +9,8 @@ export default TableCell.extend(
 
   classNames: ['grouping-column-cell'],
 
+  classNameBindings: 'dataClasses',
+
   styleBindings: ['padding-left'],
 
   groupedRowIndicatorView: Ember.computed(function(){
@@ -55,5 +57,19 @@ export default TableCell.extend(
     return numOfGroupIndicators * groupIndicatorWidth + 5;
   }).property('expandLevel', 'groupIndicatorWidth'),
 
-  isExpanded: Ember.computed.alias('row.isExpanded')
+  isExpanded: Ember.computed.alias('row.isExpanded'),
+
+  dataClasses: Ember.computed('tableComponent.groupingMetadata.[]', 'groupingLevel', function() {
+    let groupingMetadata = this.get('tableComponent.groupingMetadata');
+    let groupingLevel = this.get('groupingLevel');
+
+    if (groupingMetadata && groupingLevel >= 0 && groupingLevel < groupingMetadata.length) {
+      var grouper = groupingMetadata[groupingLevel] || {};
+      let dataClasses = Ember.get(grouper, 'dataClasses');
+      if (dataClasses) {
+        return dataClasses.join(' ');
+      }
+    }
+    return '';
+  })
 });
