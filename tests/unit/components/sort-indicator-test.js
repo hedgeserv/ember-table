@@ -1,9 +1,6 @@
 import Ember from 'ember';
 import { test } from 'ember-qunit';
 import moduleForEmberTable from '../../helpers/module-for-ember-table';
-import TableFixture from '../../fixture/table';
-import EmberTableHelper from '../../helpers/ember-table-helper';
-import DefersPromise from '../../fixture/defer-promises';
 import EmberTableFixture from '../../fixture/ember-table';
 
 var normalArray = [{
@@ -16,31 +13,42 @@ var normalArray = [{
   id: 3
 }];
 
-moduleForEmberTable('Sort Indicator', function (options) {
+moduleForEmberTable('Sort Indicator', function () {
   return EmberTableFixture.create({
-    height: options.height,
+    height: 120,
     content: normalArray
   });
 });
 
-test('should show indicator when sort by column', function (assert) {
-  var defers = DefersPromise.create({count: 0});
-  var component = this.subject({defers:defers, height: 120});
+test('indicator when sort column', function (assert) {
+  var component = this.subject();
   this.render();
 
-  return defers.ready(function () {
-    var helper = EmberTableHelper.create({_assert: assert, _component: component});
-
-    Ember.run(function () {
-      helper.getHeaderCell(0).click();
-    });
-    helper.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
-
-    Ember.run(function () {
-      helper.getHeaderCell(0).click();
-    });
-    helper.assertDescendingIndicatorInHeaderCell(0, 'should show descending indicator while changing indicator');
+  var columnHeaderCell = component.getHeaderCell(0);
+  Ember.run(function () {
+    columnHeaderCell.click();
   });
+  assert.ascendingIndicatorOn(columnHeaderCell, 'should show ascending indicator');
+
+  Ember.run(function () {
+    columnHeaderCell.click();
+  });
+  assert.descendingIndicatorOn(columnHeaderCell, 'should show descending indicator while changing indicator');
 });
 
+test('minWidth when sort column', function (assert) {
+  var component = this.subject();
+  this.render();
+  Ember.run(function () {
+    component.resizeColumn('Column1', -130);
+  });
+  var unsortedWidth = component.getHeaderCell(0).outerWidth();
+  assert.equal(unsortedWidth, 25, 'should resize to default minWidth of column');
+
+  Ember.run(function () {
+    component.getHeaderCell(0).click();
+  });
+  var sortedWidth = component.getHeaderCell(0).outerWidth();
+  assert.equal(sortedWidth, 43, 'should resize to minWidth which include column minWidth and sort indicator width');
+});
 

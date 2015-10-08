@@ -17,28 +17,17 @@ export default Ember.Object.extend({
     return Ember.compare(prevValue, nextValue);
   },
 
-  sortIndicatorStyles: Ember.computed(function() {
-    var sortIndicatorStyles = ['sort-indicator-icon'];
-    var sortIndicatorClassMap = {
-      '1': 'sort-indicator-icon-up',
-      '-1': 'sort-indicator-icon-down',
-      '0': ''
-    };
-    sortIndicatorStyles.push(sortIndicatorClassMap[this.get('_sortState')]);
-    return sortIndicatorStyles;
-  }).property('_sortState'),
-
   // Path of the content for this cell. If the row object is a hash of keys
   // and values to specify data for each column, `contentPath` corresponds to
   // the key.
   contentPath: undefined,
 
+  sortIndicatorWidth: 0,
+
   // Minimum column width. Affects both manual resizing and automatic resizing.
-  minWidth: Ember.computed(function(){
-    var defaultWidth = 25;
-    var triangleWidth = this.get('_sortState') === 0 ? 0 : 15;
-    return defaultWidth + triangleWidth;
-  }).property('_sortState'),
+  minWidth: Ember.computed(function (_, width) {
+    return (width || 25) + this.get('sortIndicatorWidth'); // if there is not sort indicator, the default minWidth is 25 px
+  }).property('sortIndicatorWidth'),
 
   // Maximum column width. Affects both manual resizing and automatic resizing.
   maxWidth: undefined,
