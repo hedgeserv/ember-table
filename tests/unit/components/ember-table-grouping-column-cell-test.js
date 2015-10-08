@@ -14,7 +14,13 @@ moduleForEmberTable('grouping column cell', function () {
         }
       ],
     groupMeta: {
-      groupingMetadata: [{id: 'accountSection'}, {id:''}]
+      groupingMetadata: [
+        {
+          id: 'accountSection',
+          dataClasses: ['string']
+        },
+        {id:''}
+      ]
     }
   });
 });
@@ -28,4 +34,14 @@ test('render very long string', function (assert) {
   var groupingIndicator = cell.children().eq(1);
   var cellContent = cell.children().eq(2);
   assert.ok(groupingIndicator.offset().left < cellContent.offset().left, 'should render text and indicator in same row');
+});
+
+test('populate data classes', function (assert) {
+  var component = this.subject();
+  var helper = EmberTableHelper.create({_assert: assert, _component: component});
+  this.render();
+
+  var cell = helper.fixedBodyCell(0, 0);
+  assert.ok(cell.hasClass('string'), 'should populate data classes');
+
 });
