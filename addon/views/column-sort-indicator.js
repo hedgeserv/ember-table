@@ -1,10 +1,12 @@
 import Ember from 'ember';
 import RegisterTableComponentMixin from 'ember-table/mixins/register-table-component';
 
-export default Ember.View.extend(RegisterTableComponentMixin,{
+export default Ember.View.extend(RegisterTableComponentMixin, {
   templateName: 'column-sort-indicator',
 
-  classNameBindings: ['columnCellStyle'],
+  classNames: ['column-sort-indicator', 'sort-indicator-icon'],
+
+  classNameBindings: ['sortIndicatorStyles'],
 
   tagName: 'span',
 
@@ -14,14 +16,27 @@ export default Ember.View.extend(RegisterTableComponentMixin,{
     var sortingColumns = this.get('tableComponent.sortingColumns');
     if (sortingColumns && sortingColumns.get('isMultipleColumns')) {
       var index = sortingColumns.findOrder(this.get('column'));
-      return index > 0 ? index: "";
+      return index > 0 ? index : "";
     }
     return "";
   }).property('tableComponent.sortingColumns._columns'),
 
-  columnCellStyle: Ember.computed(function(){
-    var columnClasses = ['column-sort-indicator'];
-    columnClasses = columnClasses.concat(this.get('column.sortIndicatorStyles'));
-    return columnClasses.join(' ');
-  }).property('column.sortIndicatorStyles')
+  sortIndicatorStyles: Ember.computed(function () {
+    var sortIndicatorClassMap = {
+      'asc': 'sort-indicator-icon-up',
+      'desc': 'sort-indicator-icon-down'
+    };
+    return sortIndicatorClassMap[this.get('column.sortDirect')] || '';
+  }).property('column.sortDirect'),
+
+  width: 18,
+
+  columnSortDirectionDidChange: Ember.observer('column.sortDirect', function () {
+    var sortIndicatorWidth = this.get('column.sortDirect') ? this.get('width') : 0;
+    this.set('column.sortIndicatorWidth', sortIndicatorWidth);
+    var columnMinWidth = this.get('column.minWidth');
+    if (columnMinWidth > this.get('column.width')) {
+      this.get('column').resize(columnMinWidth);
+    }
+  })
 });

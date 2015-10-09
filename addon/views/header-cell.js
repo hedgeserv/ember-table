@@ -178,6 +178,6 @@ StyleBindingsMixin, RegisterTableComponentMixin, {
     if (!this.get('column.isGroup')) {
       this.get('controller').send('sortByColumn', this.get('content'), event);
     }
-    Ember.run.schedule('afterRender', this, this.elementSizeDidChange);
+    this.cellWidthDidChange();
   }
 });
