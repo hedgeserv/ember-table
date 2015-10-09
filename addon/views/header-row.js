@@ -30,7 +30,11 @@ StyleBindingsMixin, RegisterTableComponentMixin, SortableMixin, {
   // for sortable mixin
   sortableItemSelector: '.ember-table-header-cell',
   sortableTargetElement: '.ui-state-highlight',
-  sortableElement: '> div',
+
+  getSortableElement: function () {
+    return this.$('> div');
+  },
+
   columnSortDidStart: function() {
     if (this.get('tableComponent.hasColumnGroup')) {
       this.set('tableComponent._isReorderInnerColumns', true);
@@ -40,14 +44,14 @@ StyleBindingsMixin, RegisterTableComponentMixin, SortableMixin, {
   didInsertElement: function() {
     this._super();
     if (this.get('enableColumnReorder')) {
-      this.$('> div').sortable(this.get('sortableOption'));
+      this.getSortableElement().sortable(this.get('sortableOption'));
     }
   },
 
   willDestroyElement: function() {
     if (this.get('enableColumnReorder')) {
       // TODO(azirbel): Get rid of this check, as in onColumnSortDone?
-      var $divs = this.$('> div');
+      var $divs = this.getSortableElement();
       if ($divs) {
         $divs.sortable('destroy');
       }

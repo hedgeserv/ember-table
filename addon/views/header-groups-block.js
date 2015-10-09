@@ -3,13 +3,13 @@ import StyleBindingsMixin from 'ember-table/mixins/style-bindings';
 import RegisterTableComponentMixin from 'ember-table/mixins/register-table-component';
 import SortabelMixin from 'ember-table/mixins/sortable';
 
-export default Ember.CollectionView.extend(
+export default Ember.View.extend(
   StyleBindingsMixin, RegisterTableComponentMixin, SortabelMixin, {
+    templateName: 'header-groups-block',
     classNames: ['ember-table-table-block', 'ember-table-header-groups-block'],
     styleBindings: ['width'],
     columnGroups: undefined,
     headerHeight: undefined,
-    itemViewClass: 'header-group',
 
     height: Ember.computed(function () {
       return this.get('tableComponent._headerHeight') * 2;
@@ -24,33 +24,22 @@ export default Ember.CollectionView.extend(
       return this.$().scrollLeft(this.get('scrollLeft'));
     }, 'scrollLeft'),
 
-    content: Ember.computed(function () {
-      var columnGroups = this.get('columnGroups');
-      return columnGroups.map(function (columnGroup) {
-        if (!!columnGroup.get('innerColumns')) {
-          return [[columnGroup], columnGroup.get('columns')];
-        } else {
-          return [[columnGroup]];
-        }
-      });
-    }).property('columnGroups.@each'),
+    columnGroupsDisChange: Ember.observer('columnGroups.@each', function () {
+      this.rerender();
+    }),
 
-    createChildView: function (view, attrs) {
-      var columnGroups = this.get('tableComponent._columns');
-      var childView = view.extend({
-        scrollLeft: this.get('scrollLeft'),
-        height: this.get('height'),
-        group: columnGroups[attrs.contentIndex],
-        columnGroup: this.get('columnGroups')[attrs.contentIndex]
-      });
-      return this._super(childView, attrs);
-    },
+    columnGroupWidths: Ember.computed.mapBy('columnGroups', 'width'),
+
+    totalWidth: Ember.computed.sum('columnGroupWidths'),
 
     // for sortable mixin
     reorderPlaceHolderClass: 'group-column-reorder-indicator',
     sortableItemSelector: '.ember-table-header-block',
-    sortableTargetElement: '> .ui-state-highlight.group-column-reorder-indicator',
+    sortableTargetElement: '> div > .ui-state-highlight.group-column-reorder-indicator',
     sortItemName: 'columnGroup',
+    getSortableElement: function () {
+      return this.$('> div');
+    },
 
     columnSortDidStart: function() {
       this.set('tableComponent._isReorderInnerColumns', false);
@@ -67,14 +56,14 @@ export default Ember.CollectionView.extend(
     didInsertElement: function () {
       this._super();
       if (this.get('tableComponent.enableColumnReorder')) {
-        this.$().sortable(this.get('sortableOption'));
+        this.getSortableElement().sortable(this.get('sortableOption'));
       }
     },
 
     willDestroyElement: function () {
       if (this.get('tableComponent.enableColumnReorder')) {
         // TODO(azirbel): Get rid of this check, as in onColumnSortDone?
-        var $divs = this.$();
+        var $divs = this.getSortableElement();
         if ($divs) {
           $divs.sortable('destroy');
         }

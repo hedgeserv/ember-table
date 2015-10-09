@@ -14,6 +14,15 @@ export default HeaderBlock.extend({
     return innerColumns && innerColumns.length > 1;
   }).property("columnGroup.innerColumns.[]"),
 
+  content: Ember.computed('columnGroup.columns', function () {
+    var rows = [[this.get('columnGroup')]];
+    var innerColumns = this.get('columnGroup.columns');
+    if(innerColumns && innerColumns.length) {
+      rows.push(innerColumns);
+    }
+    return rows;
+  }),
+
   createChildView: function(viewClass, attrs) {
     var vc = viewClass.extend({
       top: attrs.contentIndex * this.get('headerHeight'),

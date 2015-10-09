@@ -1,0 +1,9 @@
+<div style="width: {{view.totalWidth}}px; height: 100%">
+  {{#each columnGroup in view.columnGroups}}
+    {{view 'header-group'
+      scrollLeft=scrollLeft
+      height=height
+      columnGroup=columnGroup
+    }}
+  {{/each}}
+</div>
