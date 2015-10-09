@@ -36,7 +36,7 @@ export default Ember.View.extend(RegisterTableComponentMixin, {
     this.set('column.sortIndicatorWidth', sortIndicatorWidth);
     var columnMinWidth = this.get('column.minWidth');
     if (columnMinWidth > this.get('column.width')) {
-      this.set('column.width', columnMinWidth);
+      this.get('column').resize(columnMinWidth);
     }
   })
 });
