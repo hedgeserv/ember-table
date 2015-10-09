@@ -4,9 +4,7 @@ import RegisterTableComponentMixin from 'ember-table/mixins/register-table-compo
 export default Ember.View.extend(RegisterTableComponentMixin, {
   templateName: 'column-sort-indicator',
 
-  classNames: ['column-sort-indicator', 'sort-indicator-icon'],
-
-  classNameBindings: ['sortIndicatorStyles'],
+  classNameBindings: ['sortIndicatorStyles', 'viewClassName'],
 
   tagName: 'span',
 
@@ -21,12 +19,18 @@ export default Ember.View.extend(RegisterTableComponentMixin, {
     return "";
   }).property('tableComponent.sortingColumns._columns'),
 
+  viewClassName: Ember.computed(function () {
+    return 'column-sort-indicator';
+  }),
+
   sortIndicatorStyles: Ember.computed(function () {
+    let indicatorClasses = ['sort-indicator-icon'];
     var sortIndicatorClassMap = {
       'asc': 'sort-indicator-icon-up',
       'desc': 'sort-indicator-icon-down'
     };
-    return sortIndicatorClassMap[this.get('column.sortDirect')] || '';
+    let iconClass = sortIndicatorClassMap[this.get('column.sortDirect')] || '';
+    return indicatorClasses.concat(iconClass).join(' ');
   }).property('column.sortDirect'),
 
   width: 18,
