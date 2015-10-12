@@ -218,6 +218,12 @@ StyleBindingsMixin, ResizeHandlerMixin, {
 
   init: function() {
     this._super();
+    let sortingColumns = this.get('sortingColumns');
+    var bodyContent = this.get('bodyContent');
+    if (bodyContent.sort) {
+      bodyContent.sort(sortingColumns);
+    }
+
     if (this.get('hasColumnGroup')) {
       this.set('columnGroups', this.get('_columns'));
     }
