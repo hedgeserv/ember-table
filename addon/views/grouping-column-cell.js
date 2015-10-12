@@ -40,11 +40,13 @@ export default TableCell.extend(
   actions: {
     toggleExpansionState: function() {
       var row = this.get('row');
-      var target = row.get('target');
-      if (this.get('isExpanded')) {
-        target.collapseChildren(row);
-      } else {
-        target.expandChildren(row);
+      if (row) {
+        var target = row.get('target');
+        if (this.get('isExpanded')) {
+          target.collapseChildren(row);
+        } else {
+          target.expandChildren(row);
+        }
       }
     }
   },
