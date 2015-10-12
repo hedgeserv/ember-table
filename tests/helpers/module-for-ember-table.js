@@ -37,7 +37,9 @@ export default function moduleForEmberTable(description, subject) {
       'template:grouping-column-cell',
       'template:row-loading-indicator',
       'template:grouped-row-indicator',
-      'template:column-sort-indicator'
+      'template:column-sort-indicator',
+      'template:header-groups-block'
+
     ],
     subject: subject
   });

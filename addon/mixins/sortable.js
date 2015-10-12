@@ -48,7 +48,9 @@ export default Ember.Mixin.create({
     this.set('tableComponent._sortableIndicatorLeft', left);
   },
 
-  sortableElement: null,
+  getSortableElement: function () {
+    return this.$();
+  },
 
   sortItemName: 'column',
 
@@ -56,8 +58,7 @@ export default Ember.Mixin.create({
 
   onColumnSortDone: function (event, ui) {
     var newIndex = ui.item.index();
-    var sortableElement = this.get('sortableElement');
-    this.$(sortableElement).sortable('cancel');
+    this.getSortableElement().sortable('cancel');
     var view = Ember.View.views[ui.item.attr('id')];
     var column = view.get(this.get('sortItemName'));
     this.get('tableComponent').onColumnSort(column, newIndex);
