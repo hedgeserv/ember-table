@@ -69,5 +69,7 @@ export default RowArrayController.extend({
     return root.get('_childrenRow.length') + subRowsCount;
   }).property('_virtualRootRow._childrenRow.@each.subRowsCount'),
 
-  groupMeta: null
+  groupMeta: null,
+
+  sortingColumns: null
 });
