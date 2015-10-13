@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import computed from "ember-new-computed";
 
 export default Ember.Object.extend({
   // ---------------------------------------------------------------------------
@@ -25,9 +26,14 @@ export default Ember.Object.extend({
   sortIndicatorWidth: 0,
 
   // Minimum column width. Affects both manual resizing and automatic resizing.
-  minWidth: Ember.computed(function (_, width) {
-    return (width || 25) + this.get('sortIndicatorWidth'); // if there is not sort indicator, the default minWidth is 25 px
-  }).property('sortIndicatorWidth'),
+  minWidth: computed('sortIndicatorWidth', {
+    get: function() {
+      return 25 + this.get('sortIndicatorWidth'); // if there is not sort indicator, the default minWidth is 25 px
+    },
+    set: function(key, value) {
+      return value + this.get('sortIndicatorWidth');
+    }
+  }),
 
   // Maximum column width. Affects both manual resizing and automatic resizing.
   maxWidth: undefined,

@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import StyleBindingsMixin from 'ember-table/mixins/style-bindings';
 import RegisterTableComponentMixin from 'ember-table/mixins/register-table-component';
+import computed from "ember-new-computed";
 
 export default Ember.View.extend(
 StyleBindingsMixin, RegisterTableComponentMixin, {
@@ -67,17 +68,23 @@ StyleBindingsMixin, RegisterTableComponentMixin, {
     }
   }, 'column.contentPath'),
 
-  cellContent: Ember.computed(function(key, value) {
-    var row = this.get('row');
-    var column = this.get('column');
-    if (!row || !column) {
-      return;
-    }
-    if (arguments.length === 1) {
-      value = column.getCellContent(row);
-    } else {
+  cellContent: computed('row.isLoaded', 'column', {
+    get: function() {
+      var row = this.get('row');
+      var column = this.get('column');
+      if (!row || !column) {
+        return;
+      }
+      return column.getCellContent(row);
+    },
+    set: function(key, value) {
+      var row = this.get('row');
+      var column = this.get('column');
+      if (!row || !column) {
+        return;
+      }
       column.setCellContent(row, value);
+      return value;
     }
-    return value;
-  }).property('row.isLoaded', 'column')
+  })
 });

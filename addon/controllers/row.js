@@ -1,14 +1,18 @@
 import Ember from 'ember';
+import computed from "ember-new-computed";
 
 export default Ember.ObjectProxy.extend({
   content: null,
   isShowing: true,
   isHovered: false,
-  isSelected: Ember.computed(function(key, val) {
-    if (arguments.length > 1) {
-      this.get('parentController').setSelected(this, val);
+  isSelected: computed('parentController.selection.[]', {
+    get: function() {
+      return this.get('parentController').isSelected(this);
+    },
+    set: function(key, value) {
+      this.get('parentController').setSelected(this, value);
+      return value;
     }
-    return this.get('parentController').isSelected(this);
-  }).property('parentController.selection.[]')
+  })
 
 });
