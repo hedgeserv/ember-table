@@ -7,6 +7,7 @@ import Row from 'ember-table/controllers/row';
 import GroupRow from 'ember-table/controllers/group-row';
 import ColumnDefinition from 'ember-table/models/column-definition';
 import SortingColumns from 'ember-table/models/sorting-columns';
+import computed from 'ember-new-computed';
 
 export default Ember.Component.extend(
 StyleBindingsMixin, ResizeHandlerMixin, {
@@ -137,29 +138,33 @@ StyleBindingsMixin, ResizeHandlerMixin, {
 
   // An array of the rows currently selected. If `selectionMode` is set to
   // 'single', the array will contain either one or zero elements.
-  selection: Ember.computed(function(key, val) {
-    var selectionMode = this.get('selectionMode');
-    if (arguments.length > 1 && val) {
+  selection: computed('persistedSelection.[]', 'rangeSelection.[]', 'selectionMode', {
+    get: function() {
+      var selectionMode = this.get('selectionMode');
+      var selection = this.get('persistedSelection').copy().addObjects(this.get('rangeSelection'));
+      switch (selectionMode) {
+        case 'none':
+          return null;
+        case 'single':
+          return selection[0] || null;
+        case 'multiple':
+          return selection;
+      }
+    },
+    set: function(key, value) {
+      var selectionMode = this.get('selectionMode');
       this.get('persistedSelection').clear();
       this.get('rangeSelection').clear();
       switch (selectionMode) {
         case 'single':
-          this.get('persistedSelection').addObject(val);
+          this.get('persistedSelection').addObject(value);
           break;
         case 'multiple':
-          this.get('persistedSelection').addObjects(val);
+          this.get('persistedSelection').addObjects(value);
       }
+      return value;
     }
-    var selection = this.get('persistedSelection').copy().addObjects(this.get('rangeSelection'));
-    switch (selectionMode) {
-      case 'none':
-        return null;
-      case 'single':
-        return selection[0] || null;
-      case 'multiple':
-        return selection;
-    }
-  }).property('persistedSelection.[]', 'rangeSelection.[]', 'selectionMode'),
+  }),
 
   // Columns involved in sorting, sort direction is property _sortState of each column.
   // Sort order is decided by index of each column, smaller index has higher order.
@@ -184,12 +189,10 @@ StyleBindingsMixin, ResizeHandlerMixin, {
 
   // _resolvedContent is an intermediate property between content and rows
   // This allows content to be a plain array or a promise resolving to an array
-  _resolvedContent: function(key, value) {
-    if (arguments.length > 1) {
-      return value;
-    } else {
+  _resolvedContent: computed('content', {
+    get: function() {
       var _this = this;
-      value = [];
+      var value = [];
 
       var content = this.get('content');
       if (content.then)
@@ -213,8 +216,11 @@ StyleBindingsMixin, ResizeHandlerMixin, {
         // content is not a promise
         return content;
       }
+    },
+    set: function(key, value) {
+      return value;
     }
-  }.property('content'),
+  }),
 
   init: function() {
     this._super();
@@ -317,13 +323,14 @@ StyleBindingsMixin, ResizeHandlerMixin, {
   }).property('_resolvedContent.[]', '_hasGroupingColumn'),
 
   // An array of Ember.Table.Row
-  footerContent: Ember.computed(function(key, value) {
-    if (value) {
-      return value;
-    } else {
+  footerContent: computed({
+    get: function() {
       return Ember.A();
+    },
+    set: function(key, value) {
+      return value;
     }
-  }).property(),
+  }),
 
   fixedColumns: Ember.computed(function() {
     var columns = this.get('_columns');
