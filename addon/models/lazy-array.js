@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 export default Ember.ArrayProxy.extend({
   //Total count of rows
-  totalCount: undefined,
+  totalCount: 0,
 
   loadingCount: 0,
 
@@ -10,9 +10,9 @@ export default Ember.ArrayProxy.extend({
   // The callback should return a promise which will return an array of rows.
   // The callback function should maintain the sequence of chunks,
   // first call to it should return first chunk, next call to it should return next chunk.
-  callback: undefined,
+  callback: null,
 
-  chunkSize: undefined,
+  chunkSize: 0,
 
   isEmberTableContent: true,
 
@@ -21,6 +21,11 @@ export default Ember.ArrayProxy.extend({
     var lazyContent = new Array(totalCount);
     this.set('content', lazyContent);
   },
+
+  onTotalCountDidChanged: Ember.observer('totalCount', function () {
+    let count = Number.parseInt(this.get('totalCount'));
+    this.set('content', this.get('content').slice(0, count));
+  }),
 
   fetchObjectAt: function (index) {
     var content = this.get('content');
