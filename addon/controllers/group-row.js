@@ -49,6 +49,9 @@ var GroupRow = Row.extend({
       }
     },
 
+    arbitraryExpandLevelDidChange: Ember.observer('target.groupMeta.arbitraryExpandLevel', function(){
+    }),
+
     subRowsCountDidChange: Ember.observer('subRowsCount', function () {
       var parentRow = this.get('parentRow');
       if (parentRow) {

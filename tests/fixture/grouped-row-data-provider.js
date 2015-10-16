@@ -120,9 +120,11 @@ export default Ember.Object.extend({
   doLoadChildren: function (chunkIndex, sortingColumns, groupQuery) {
     var dataProvider = new DataProvider({columnName: this.get('columnName')});
     var defer = this.get('defers').next();
-    var result = {
-      content: dataProvider.sortData(chunkIndex, sortingColumns, this.get('groupingMetadata'), groupQuery),
-      meta: {totalCount: this.get('totalCount'), chunkSize: this.get('chunkSize')}
+    var content = dataProvider.sortData(chunkIndex, sortingColumns, this.get('groupingMetadata'), groupQuery);
+    var chunkSize = this.get('chunkSize');
+      var result = {
+      content: content.slice(0, chunkSize),
+      meta: {totalCount: this.get('totalCount'), chunkSize: chunkSize}
     };
     delayResolve(defer, result, this.get('delayTime'));
     this.incrementProperty('loadChunkCount');
