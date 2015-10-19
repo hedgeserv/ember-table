@@ -5,6 +5,7 @@ import LazyGroupRowArray from '../models/lazy-group-row-array';
 import RowPath from 'ember-table/models/row-path';
 
 var GroupRow = Row.extend({
+
     subRowsCount: Ember.computed(function () {
       if (!this.get('isExpanded')) {
         return 0;
@@ -170,6 +171,7 @@ var GroupRow = Row.extend({
             parentRow: this
           });
           subRows.setControllerAt(newRow, i);
+          newRow.tryExpandChildren();
           return newRow;
         }
         var row = subRows.objectAt(i);
@@ -217,15 +219,23 @@ var GroupRow = Row.extend({
     }).property('parentRow.path', 'grouping.key', 'content'),
 
     expandToLevelDidChange: Ember.observer('target.groupMeta.arbitraryExpandLevel', function () {
+      this.tryExpandChildren();
+    }),
+
+    //works for loading place holder
+    placeHolderContentDidLoad: Ember.observer('isLoaded', function() {
+      this.tryExpandChildren();
+    }),
+
+    tryExpandChildren: function() {
       let selfLevel = this.get('expandLevel') + 1; //convert to 1-based
       let targetLevel = this.get('target.groupMeta.arbitraryExpandLevel');
       if (selfLevel < targetLevel) {
-        if (!this.get('isExpanded')) {
+        if (this.get('isLoaded') && !this.get('isExpanded')) {
           this.expandChildren();
         }
       }
-    })
-
+    }
   }
 );
 

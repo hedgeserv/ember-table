@@ -11,8 +11,8 @@ moduleForEmberTable('Unit | Components | expand to arbitrary level', function (o
   return EmberTableFixture.create({
     height: options.height,
     groupMeta: GroupedRowDataProvider.create({
-      chunkSize: 3,
-      totalCount: 3,
+      chunkSize: 2,
+      totalCount: 2,
       defers: options.defers,
       groupingMetadata: [{id: 'accountSection'}, {id: 'accountType'}, {id: 'accountCode'}]
     })
@@ -34,16 +34,15 @@ test('expand to level 1', function (assert) {
 
     var content = [
       ["as-1"],
-      ["as-2"],
-      ["as-3"]
+      ["as-2"]
     ];
-    var bodyCellsContent = table.cellsContent(3, [0]);
+    var bodyCellsContent = table.cellsContent(2, [0]);
     assert.deepEqual(bodyCellsContent, content, "should expand to level 1 on init.");
   });
 });
 
 test('expand to level 2', function (assert) {
-  var defers = DefersPromise.create({count: 4});
+  var defers = DefersPromise.create({count: 3});
   var component = this.subject({defers: defers, height: 1000});
   this.render();
   var table = TableDom.create({content: component.$()});
@@ -59,17 +58,45 @@ test('expand to level 2', function (assert) {
       ["as-1"],
       ["at-102"],
       ["at-101"],
-      ["at-105"],
       ["as-2"],
       ["at-201"],
-      ["at-202"],
-      ["at-203"],
-      ["as-3"],
-      ["at-303"],
-      ["at-304"],
-      ["at-305"]
+      ["at-202"]
     ];
-    var bodyCellsContent = table.cellsContent(12, [0]);
+    var bodyCellsContent = table.cellsContent(6, [0]);
     assert.deepEqual(bodyCellsContent, content, "all level 1 rows should be expanded.");
+  });
+});
+
+test('expand to level 3', function (assert) {
+  var defers = DefersPromise.create({count: 7});
+  var component = this.subject({defers: defers, height: 1000});
+  this.render();
+  var table = TableDom.create({content: component.$()});
+  defers.ready(() => {
+    Ember.run(() => {
+      component.set('groupMeta.arbitraryExpandLevel', 3);
+    });
+  }, [0]);
+
+  return defers.ready(() => {
+
+    var content = [
+      ["as-1"],
+      ["at-102"],
+      ["ac-1003"],
+      ["ac-1005"],
+      ["at-101"],
+      ["ac-1001"],
+      ["ac-1002"],
+      ["as-2"],
+      ["at-201"],
+      ["ac-2001"],
+      ["ac-2002"],
+      ["at-202"],
+      ["ac-2001"],
+      ["ac-2002"]
+    ];
+    var bodyCellsContent = table.cellsContent(14, [0]);
+    assert.deepEqual(bodyCellsContent, content, "all level 1,2 rows should be expanded.");
   });
 });
