@@ -214,7 +214,17 @@ var GroupRow = Row.extend({
     path: Ember.computed(function() {
       var parentPath = this.get('parentRow.path') || RowPath.create();
       return parentPath.createChild(this);
-    }).property('parentRow.path', 'grouping.key', 'content')
+    }).property('parentRow.path', 'grouping.key', 'content'),
+
+    expandToLevelDidChange: Ember.observer('target.groupMeta.arbitraryExpandLevel', function () {
+      let selfLevel = this.get('expandLevel') + 1; //convert to 1-based
+      let targetLevel = this.get('target.groupMeta.arbitraryExpandLevel');
+      if (selfLevel < targetLevel) {
+        if (!this.get('isExpanded')) {
+          this.expandChildren();
+        }
+      }
+    })
 
   }
 );

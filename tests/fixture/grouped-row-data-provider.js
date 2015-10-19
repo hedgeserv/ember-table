@@ -57,6 +57,7 @@ var DataProvider = function(options) {
     ['accountSection=10&chunkIndex=0&sortDirect[0]=asc&sortName[0]=id', [1, 2, 3, 4, 5], 100],
     ['accountSection=10&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 100],
     ['accountSection=10&chunkIndex=1&sortDirect[0]=desc&sortName[0]=id', [5, 4, 3, 2, 1], 100],
+    ['accountSection=2&chunkIndex=0', [1, 2, 3, 4, 5], 200],
     ['accountSection=3&chunkIndex=0', [3, 4, 5, 1, 2], 300],
     ['accountSection=3&chunkIndex=1', [8, 9, 10, 6, 7], 300],
     ['accountSection=3&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 300],
@@ -96,6 +97,7 @@ var DataProvider = function(options) {
             index, column.get("sortDirect"), index, column.get("contentPath"));
         }).join("&");
     }
+    console.log(theQueryString);
     return sortDataMap.get(theQueryString)();
   };
 };
