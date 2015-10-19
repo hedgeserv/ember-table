@@ -128,3 +128,63 @@ test('expand to level 3 then scroll down', function (assert) {
     assert.deepEqual(bodyCellsContent, content, "rows should be auto expanded.");
   });
 });
+
+test('collapse to level 1', function (assert) {
+  var defers = DefersPromise.create({count: 7});
+  var component = this.subject({defers: defers, height: 1000});
+  this.render();
+  var table = TableDom.create({content: component.$()});
+  defers.ready(() => {
+    Ember.run(() => {
+      component.set('groupMeta.arbitraryExpandLevel', 3);
+    });
+  }, [0]);
+
+  defers.ready(() => {
+    Ember.run(() => {
+      component.set('groupMeta.arbitraryExpandLevel', 1);
+    });
+  }, [1, 2, 3, 4, 5, 6]);
+
+  return defers.ready(() => {
+
+    var content = [
+      ["as-1"],
+      ["as-2"]
+    ];
+    var bodyCellsContent = table.cellsContent(2, [0]);
+    assert.deepEqual(bodyCellsContent, content, "should collapse to level 1.");
+  });
+});
+
+test('collapse to level 2', function (assert) {
+  var defers = DefersPromise.create({count: 7});
+  var component = this.subject({defers: defers, height: 1000});
+  this.render();
+  var table = TableDom.create({content: component.$()});
+  defers.ready(() => {
+    Ember.run(() => {
+      component.set('groupMeta.arbitraryExpandLevel', 3);
+    });
+  }, [0]);
+
+  defers.ready(() => {
+    Ember.run(() => {
+      component.set('groupMeta.arbitraryExpandLevel', 2);
+    });
+  }, [1, 2, 3, 4, 5, 6]);
+
+  return defers.ready(() => {
+
+    var content = [
+      ["as-1"],
+      ["at-102"],
+      ["at-101"],
+      ["as-2"],
+      ["at-201"],
+      ["at-202"]
+    ];
+    var bodyCellsContent = table.cellsContent(6, [0]);
+    assert.deepEqual(bodyCellsContent, content, "should collapse to level 2.");
+  });
+});

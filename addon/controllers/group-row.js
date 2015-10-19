@@ -235,6 +235,11 @@ var GroupRow = Row.extend({
           this.expandChildren();
         }
       }
+      if (selfLevel === targetLevel) {
+        if (this.get('isExpanded')) {
+          this.collapseChildren();
+        }
+      }
     }
   }
 );
