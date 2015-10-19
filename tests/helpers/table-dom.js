@@ -44,19 +44,35 @@ let TableDom = Ember.ObjectProxy.extend({
     return this.createChildDom(dom);
   },
 
-  cellsContent(rows, cols) {
-    if (typeof(rows) === 'number') {
+  cellsContent(rowsByIdx, colsByIdx) {
+    if (typeof(rowsByIdx) === 'number') {
       let rowIdxs = [];
-      for (let i = 0; i < rows; i++) {
+      for (let i = 0; i < rowsByIdx; i++) {
         rowIdxs.push(i);
       }
-      rows = rowIdxs;
+      rowsByIdx = rowIdxs;
     }
-    return rows.map((rIdx) => {
-      return cols.map((cIdx) => {
-        return this.cell(rIdx, cIdx).text().trim();
+
+    let rowsIdxByTopValue = this._visibleRowsIdxByTopValue();
+    return rowsByIdx.map((rIdx) => {
+      var rowIdxByTopValue = rowsIdxByTopValue[rIdx];
+      return colsByIdx.map((cIdx) => {
+        return this.cell(rowIdxByTopValue, cIdx).text().trim();
       });
     });
+  },
+
+  _visibleRowsIdxByTopValue: function () {
+    let allRows = this.find('.ember-table-right-table-block.lazy-list-container .ember-table-table-row:visible');
+    let rowIdxAndTopValPair = allRows.map(function (rowIdx) {
+      var top = Ember.$(this).css('top');
+      top = top.substr(0, top.length - 2); //trim ending 'px'
+      return {rowIdx: rowIdx, topValue: parseInt(top)};
+    }).get();
+
+    return rowIdxAndTopValPair.sort((l, r) => {
+      return l.topValue - r.topValue;
+    }).map(x => x.rowIdx);
   },
 
   groupIndicator() {

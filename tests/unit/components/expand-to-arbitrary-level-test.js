@@ -100,3 +100,31 @@ test('expand to level 3', function (assert) {
     assert.deepEqual(bodyCellsContent, content, "all level 1,2 rows should be expanded.");
   });
 });
+
+test('expand to level 3 then scroll down', function (assert) {
+  var defers = DefersPromise.create({count: 7});
+  var component = this.subject({defers: defers, height: 150});
+  this.render();
+  var table = TableDom.create({content: component.$()});
+  defers.ready(() => {
+    Ember.run(() => {
+      component.set('groupMeta.arbitraryExpandLevel', 3);
+    });
+  }, [0]);
+
+  defers.ready(() => {
+    table.scrollTop(defers.next(), 4);
+  }, [1, 2, 3, 4]);
+
+  return defers.ready(() => {
+
+    var content = [
+      ["at-101"],
+      ["ac-1001"],
+      ["ac-1002"],
+      ["as-2"]
+    ];
+    var bodyCellsContent = table.cellsContent(4, [0]);
+    assert.deepEqual(bodyCellsContent, content, "rows should be auto expanded.");
+  });
+});
