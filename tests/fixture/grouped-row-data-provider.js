@@ -48,6 +48,7 @@ var DataProvider = function(options) {
     ['accountSection=1&chunkIndex=0&sortDirect[0]=desc&sortName[0]=accountType', [10, 9, 8, 7, 6], 100],
     ['accountSection=1&chunkIndex=1&sortDirect[0]=desc&sortName[0]=id', [5, 4, 3, 2, 1], 100],
     ['accountSection=1&chunkIndex=1&sortDirect[0]=desc&sortName[0]=accountType', [5, 4, 3, 2, 1], 100],
+    ['accountSection=1&accountType=101&chunkIndex=0', [1, 2, 3, 4, 5], 1000],
     ['accountSection=1&accountType=102&chunkIndex=0', [3, 5, 1, 2, 4], 1000],
     ['accountSection=1&accountType=102&chunkIndex=1', [7, 9, 10, 6, 8], 1000],
     ['accountSection=1&accountType=102&chunkIndex=0&sortDirect[0]=asc&sortName[0]=id', [1, 2, 3, 4, 5], 1000],
@@ -57,6 +58,9 @@ var DataProvider = function(options) {
     ['accountSection=10&chunkIndex=0&sortDirect[0]=asc&sortName[0]=id', [1, 2, 3, 4, 5], 100],
     ['accountSection=10&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 100],
     ['accountSection=10&chunkIndex=1&sortDirect[0]=desc&sortName[0]=id', [5, 4, 3, 2, 1], 100],
+    ['accountSection=2&chunkIndex=0', [1, 2, 3, 4, 5], 200],
+    ['accountSection=2&accountType=201&chunkIndex=0', [1, 2, 3, 4, 5], 2000],
+    ['accountSection=2&accountType=202&chunkIndex=0', [1, 2, 3, 4, 5], 2000],
     ['accountSection=3&chunkIndex=0', [3, 4, 5, 1, 2], 300],
     ['accountSection=3&chunkIndex=1', [8, 9, 10, 6, 7], 300],
     ['accountSection=3&chunkIndex=0&sortDirect[0]=desc&sortName[0]=id', [10, 9, 8, 7, 6], 300],
@@ -120,9 +124,11 @@ export default Ember.Object.extend({
   doLoadChildren: function (chunkIndex, sortingColumns, groupQuery) {
     var dataProvider = new DataProvider({columnName: this.get('columnName')});
     var defer = this.get('defers').next();
-    var result = {
-      content: dataProvider.sortData(chunkIndex, sortingColumns, this.get('groupingMetadata'), groupQuery),
-      meta: {totalCount: this.get('totalCount'), chunkSize: this.get('chunkSize')}
+    var content = dataProvider.sortData(chunkIndex, sortingColumns, this.get('groupingMetadata'), groupQuery);
+    var chunkSize = this.get('chunkSize');
+      var result = {
+      content: content.slice(0, chunkSize),
+      meta: {totalCount: this.get('totalCount'), chunkSize: chunkSize}
     };
     delayResolve(defer, result, this.get('delayTime'));
     this.incrementProperty('loadChunkCount');

@@ -46,5 +46,10 @@ export default Ember.Component.extend(TableSelector, {
   setGrouperSortDirection: function(grouperIndex, sortDirection) {
     var grouper = this.get('groupMeta.groupingMetadata').objectAt(grouperIndex);
     Ember.set(grouper, 'sortDirection', sortDirection);
+  },
+  expandToLevel: function(level) {
+    Ember.run(() => {
+      this.set('groupMeta.arbitraryExpandLevel', level);
+    });
   }
 });
