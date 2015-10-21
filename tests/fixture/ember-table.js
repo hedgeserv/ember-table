@@ -49,7 +49,7 @@ export default Ember.Component.extend(TableSelector, {
   },
   expandToLevel: function(level) {
     Ember.run(() => {
-      this.set('groupMeta.arbitraryExpandLevel', level);
+      this.set('groupMeta.expandToLevelAction', {level: level});
     });
   }
 });

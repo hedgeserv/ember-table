@@ -209,3 +209,25 @@ test('expand to level 3 and collapse to level 2 and collapse level 1', function 
     ], "should collapse to level 1.");
   });
 });
+
+test('expand to level 1, expand first grouper then expand to level 1 again', function(assert){
+  var defers = DefersPromise.create({count: 2});
+  var component = this.subject({defers: defers, height: 1000});
+  this.render();
+  var table = TableDom.create({content: component.$()});
+  defers.ready(() => {
+    component.expandToLevel(1);
+    table.row(0).groupIndicator().click();
+  }, [0]);
+
+  defers.ready(() => {
+    component.expandToLevel(1);
+  }, [1]);
+
+  return defers.ready(() => {
+    assert.deepEqual(table.cellsContent(2, [0]), [
+      ["as-1"],
+      ["as-2"]
+    ], "should collapse to level 1.");
+  });
+});
