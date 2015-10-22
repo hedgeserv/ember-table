@@ -51,7 +51,7 @@ moduleForEmberTable('grand total with lazy load',
   function (options) {
     var defers = options.defers;
     var chunkSize = 5;
-    return EmberTableFixture.create({
+    var emberTableOptions = {
       height: 600,
       width: 700,
       groupMeta: {
@@ -64,8 +64,9 @@ moduleForEmberTable('grand total with lazy load',
             defer.resolve({content: [{id: 'grand total'}], meta: {}});
             return defer.promise;
           }
+
           if (!groupQuery.key) {
-            return  loadGrandTotal();
+            return loadGrandTotal();
           }
           var defer = defers.next();
           var result = {
@@ -78,15 +79,19 @@ moduleForEmberTable('grand total with lazy load',
           }
 
           var queryObj = {};
-          groupQuery.upperGroupings.forEach(function(x) {
-            queryObj[x[0]] = Ember.get(x[1], 'id');
-          });
-          parentQueries.push(queryObj);
-          defer.resolve(result);
-          return defer.promise;
-        }
-      }
-    });
+          groupQuery.upperGroupings.forEach(function (x) {
+                      queryObj[x[0]] = Ember.get(x[1], 'id');
+                  });
+                  parentQueries.push(queryObj);
+                  defer.resolve(result);
+                  return defer.promise;
+              }
+          }
+      };
+    if(options.grandTotalClass){
+      Ember.set(emberTableOptions, 'grandTotalClass', options.grandTotalClass);
+    }
+    return EmberTableFixture.create(emberTableOptions);
   });
 
 test('load group data', function(assert) {
@@ -124,5 +129,24 @@ test('Auto expand grand total row', function (assert) {
       ['3'],
       ['4']
     ], "should expand grand total row");
+  });
+});
+
+test('grand total row have default css style', function (assert) {
+  var defers = DeferPromises.create({count: 2});
+  var component = this.subject({defers: defers, isGrandTotalExpanded: true});
+  this.render();
+  return defers.ready(function () {
+    assert.ok(component.bodyRows().eq(0).hasClass('grand-total-row'), "grand total should have default css style");
+  });
+});
+
+
+test('grand total row have customer css style', function (assert) {
+  var defers = DeferPromises.create({count: 2});
+  var component = this.subject({defers: defers, isGrandTotalExpanded: true, grandTotalClass: 'bg-red'});
+  this.render();
+  return defers.ready(function () {
+    assert.ok(component.bodyRows().eq(0).hasClass('bg-red'), "grand total should have custom css style");
   });
 });

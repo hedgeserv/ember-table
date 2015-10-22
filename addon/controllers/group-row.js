@@ -192,6 +192,12 @@ var GroupRow = Row.extend({
       return this.get('content.children');
     }).property('target.groupMeta.loadChildren', 'grouping.isGroup'),
 
+    rowStyle: Ember.computed.oneWay('grandTotalClass'),
+
+    grandTotalClass: Ember.computed('grouping.grandTotalClass', 'grouping.isGrandTotal', function () {
+      return this.get('grouping.isGrandTotal') ? this.get('grouping.grandTotalClass') : '';
+    }),
+
     hasChildren: Ember.computed.oneWay('grouping.isGroup'),
 
     isExpanded: false,

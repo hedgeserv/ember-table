@@ -132,6 +132,9 @@ StyleBindingsMixin, ResizeHandlerMixin, {
   // Meta info for group data, including groupingMetadata, grandTotalTitle(optional), loadChildren(optional)
   groupMeta: null,
 
+  // Css class style for grand total row.
+  grandTotalClass: 'grand-total-row',
+
   // ---------------------------------------------------------------------------
   // API - Outputs
   // ---------------------------------------------------------------------------
@@ -301,6 +304,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
       container: this.get('container'),
       itemController: GroupRow,
       content: content,
+      grandTotalClass: this.get('grandTotalClass'),
       onLoadError: function(errorMessage, groupingName, chunkIndex) {
         self.sendAction('handleDataLoadingError', errorMessage, groupingName, chunkIndex);
       },

@@ -23,6 +23,7 @@ export default Ember.Component.extend(TableSelector, {
     ' enableContentSelection=true' +
     ' numFixedColumns=numFixedColumns' +
     ' groupMeta=groupMeta' +
+    ' grandTotalClass=grandTotalClass' +
     '}} '),
   columns: Ember.computed(function () {
     var columnFixture = ColumnFixture.create();
@@ -43,6 +44,7 @@ export default Ember.Component.extend(TableSelector, {
   groupedRowIndicatorViewName: null,
   rowLoadingIndicatorViewName: null,
   groupMeta: null,
+  grandTotalClass: 'grand-total-row',
   setGrouperSortDirection: function(grouperIndex, sortDirection) {
     var grouper = this.get('groupMeta.groupingMetadata').objectAt(grouperIndex);
     Ember.set(grouper, 'sortDirection', sortDirection);
