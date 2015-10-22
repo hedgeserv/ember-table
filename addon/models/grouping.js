@@ -25,10 +25,13 @@ var Grouping = Ember.Object.extend({
 
   isGrandTotal: Ember.computed.equal('groupingLevel', -1),
 
+  isGrandTotalExpanded: false,
+
   nextLevelGrouping: Ember.computed(function () {
     return Grouping.create({
       groupingMetadata: this.get('groupingMetadata'),
       groupingLevel: this.get('groupingLevel') + 1,
+      isGrandTotalExpanded: this.get('isGrandTotalExpanded')
     });
   }).property('groupingLevel', 'groupingMetadata.@each'),
 

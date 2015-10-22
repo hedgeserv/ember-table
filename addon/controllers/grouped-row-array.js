@@ -49,7 +49,8 @@ export default RowArrayController.extend({
       parentController: this.get('parentController') || this,
       grouping: Grouping.create({
         groupingMetadata: this.get('groupMeta.groupingMetadata'),
-        groupingLevel: groupingLevel
+        groupingLevel: groupingLevel,
+        isGrandTotalExpanded: this.get('groupMeta.isGrandTotalExpanded')
       }),
       target: this
     });
