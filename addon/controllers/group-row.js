@@ -192,13 +192,22 @@ var GroupRow = Row.extend({
       return this.get('content.children');
     }).property('target.groupMeta.loadChildren', 'grouping.isGroup'),
 
+    rowStyle: Ember.computed.oneWay('grandTotalClass'),
+
+    grandTotalClass: Ember.computed('grouping.grandTotalClass', 'grouping.isGrandTotal', function () {
+      return this.get('grouping.isGrandTotal') ? this.get('grouping.grandTotalClass') : '';
+    }),
+
     hasChildren: Ember.computed.oneWay('grouping.isGroup'),
 
     isExpanded: false,
 
     expandLevel: null,
+
     grandTotalTitle: Ember.computed.oneWay('target.groupMeta.grandTotalTitle'),
+
     grouping: null,
+
     groupName: Ember.computed(function () {
       if (this.get('grouping.isGrandTotal')) {
         return this.get('grandTotalTitle');
@@ -219,10 +228,17 @@ var GroupRow = Row.extend({
       this.tryExpandChildren();
     }),
 
-    //works for loading place holder
-    placeHolderContentDidLoad: Ember.observer('isLoaded', function() {
+    // trigger callback when data is loaded
+    contentDidLoad: Ember.observer('isLoaded', function() {
       this.tryExpandChildren();
+      this.tryExpandGrandTotalRow();
     }),
+
+    tryExpandGrandTotalRow: function () {
+      if (this.get('grouping.isGrandTotal') && this.get('grouping.isGrandTotalExpanded')) {
+        this.expandChildren();
+      }
+    },
 
     tryExpandChildren: function() {
       let selfLevel = this.get('expandLevel') + 1; //convert to 1-based
