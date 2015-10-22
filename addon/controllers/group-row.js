@@ -63,6 +63,8 @@ var GroupRow = Row.extend({
       }
     }),
 
+    _previousGrouperSortDirection: null,
+
     sortingGroupersDidChange: Ember.observer('nextLevelGrouping.sortDirection', function () {
       if (this.get('_childrenRow')) {
         var previousSortDirection = this.get('_previousGrouperSortDirection');
@@ -167,7 +169,8 @@ var GroupRow = Row.extend({
             itemController: this.get('itemController'),
             parentRow: this
           });
-          subRows.setControllerAt(newRow, i);
+          //It can be an old controller.
+          newRow = subRows.setControllerAt(newRow, i);
           newRow.tryExpandChildren();
           return newRow;
         }

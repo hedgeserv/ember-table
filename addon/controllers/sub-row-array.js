@@ -33,6 +33,7 @@ var SubRowArray = Ember.ArrayController.extend({
       }
     }
     this.incrementProperty('definedControllersCount', 1);
+    return this._subControllers[idx];
   },
 
   refreshControllerAt: function(idx, content) {
