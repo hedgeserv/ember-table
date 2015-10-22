@@ -50,9 +50,6 @@ var GroupRow = Row.extend({
       }
     },
 
-    arbitraryExpandLevelDidChange: Ember.observer('target.groupMeta.arbitraryExpandLevel', function(){
-    }),
-
     subRowsCountDidChange: Ember.observer('subRowsCount', function () {
       var parentRow = this.get('parentRow');
       if (parentRow) {
@@ -218,7 +215,7 @@ var GroupRow = Row.extend({
       return parentPath.createChild(this);
     }).property('parentRow.path', 'grouping.key', 'content'),
 
-    expandToLevelDidChange: Ember.observer('target.groupMeta.arbitraryExpandLevel', function () {
+    expandToLevelActionTriggered: Ember.observer('target.groupMeta.expandToLevelAction', function () {
       this.tryExpandChildren();
     }),
 
@@ -229,7 +226,7 @@ var GroupRow = Row.extend({
 
     tryExpandChildren: function() {
       let selfLevel = this.get('expandLevel') + 1; //convert to 1-based
-      let targetLevel = this.get('target.groupMeta.arbitraryExpandLevel');
+      let targetLevel = this.get('target.groupMeta.expandToLevelAction.level');
       if (selfLevel < targetLevel) {
         if (this.get('isLoaded') && !this.get('isExpanded')) {
           this.expandChildren();
@@ -243,6 +240,5 @@ var GroupRow = Row.extend({
     }
   }
 );
-
 
 export default GroupRow;
