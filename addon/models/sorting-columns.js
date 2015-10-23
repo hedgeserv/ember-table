@@ -29,6 +29,15 @@ export default Ember.Object.extend({
     this.set('_columns', newColumns);
   },
 
+  pushObjects: function (objs) {
+    let cols = this.get('_columns');
+    if (Array.isArray(objs)) {
+      objs.forEach(o => {
+        cols.push(o);
+      });
+    }
+  },
+
   isNotEmpty: Ember.computed(function() {
     return this.get('_columns.length') > 0;
   }).property('_columns'),
