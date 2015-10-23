@@ -8,6 +8,7 @@ import GroupRow from 'ember-table/controllers/group-row';
 import ColumnDefinition from 'ember-table/models/column-definition';
 import SortingColumns from 'ember-table/models/sorting-columns';
 import computed from 'ember-new-computed';
+import TotalRow from 'ember-table/controllers/total-row';
 
 export default Ember.Component.extend(
 StyleBindingsMixin, ResizeHandlerMixin, {
@@ -35,7 +36,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
 
   _columns: Ember.computed(function () {
     var columns = this.get('columns').copy();
-    if (this.get('_hasGroupingColumn')) {
+    if (this.get('_hasGroupingColumn') || this.get('hasTotalRow')) {
       columns.unshiftObject(this.get('_groupingColumn'));
     }
     return columns;
@@ -59,9 +60,12 @@ StyleBindingsMixin, ResizeHandlerMixin, {
     return this.get('groupMeta.groupingMetadata') || [];
   }).property('groupMeta.groupingMetadata'),
 
-  hasGrandTotalRow: Ember.computed(function() {
-    return !!this.get('groupMeta.grandTotalTitle');
-  }).property('groupMeta.grandTotalTitle'),
+  // Set total row.
+  totalRow: null,
+
+  hasTotalRow: Ember.computed('totalRow', 'groupMeta.grandTotalTitle', function() {
+    return this.get('totalRow') || this.get('groupMeta.grandTotalTitle');
+  }),
 
   // The number of footer rows in the table. Footer rows appear at the bottom of
   // the table and are always visible.
@@ -312,11 +316,15 @@ StyleBindingsMixin, ResizeHandlerMixin, {
   });
   }).property('content'),
 
-  // An array of Ember.Table.Row computed based on `content`
-  bodyContent: Ember.computed(function() {
-    if (this.get('_hasGroupingColumn')) {
-      return this.get('_groupedRowController');
-    }
+  totalRowBody: Ember.computed('content', 'hasTotalRow', function () {
+    return TotalRow.create({
+      content: this.get('totalRow'),
+      parentController: this,
+      children: this.createRowsArray()
+    });
+  }),
+
+  createRowsArray: function() {
     return RowArrayController.create({
       target: this,
       parentController: this,
@@ -324,6 +332,17 @@ StyleBindingsMixin, ResizeHandlerMixin, {
       itemController: Row,
       content: this.get('_resolvedContent')
     });
+  },
+
+  // An array of Ember.Table.Row computed based on `content`
+  bodyContent: Ember.computed(function() {
+    if (this.get('_hasGroupingColumn')) {
+      return this.get('_groupedRowController');
+    }
+    if (this.get('hasTotalRow')) {
+      return this.get('totalRowBody');
+    }
+    return this.createRowsArray();
   }).property('_resolvedContent.[]', '_hasGroupingColumn'),
 
   // An array of Ember.Table.Row
