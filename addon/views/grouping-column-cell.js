@@ -26,7 +26,7 @@ export default TableCell.extend(
   _defaultGroupIndicatorViewName: 'grouped-row-indicator',
 
   hasChildren: Ember.computed(function() {
-    return this.get('groupingLevel') < this.get('tableComponent.groupingMetadata.length') - 1;
+    return this.get('row.hasChildren') || this.get('groupingLevel') < this.get('tableComponent.groupingMetadata.length') - 1;
   }).property('groupingLevel', 'tableComponent.groupingMetadata.length'),
 
   expandLevel: Ember.computed.oneWay('row.expandLevel'),
@@ -41,11 +41,10 @@ export default TableCell.extend(
     toggleExpansionState: function() {
       var row = this.get('row');
       if (row) {
-        var target = row.get('target');
         if (this.get('isExpanded')) {
-          target.collapseChildren(row);
+          row.collapseChildren();
         } else {
-          target.expandChildren(row);
+          row.expandChildren();
         }
       }
     }

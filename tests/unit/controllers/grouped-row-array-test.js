@@ -64,7 +64,7 @@ test('expanded level for first level rows', function (assert) {
 test('expand children', function (assert) {
   var groupRow = subject.objectAt(0);
 
-  subject.expandChildren(groupRow);
+  groupRow.expandChildren();
 
   assert.equal(groupRow.get('isExpanded'), true, 'group row should be expanded');
   assert.equal(subject.get('length'), 5, 'length should include expanded children rows');
@@ -74,8 +74,8 @@ test('expand children', function (assert) {
 test('collapse children', function (assert) {
   var groupRow = subject.objectAt(0);
 
-  subject.expandChildren(groupRow);
-  subject.collapseChildren(groupRow);
+  groupRow.expandChildren();
+  groupRow.collapseChildren();
 
   assert.equal(groupRow.get('isExpanded'), false, 'group row should be collapsed');
   assert.equal(subject.get('length'), 2, 'length should be updated');
@@ -85,7 +85,7 @@ test('collapse children', function (assert) {
 test('expanded level for second level rows', function (assert) {
   var groupRow = subject.objectAt(0);
 
-  subject.expandChildren(groupRow);
+  groupRow.expandChildren();
 
   assert.equal(subject.objectAt(0).get('expandLevel'), 0, 'expandLevel for first level is 0');
   assert.equal(subject.objectAt(1).get('expandLevel'), 1, 'expandLevel for second level is 1');
@@ -114,8 +114,8 @@ module('group row array controller with two level and first level has two groupi
 });
 
 test('expand two grouping rows', function (assert) {
-  subject.expandChildren(subject.objectAt(0));
-  subject.expandChildren(subject.objectAt(4));
+  subject.objectAt(0).expandChildren();
+  subject.objectAt(4).expandChildren();
 
   assert.equal(subject.get('length'), 7, 'length should include all children rows');
   assert.equal(subject.objectAt(0).get('id'), 10, 'first row is grouped row');
@@ -127,28 +127,28 @@ test('expand two grouping rows', function (assert) {
 });
 
 test('collapse first children row', function (assert) {
-  subject.expandChildren(subject.objectAt(0));
-  subject.expandChildren(subject.objectAt(4));
-  subject.collapseChildren(subject.objectAt(0));
+  subject.objectAt(0).expandChildren();
+  subject.objectAt(4).expandChildren();
+  subject.objectAt(0).collapseChildren();
 
   assert.equal(subject.get('length'), 4, 'length should not include children rows of first group');
   assert.equal(subject.objectAt(1).get('id'), 20, 'first group should be collapsed');
 });
 
 test('collapse second children row', function (assert) {
-  subject.expandChildren(subject.objectAt(0));
-  subject.expandChildren(subject.objectAt(4));
-  subject.collapseChildren(subject.objectAt(4));
+  subject.objectAt(0).expandChildren();
+  subject.objectAt(4).expandChildren();
+  subject.objectAt(4).collapseChildren();
 
   assert.equal(subject.get('length'), 5, 'length should not include children rows of first group');
   assert.equal(subject.objectAt(4).get('id'), 20, 'collapsed row should stay after children row of first group');
 });
 
 test('collapse first and second children row', function (assert) {
-  subject.expandChildren(subject.objectAt(0));
-  subject.expandChildren(subject.objectAt(4));
-  subject.collapseChildren(subject.objectAt(4));
-  subject.collapseChildren(subject.objectAt(0));
+  subject.objectAt(0).expandChildren();
+  subject.objectAt(4).expandChildren();
+  subject.objectAt(4).collapseChildren();
+  subject.objectAt(0).collapseChildren();
 
   assert.equal(subject.get('length'), 2, 'length should not include children rows');
 });
@@ -176,7 +176,7 @@ test('different instance', function (assert) {
     }
   });
 
-  subject1.expandChildren(subject1.objectAt(0));
+  subject1.objectAt(0).expandChildren();
   assert.ok(subject1.objectAt(0).get('isExpanded') === true, 'should be expanded');
   assert.ok(subject2.objectAt(0).get('isExpanded') === false, 'second instance should not be affected by first instance');
 });
@@ -221,9 +221,9 @@ test('different instance more levels', function (assert) {
     }
   });
 
-  subject.expandChildren(subject.objectAt(0));
-  subject.expandChildren(subject.objectAt(1));
-  subject.expandChildren(subject.objectAt(2));
+  subject.objectAt(0).expandChildren();
+  subject.objectAt(1).expandChildren();
+  subject.objectAt(2).expandChildren();
 
   assert.ok(subject.objectAt(2).get('isExpanded') === true, 'should be expanded');
 });

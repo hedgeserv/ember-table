@@ -84,5 +84,3 @@ test('subRowsCount', function(assert) {
 
   assert.equal(subRowsCount, 0);
 });
-
-

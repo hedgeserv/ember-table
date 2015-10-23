@@ -26,14 +26,6 @@ export default RowArrayController.extend({
     return controller;
   },
 
-  expandChildren: function(row) {
-    row.expandChildren();
-  },
-
-  collapseChildren: function(row) {
-    row.collapseChildren();
-  },
-
   /**
    * arrayContentDidChange will access last object, which may be a invisible loading placeholder.
    * */

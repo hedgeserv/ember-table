@@ -5,6 +5,48 @@ import EmberTableFixture from '../../fixture/ember-table';
 import EmberTableHelper from '../../helpers/ember-table-helper';
 import DeferPromises from '../../fixture/defer-promises';
 
+moduleForEmberTable('Grand total with normal array', function (totalRow) {
+  return EmberTableFixture.create({
+    height: 330,
+    width: 700,
+    content: Ember.A([{
+      id: 1
+    }, {
+      id: 2
+    }]),
+    totalRow: totalRow
+  });
+});
+
+test('normal array with total row and json total', function (assert) {
+  var component = this.subject({
+    groupName: 'Total',
+    id: 0,
+    meta: {
+      isExpanded: true
+    }
+  });
+  this.render();
+  assert.deepEqual(component.bodyCellsContent([0, 1, 2], [1]), [
+    ['0'],
+    ['1'],
+    ['2'],
+  ], "should expand grand total row");
+});
+
+test('normal array with total row and promise total', function (assert) {
+  let defer = Ember.RSVP.defer();
+  var component = this.subject(defer.promise);
+  defer.resolve({ groupName: 'Total', id: 0, meta: { isExpanded: true } });
+  this.render();
+  assert.deepEqual(component.bodyCellsContent([0, 1, 2], [1]), [
+    ['0'],
+    ['1'],
+    ['2'],
+  ], "should expand grand total row");
+});
+
+
 moduleForEmberTable('grand total', function () {
   return EmberTableFixture.create({
     height: 330,
