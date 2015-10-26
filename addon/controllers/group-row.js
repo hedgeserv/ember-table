@@ -189,9 +189,6 @@ var GroupRow = Row.extend({
     },
 
     children: Ember.computed(function () {
-      // if (this.get('target.groupMeta.loadChildren') && this.get('grouping.isGroup')) {
-      //   return ;
-      // }
       var loadChildren = this.get('target.groupMeta.loadChildren');
       return this.get('content.children') || LazyGroupRowArray.create({loadChildren: loadChildren});
     }).property('target.groupMeta.loadChildren', 'grouping.isGroup'),
