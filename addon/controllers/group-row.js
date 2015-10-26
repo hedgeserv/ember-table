@@ -199,7 +199,9 @@ var GroupRow = Row.extend({
       return this.get('grouping.isGrandTotal') ? this.get('grouping.grandTotalClass') : '';
     }),
 
-    hasChildren: Ember.computed.oneWay('grouping.isGroup'),
+    hasChildren: Ember.computed('grouping.isGrandTotal', function() {
+      return this.get('grouping.isGrandTotal') || this.get('grouping.isGroup');
+    }),
 
     isExpanded: false,
 
