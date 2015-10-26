@@ -1,42 +1,42 @@
 import Ember from 'ember';
 
-export default Ember.ArrayProxy.extend({
-  count: 0,
-
-  content: Ember.computed.alias('defers'),
-
-  defers: Ember.computed(function () {
-    var result = [];
-    for (var i = 0; i < this.get('count'); i++) {
-      result.push(Ember.RSVP.defer());
-    }
-    return result;
-  }).property('count'),
-
-  promises: function (deferIndexes) {
-    var defers = this.get('defers');
-    if(deferIndexes instanceof Array){
-      return deferIndexes.map(function(deferIndex) {
-        return defers[deferIndex].promise;
-      });
-    }
-    return defers.map(function(defer) {
-      return defer.promise;
-    });
-  },
-
+export default Ember.Object.extend({
   next: function() {
-    var defer = this.objectAt(this.get('_index'));
-    this.incrementProperty('_index');
+    var defer = Ember.RSVP.defer();
+    defer.promise.then(() => this.decrementProperty('pendingPromises', 1));
+    this.incrementProperty('pendingPromises', 1);
     return defer;
   },
 
-  _index: 0,
 
-  ready: function (callback, deferIndexes) {
-    var promises = this.promises(deferIndexes);
-    return Ember.RSVP.all(promises).then(function () {
-      return Ember.run.later(callback);
-    });
+  pendingPromises: 0,
+
+  waiterStates: [],
+
+  ready: function (callback) {
+    var prevWaitersCount = this.waiterStates.length;
+    this.waiterStates.push('pending');
+    return new Ember.RSVP.Promise((resolve) => {
+      var watcher = setInterval(() => {
+
+        if (Ember.run.hasScheduledTimers() || Ember.run.currentRunLoop) {
+          return;
+        }
+
+        if (this.get('pendingPromises')) {
+          return;
+        }
+
+        if (this.waiterStates.slice(0, prevWaitersCount).any(state => state === 'pending')) {
+          return;
+        }
+        clearInterval(watcher);
+
+        Ember.run(function () {
+          callback();
+          resolve();
+        });
+      }, 10);
+    }).then(() => this.waiterStates[prevWaitersCount] = 'fulfilled');
   }
 });

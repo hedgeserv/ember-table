@@ -61,19 +61,7 @@ export default Ember.Component.extend(TableSelector, {
   deferIndex: 0,
 
   ready() {
-    var defers = this.get('defers');
-    if (arguments.length > 1) {
-      let deferCount = arguments[0];
-      let deferIndex = this.get('deferIndex');
-      let deferIndexes = [];
-      for(var i = 0; i < deferCount; i++) {
-        deferIndexes.push(deferIndex + i);
-      }
-      this.incrementProperty('deferIndex', deferCount);
-      return defers.ready(arguments[1], deferIndexes);
-    } else {
-      return defers.ready(...arguments);
-    }
+    return this.get('defers').ready(...arguments);
   },
 
   tableDom: Ember.computed(function () {

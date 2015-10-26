@@ -5,10 +5,8 @@ import EmberTableFixture from '../../fixture/ember-table';
 import DefersPromise from '../../fixture/defer-promises';
 import GroupedRowDataProvider from '../../fixture/grouped-row-data-provider';
 
-import TableDom from '../../helpers/table-dom';
-
 moduleForEmberTable('Unit | Components | expand to arbitrary level', function (options) {
-  var defers = options.defers || DefersPromise.create({count: options.defersCount});
+  var defers = DefersPromise.create();
   return EmberTableFixture.create({
     height: options.height,
     groupMeta: GroupedRowDataProvider.create({
@@ -22,10 +20,10 @@ moduleForEmberTable('Unit | Components | expand to arbitrary level', function (o
 });
 
 test('expand to level 1', function (assert) {
-  var component = this.subject({defersCount: 1, height: 1000});
+  var component = this.subject({height: 1000});
   this.render();
 
-  component.ready(1, () => {
+  component.ready(() => {
     component.expandToLevel(1);
   });
 
@@ -38,14 +36,13 @@ test('expand to level 1', function (assert) {
 });
 
 test('expand to level 2', function (assert) {
-  var defers = DefersPromise.create({count: 3});
-  var component = this.subject({defers: defers, height: 1000});
+  var component = this.subject({height: 1000});
   this.render();
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(2);
-  }, [0]);
+  });
 
-  return defers.ready(() => {
+  return component.ready(() => {
     assert.deepEqual(component.cellsContent(6, [0]), [
       ["as-1"],
       ["at-102"],
@@ -58,14 +55,13 @@ test('expand to level 2', function (assert) {
 });
 
 test('expand to level 3', function (assert) {
-  var defers = DefersPromise.create({count: 7});
-  var component = this.subject({defers: defers, height: 1000});
+  var component = this.subject({height: 1000});
   this.render();
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(3);
-  }, [0]);
+  });
 
-  return defers.ready(() => {
+  return component.ready(() => {
     assert.deepEqual(component.cellsContent(14, [0]), [
       ["as-1"],
       ["at-102"],
@@ -86,13 +82,13 @@ test('expand to level 3', function (assert) {
 });
 
 test('expand to level 3 then scroll down', function (assert) {
-  var component = this.subject({defersCount: 7, height: 150});
+  var component = this.subject({height: 150});
   this.render();
-  component.ready(1, () => {
+  component.ready(() => {
     component.expandToLevel(3);
   });
 
-  component.ready(4, () => {
+  component.ready(() => {
     component.scrollTop(6);
   });
 
@@ -107,18 +103,17 @@ test('expand to level 3 then scroll down', function (assert) {
 });
 
 test('collapse to level 1', function (assert) {
-  var defers = DefersPromise.create({count: 7});
-  var component = this.subject({defers: defers, height: 1000});
+  var component = this.subject({height: 1000});
   this.render();
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(3);
-  }, [0]);
+  });
 
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(1);
-  }, [1, 2, 3, 4, 5, 6]);
+  });
 
-  return defers.ready(() => {
+  return component.ready(() => {
     assert.deepEqual(component.cellsContent(2, [0]), [
       ["as-1"],
       ["as-2"]
@@ -127,18 +122,17 @@ test('collapse to level 1', function (assert) {
 });
 
 test('collapse to level 2', function (assert) {
-  var defers = DefersPromise.create({count: 7});
-  var component = this.subject({defers: defers, height: 1000});
+  var component = this.subject({height: 1000});
   this.render();
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(3);
-  }, [0]);
+  });
 
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(2);
-  }, [1, 2, 3, 4, 5, 6]);
+  });
 
-  return defers.ready(() => {
+  return component.ready(() => {
     assert.deepEqual(component.cellsContent(6, [0]), [
       ["as-1"],
       ["at-102"],
@@ -151,19 +145,18 @@ test('collapse to level 2', function (assert) {
 });
 
 test('expand to level 3 and collapse to level 2 and expand to level 3', function (assert) {
-  var defers = DefersPromise.create({count: 7});
-  var component = this.subject({defers: defers, height: 1000});
+  var component = this.subject({height: 1000});
   this.render();
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(3);
-  }, [0]);
+  });
 
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(2);
     component.expandToLevel(3);
-  }, [1, 2, 3, 4, 5, 6]);
+  });
 
-  return defers.ready(() => {
+  return component.ready(() => {
     assert.deepEqual(component.cellsContent(14, [0]), [
       ["as-1"],
       ["at-102"],
@@ -184,18 +177,17 @@ test('expand to level 3 and collapse to level 2 and expand to level 3', function
 });
 
 test('expand to level 3 and collapse to level 2 and collapse level 1', function (assert) {
-  var defers = DefersPromise.create({count: 7});
-  var component = this.subject({defers: defers, height: 1000});
+  var component = this.subject({height: 1000});
   this.render();
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(3);
-  }, [0]);
-  defers.ready(() => {
+  });
+  component.ready(() => {
     component.expandToLevel(2);
     component.expandToLevel(1);
-  }, [1, 2, 3, 4, 5, 6]);
+  });
 
-  return defers.ready(() => {
+  return component.ready(() => {
     assert.deepEqual(component.cellsContent(2, [0]), [
       ["as-1"],
       ["as-2"]
@@ -204,19 +196,18 @@ test('expand to level 3 and collapse to level 2 and collapse level 1', function 
 });
 
 test('expand to level 1, expand first grouper then expand to level 1 again', function(assert){
-  var defers = DefersPromise.create({count: 2});
-  var component = this.subject({defers: defers, height: 1000});
+  var component = this.subject({height: 1000});
   this.render();
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(1);
     component.row(0).groupIndicator().click();
-  }, [0]);
+  });
 
-  defers.ready(() => {
+  component.ready(() => {
     component.expandToLevel(1);
-  }, [1]);
+  });
 
-  return defers.ready(() => {
+  return component.ready(() => {
     assert.deepEqual(component.cellsContent(2, [0]), [
       ["as-1"],
       ["as-2"]
