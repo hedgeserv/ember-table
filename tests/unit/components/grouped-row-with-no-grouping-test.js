@@ -31,3 +31,36 @@ test('show first level rows without groupers', function(assert) {
     ], 'should show first level rows when no grouper');
   });
 });
+
+moduleForEmberTable('Grand total row with no grouper data', (options) => {
+  return EmberTableFixture.create({
+    groupMeta: GroupedRowDataProvider.create({
+      defers: options.defers,
+      delayTime: options.delayTime || 0,
+      groupingMetadata: [],
+      hasTotalRow: true,
+      grandTotalTitle: "Total",
+    }),
+    height: 1000
+  });
+});
+
+test('display total row and group rows', function (assert) {
+  var defers = DefersPromise.create({count: 3});
+  var component = this.subject({defers});
+  this.render();
+  defers.ready(() => {
+    component.rowGroupingIndicator(0).click();
+  }, [0]);
+
+  return defers.ready(() => {
+    let res = component.bodyCellsContent([0, 1, 2, 3, 4], [0]);
+    assert.deepEqual(res, [
+      ['grand total'],
+      ['1'],
+      ['2'],
+      ['3'],
+      ['4'],
+    ], 'should show grand total and first level rows');
+  });
+});
