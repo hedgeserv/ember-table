@@ -18,7 +18,7 @@ var LazyGroupRowArray = Ember.ArrayProxy.extend({
     var chunkIndex = this.chunkIndex(index);
     var self = this;
     target.incrementProperty('status.loadingCount');
-    this.loadChildren.call(target.get('groupMeta'), chunkIndex, target.get('sortingColumns'), grouping.get('query'))
+    this.loadChildren(chunkIndex, target.get('sortingColumns'), grouping.get('query'))
       .then(function (result) {
         self.onOneChunkLoaded(result);
         self.notifyPropertyChange('length');
