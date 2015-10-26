@@ -134,12 +134,18 @@ export default Ember.Object.extend({
     this.incrementProperty('loadChunkCount');
     return defer.promise;
   },
-  loadChildren: function (chunkIndex, sortingColumns, groupQuery) {
-    if (!groupQuery.key) {
+  loadTotalRow: Ember.computed('hasTotalRow', function() {
+    if(!this.get('hasTotalRow')){
+      return null;
+    }
+    return () => {
       var defer = this.get('defers').next();
       defer.resolve({content: [{id: 'grand total'}], meta: {}});
       return defer.promise;
-    }
+    };
+  }),
+  hasTotalRow: false,
+  loadChildren: function (chunkIndex, sortingColumns, groupQuery) {
     return this.doLoadChildren(chunkIndex, sortingColumns, groupQuery);
   },
   groupingMetadata: null,

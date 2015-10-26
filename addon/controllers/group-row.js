@@ -87,7 +87,7 @@ var GroupRow = Row.extend({
 
     sortByCondition: function () {
       if (this.get('children.isNotCompleted')) {
-        var content = LazyGroupRowArray.create();
+        var content = LazyGroupRowArray.create({loadChildren: this.get('target.groupMeta.loadChildren')});
         this.set('children', content);
         this.recreateChildrenRow(content);
       } else {
@@ -152,7 +152,7 @@ var GroupRow = Row.extend({
               index: i
             }));
             var subRowsContent = this.get('children');
-            if (subRowsContent.triggerLoading) {
+            if (subRowsContent.get('loadChildren')) {
               var group = Ember.Object.create({
                 query: this.get('path').toQuery(),
                 key: this.get('nextLevelGrouping.key')
@@ -189,10 +189,11 @@ var GroupRow = Row.extend({
     },
 
     children: Ember.computed(function () {
-      if (this.get('target.groupMeta.loadChildren') && this.get('grouping.isGroup') && this.get('expandLevel') >= 0) {
-        return LazyGroupRowArray.create();
-      }
-      return this.get('content.children');
+      // if (this.get('target.groupMeta.loadChildren') && this.get('grouping.isGroup')) {
+      //   return ;
+      // }
+      var loadChildren = this.get('target.groupMeta.loadChildren');
+      return this.get('content.children') || LazyGroupRowArray.create({loadChildren: loadChildren});
     }).property('target.groupMeta.loadChildren', 'grouping.isGroup'),
 
     rowStyle: Ember.computed.oneWay('grandTotalClass'),

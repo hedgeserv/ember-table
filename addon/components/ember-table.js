@@ -441,9 +441,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
   },
 
   //encapsulate input, will be used inside only
-  _hasGroupingColumn: Ember.computed(function() {
-    return this.get('groupingMetadata.length') > 0;
-  }).property('groupingMetadata.@each'),
+  _hasGroupingColumn: Ember.computed.bool('groupMeta'),
 
   _groupingColumn: Ember.computed(function () {
     var groupingColumnWidth = this.get('groupingColumnWidth');
