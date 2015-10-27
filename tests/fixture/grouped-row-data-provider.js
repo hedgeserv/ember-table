@@ -121,27 +121,38 @@ export default Ember.Object.extend({
   totalCount: 10,
   chunkSize: 5,
   delayTime: 0,
-  doLoadChildren: function (chunkIndex, sortingColumns, groupQuery) {
-    var dataProvider = new DataProvider({columnName: this.get('columnName')});
-    var defer = this.get('defers').next();
-    var content = dataProvider.sortData(chunkIndex, sortingColumns, this.get('groupingMetadata'), groupQuery);
-    var chunkSize = this.get('chunkSize');
-      var result = {
-      content: content.slice(0, chunkSize),
-      meta: {totalCount: this.get('totalCount'), chunkSize: chunkSize}
-    };
-    delayResolve(defer, result, this.get('delayTime'));
-    this.incrementProperty('loadChunkCount');
-    return defer.promise;
-  },
-  loadChildren: function (chunkIndex, sortingColumns, groupQuery) {
-    if (!groupQuery.key) {
-      var defer = this.get('defers').next();
+  loadTotalRow: Ember.computed('hasTotalRow', function() {
+    if(!this.get('hasTotalRow')){
+      return null;
+    }
+    let self = this;
+    return () => {
+      var defer = self.get('defers').next();
       defer.resolve({content: [{id: 'grand total'}], meta: {}});
       return defer.promise;
-    }
-    return this.doLoadChildren(chunkIndex, sortingColumns, groupQuery);
-  },
+    };
+  }),
+  hasTotalRow: false,
+  loadChildren: Ember.computed(function() {
+    let self = this;
+    let defers = this.get('defers');
+    let groupingMetadata = this.get('groupingMetadata');
+    let chunkSize = this.get('chunkSize');
+    let totalCount = this.get('totalCount');
+    let delayTime = this.get('delayTime');
+    return (chunkIndex, sortingColumns, groupQuery) => {
+      var dataProvider = new DataProvider({columnName: self.get('columnName')});
+      var defer = defers.next();
+      var content = dataProvider.sortData(chunkIndex, sortingColumns, groupingMetadata, groupQuery);
+      var result = {
+        content: content.slice(0, chunkSize),
+        meta: {totalCount, chunkSize}
+      };
+      delayResolve(defer, result, delayTime);
+      self.incrementProperty('loadChunkCount');
+      return defer.promise;
+    };
+  }),
   groupingMetadata: null,
   grandTotalTitle: null
 });

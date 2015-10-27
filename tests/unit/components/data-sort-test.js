@@ -1419,6 +1419,7 @@ moduleForEmberTable('Grand total row as ember-table content', function (options)
     groupMeta: GroupedRowDataProvider.create({
       defers: options.defers,
       delayTime: options.delayTime || 0,
+      hasTotalRow: true,
       groupingMetadata: [{id: 'accountSection'}, {id: "accountType"}],
       grandTotalTitle: 'Total'
     })

@@ -8,7 +8,8 @@ export default RowArrayController.extend({
   init: function() {
     var groupMeta = this.get('groupMeta');
     if (groupMeta.loadChildren) {
-      this.set('content', LazyGroupRowArray.create());
+      var loadChildren = this.get('groupMeta.loadTotalRow') || this.get('groupMeta.loadChildren');
+      this.set('content', LazyGroupRowArray.create({loadChildren: loadChildren}));
       this.set('status', Ember.Object.create({loadingCount: 0}));
     }
   },
