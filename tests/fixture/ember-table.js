@@ -2,6 +2,7 @@ import Ember from 'ember';
 import ColumnFixture from './columns';
 import * as StableSort from 'ember-table/initializers/stable-sort';
 import TableSelector from '../helpers/table-selector';
+import TableDom from '../helpers/table-dom';
 
 export default Ember.Component.extend(TableSelector, {
   init: function(){
@@ -55,5 +56,27 @@ export default Ember.Component.extend(TableSelector, {
     Ember.run(() => {
       this.set('groupMeta.expandToLevelAction', {level: level});
     });
+  },
+
+  deferIndex: 0,
+
+  ready() {
+    return this.get('defers').ready(...arguments);
+  },
+
+  tableDom: Ember.computed(function () {
+    return TableDom.create({content: this.$()});
+  }),
+
+  cellsContent() {
+    return this.get('tableDom').cellsContent(...arguments);
+  },
+
+  scrollTop(rowCount) {
+    return this.get('tableDom').scrollTop(this.defers.next(), rowCount);
+  },
+
+  row() {
+    return this.get('tableDom').row(...arguments);
   }
 });

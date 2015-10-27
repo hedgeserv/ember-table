@@ -22,7 +22,9 @@
     "currentURL",
     "currentPath",
     "currentRouteName",
-    "rowText"
+    "rowText",
+    "setInterval",
+    "clearInterval"
   ],
   "node": false,
   "browser": false,
