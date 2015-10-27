@@ -10,15 +10,15 @@ export default Ember.Component.extend(TableSelector, {
     this._super();
     StableSort.initialize();
     this.set('_component', this);
-    var defers = this.get('groupMeta.defers') || DefersPromise.create();
-    this.set('defers', defers);
-    if (this.get('groupMeta')) {
-      this.set('groupMeta.defers', defers);
+    if (this.get('groupMeta') && !this.get('groupMeta.defers')) {
+      this.set('groupMeta.defers', DefersPromise.create());
     }
   },
 
   height: 330,
   width: 1500,
+
+  defers: Ember.computed.alias('groupMeta.defers'),
 
   layout: Ember.Handlebars.compile(
     '{{ember-table ' +
@@ -74,8 +74,24 @@ export default Ember.Component.extend(TableSelector, {
     return this.get('tableDom').cellsContent(...arguments);
   },
 
+  cellWithContent() {
+    return this.get('tableDom').cellWithContent(...arguments);
+  },
+
   scrollTop(rowCount) {
-    return this.get('tableDom').scrollTop(this.defers.next(), rowCount);
+    return this.get('tableDom').scrollTop(this.get('defers').next(), rowCount);
+  },
+
+  headerRow() {
+    return this.get('tableDom').headerRow(...arguments);
+  },
+
+  headerRows() {
+    return this.get('tableDom').headerRows(...arguments);
+  },
+
+  cell() {
+    return this.get('tableDom').cell(...arguments);
   },
 
   scrollRows(rowCount) {
@@ -88,9 +104,31 @@ export default Ember.Component.extend(TableSelector, {
     return this.get('tableDom').row(...arguments);
   },
 
+  rows() {
+    return this.get('tableDom').rows(...arguments);
+  },
+
+  clickHeaderCell(colIndex, withCmd=false) {
+    this.ready(() => {
+      var cell = this.headerRows(0).cell(colIndex);
+      if (withCmd) {
+        cell.clickWithCommand();
+      } else {
+        cell.click();
+      }
+    });
+  },
+
   clickGroupIndicator(rowIndex) {
     this.ready(() => {
       this.row(rowIndex).groupIndicator().click();
     });
+  },
+
+  assertCellContentWhenReady() {
+    return this.ready(() => {
+      this.assertCellContent(...arguments);
+    });
   }
+
 });
