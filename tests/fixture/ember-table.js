@@ -3,12 +3,18 @@ import ColumnFixture from './columns';
 import * as StableSort from 'ember-table/initializers/stable-sort';
 import TableSelector from '../helpers/table-selector';
 import TableDom from '../helpers/table-dom';
+import DefersPromise from './defer-promises';
 
 export default Ember.Component.extend(TableSelector, {
   init: function(){
     this._super();
     StableSort.initialize();
     this.set('_component', this);
+    var defers = this.get('groupMeta.defers') || DefersPromise.create();
+    this.set('defers', defers);
+    if (this.get('groupMeta')) {
+      this.set('groupMeta.defers', defers);
+    }
   },
 
   height: 330,
@@ -51,12 +57,10 @@ export default Ember.Component.extend(TableSelector, {
     Ember.set(grouper, 'sortDirection', sortDirection);
   },
   expandToLevel: function(level) {
-    Ember.run(() => {
+    this.ready(() => {
       this.set('groupMeta.expandToLevelAction', {level: level});
     });
   },
-
-  deferIndex: 0,
 
   ready() {
     return this.get('defers').ready(...arguments);
@@ -74,7 +78,19 @@ export default Ember.Component.extend(TableSelector, {
     return this.get('tableDom').scrollTop(this.defers.next(), rowCount);
   },
 
+  scrollRows(rowCount) {
+    this.ready(() => {
+      return this.scrollTop(rowCount);
+    });
+  },
+
   row() {
     return this.get('tableDom').row(...arguments);
+  },
+
+  clickGroupIndicator(rowIndex) {
+    this.ready(() => {
+      this.row(rowIndex).groupIndicator().click();
+    });
   }
 });
