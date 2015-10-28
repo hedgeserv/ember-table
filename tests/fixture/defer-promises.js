@@ -8,7 +8,6 @@ export default Ember.Object.extend({
     return defer;
   },
 
-
   pendingPromises: 0,
 
   waiterStates: [],
