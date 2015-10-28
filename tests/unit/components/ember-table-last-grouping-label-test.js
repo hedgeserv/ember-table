@@ -11,7 +11,6 @@ moduleForEmberTable('one level grouping',
     return EmberTableFixture.create({
       height: 600,
       width: 700,
-      defers: defers,
       groupMeta: GlData.create({defers: defers})
     });
   });

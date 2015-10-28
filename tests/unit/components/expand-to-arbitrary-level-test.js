@@ -2,20 +2,16 @@ import Ember from 'ember';
 import { test } from 'ember-qunit';
 import moduleForEmberTable from '../../helpers/module-for-ember-table';
 import EmberTableFixture from '../../fixture/ember-table';
-import DefersPromise from '../../fixture/defer-promises';
 import GroupedRowDataProvider from '../../fixture/grouped-row-data-provider';
 
 moduleForEmberTable('Unit | Components | expand to arbitrary level', function (options) {
-  var defers = DefersPromise.create();
   return EmberTableFixture.create({
     height: options.height,
     groupMeta: GroupedRowDataProvider.create({
       chunkSize: 2,
       totalCount: 2,
-      defers: defers,
       groupingMetadata: [{id: 'accountSection'}, {id: 'accountType'}, {id: 'accountCode'}]
-    }),
-    defers: defers
+    })
   });
 });
 
@@ -23,9 +19,7 @@ test('expand to level 1', function (assert) {
   var component = this.subject({height: 1000});
   this.render();
 
-  component.ready(() => {
-    component.expandToLevel(1);
-  });
+  component.expandToLevel(1);
 
   return component.ready(() => {
     assert.deepEqual(component.cellsContent(2, [0]), [
@@ -38,9 +32,8 @@ test('expand to level 1', function (assert) {
 test('expand to level 2', function (assert) {
   var component = this.subject({height: 1000});
   this.render();
-  component.ready(() => {
-    component.expandToLevel(2);
-  });
+
+  component.expandToLevel(2);
 
   return component.ready(() => {
     assert.deepEqual(component.cellsContent(6, [0]), [
@@ -57,9 +50,8 @@ test('expand to level 2', function (assert) {
 test('expand to level 3', function (assert) {
   var component = this.subject({height: 1000});
   this.render();
-  component.ready(() => {
-    component.expandToLevel(3);
-  });
+
+  component.expandToLevel(3);
 
   return component.ready(() => {
     assert.deepEqual(component.cellsContent(14, [0]), [
@@ -84,13 +76,9 @@ test('expand to level 3', function (assert) {
 test('expand to level 3 then scroll down', function (assert) {
   var component = this.subject({height: 150});
   this.render();
-  component.ready(() => {
-    component.expandToLevel(3);
-  });
 
-  component.ready(() => {
-    component.scrollTop(6);
-  });
+  component.expandToLevel(3);
+  component.scrollRows(6);
 
   return component.ready(() => {
     assert.deepEqual(component.cellsContent(4, [0]), [
@@ -105,13 +93,9 @@ test('expand to level 3 then scroll down', function (assert) {
 test('collapse to level 1', function (assert) {
   var component = this.subject({height: 1000});
   this.render();
-  component.ready(() => {
-    component.expandToLevel(3);
-  });
 
-  component.ready(() => {
-    component.expandToLevel(1);
-  });
+  component.expandToLevel(3);
+  component.expandToLevel(1);
 
   return component.ready(() => {
     assert.deepEqual(component.cellsContent(2, [0]), [
@@ -124,13 +108,9 @@ test('collapse to level 1', function (assert) {
 test('collapse to level 2', function (assert) {
   var component = this.subject({height: 1000});
   this.render();
-  component.ready(() => {
-    component.expandToLevel(3);
-  });
 
-  component.ready(() => {
-    component.expandToLevel(2);
-  });
+  component.expandToLevel(3);
+  component.expandToLevel(2);
 
   return component.ready(() => {
     assert.deepEqual(component.cellsContent(6, [0]), [
@@ -147,14 +127,10 @@ test('collapse to level 2', function (assert) {
 test('expand to level 3 and collapse to level 2 and expand to level 3', function (assert) {
   var component = this.subject({height: 1000});
   this.render();
-  component.ready(() => {
-    component.expandToLevel(3);
-  });
 
-  component.ready(() => {
-    component.expandToLevel(2);
-    component.expandToLevel(3);
-  });
+  component.expandToLevel(3);
+  component.expandToLevel(2);
+  component.expandToLevel(3);
 
   return component.ready(() => {
     assert.deepEqual(component.cellsContent(14, [0]), [
@@ -179,13 +155,10 @@ test('expand to level 3 and collapse to level 2 and expand to level 3', function
 test('expand to level 3 and collapse to level 2 and collapse level 1', function (assert) {
   var component = this.subject({height: 1000});
   this.render();
-  component.ready(() => {
-    component.expandToLevel(3);
-  });
-  component.ready(() => {
-    component.expandToLevel(2);
-    component.expandToLevel(1);
-  });
+
+  component.expandToLevel(3);
+  component.expandToLevel(2);
+  component.expandToLevel(1);
 
   return component.ready(() => {
     assert.deepEqual(component.cellsContent(2, [0]), [
@@ -198,14 +171,10 @@ test('expand to level 3 and collapse to level 2 and collapse level 1', function 
 test('expand to level 1, expand first grouper then expand to level 1 again', function(assert){
   var component = this.subject({height: 1000});
   this.render();
-  component.ready(() => {
-    component.expandToLevel(1);
-    component.row(0).groupIndicator().click();
-  });
 
-  component.ready(() => {
-    component.expandToLevel(1);
-  });
+  component.expandToLevel(1);
+  component.clickGroupIndicator(0);
+  component.expandToLevel(1);
 
   return component.ready(() => {
     assert.deepEqual(component.cellsContent(2, [0]), [
