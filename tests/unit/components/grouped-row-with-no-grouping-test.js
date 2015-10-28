@@ -2,7 +2,7 @@ import { test } from 'ember-qunit';
 import moduleForEmberTable from '../../helpers/module-for-ember-table';
 import EmberTableFixture from '../../fixture/ember-table';
 import GroupedRowDataProvider from '../../fixture/grouped-row-data-provider';
-import DefersPromise from '../../fixture/defer-promises';
+import DeferPromise from '../../fixture/defer-promises';
 
 moduleForEmberTable("Grouped rows work without groups", function(options) {
   return EmberTableFixture.create({
@@ -16,7 +16,7 @@ moduleForEmberTable("Grouped rows work without groups", function(options) {
 });
 
 test('show first level rows without groupers', function(assert) {
-  var defers = DefersPromise.create({count: 2});
+  var defers = DeferPromise.create({count: 2});
   var component = this.subject({defers});
   this.render();
 
@@ -46,7 +46,7 @@ moduleForEmberTable('Grand total row with no grouper data', (options) => {
 });
 
 test('display total row and group rows', function (assert) {
-  var defers = DefersPromise.create({count: 3});
+  var defers = DeferPromise.create({count: 3});
   var component = this.subject({defers});
   this.render();
   defers.ready(() => {

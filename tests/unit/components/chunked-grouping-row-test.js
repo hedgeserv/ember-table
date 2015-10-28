@@ -12,14 +12,13 @@ moduleForEmberTable('Given a table with chunked group row data',
       height: 600,
       width: 700,
       groupMeta: {
-        loadChildren: function getChunk(chunkIndex, parentQuery) {
+        loadChildren: function getChunk() {
           var defer = defers.next();
           var result = {
             content: [],
             meta: {totalCount: 10, chunkSize: chunkSize}
           };
           for (var i = 0; i < chunkSize; i++) {
-            var childrenStart = 10 * (chunkIndex + 1);
             result.content.push({
               id: i, firstLevel: 'firstLevel-' + i, secondLevel: 'secondLevel-' + i
             });
@@ -92,12 +91,11 @@ test('load top level chunk data in need', function (assert) {
   var chunkSize = 5;
   var loadedChunkCount = 0;
   var component = this.subject({
-      loadChildren: function getChunk(pageIndex, parentQuery) {
+      loadChildren: function getChunk() {
         var defer = defers.next();
         loadedChunkCount++;
         var result = [];
         for (var i = 0; i < chunkSize; i++) {
-          var childrenStart = 10 * (pageIndex + 1);
           result.push({
             id: i, firstLevel: 'firstLevel-' + i, secondLevel: 'secondLevel-' + i
           });
@@ -119,7 +117,7 @@ test('show grouping name in grouping column', function (assert) {
   var defers = DeferPromises.create({count: 2});
   var chunkSize = 5;
   var component = this.subject({
-      loadChildren: function getChunk(chunkIndex, parentQuery) {
+      loadChildren: function getChunk() {
         var defer = defers.next();
         var result = [];
         for (var i = 0; i < chunkSize; i++) {
