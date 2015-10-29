@@ -26,6 +26,9 @@ var GroupRow = Row.extend({
     _childrenRow: null,
 
     expandChildren: function () {
+      if (this.get('_groupRowControlFlags.isEmpty')) {
+        return;
+      }
       this.set('isExpanded', true);
       this.createChildrenRow();
       var target = this.get('target');
@@ -43,6 +46,9 @@ var GroupRow = Row.extend({
     },
 
     collapseChildren: function () {
+      if (this.get('_groupRowControlFlags.isEmpty')) {
+        return;
+      }
       this.set('isExpanded', false);
       var target = this.get('target');
       if (target) {
@@ -199,7 +205,10 @@ var GroupRow = Row.extend({
       return this.get('grouping.isGrandTotal') ? this.get('grouping.grandTotalClass') : '';
     }),
 
-    hasChildren: Ember.computed('grouping.isGrandTotal', function() {
+    hasChildren: Ember.computed('grouping.isGrandTotal', '_groupRowControlFlags.isEmpty', function() {
+      if (this.get('_groupRowControlFlags.isEmpty')) {
+        return false;
+      }
       return this.get('grouping.isGrandTotal') || this.get('grouping.isGroup');
     }),
 
