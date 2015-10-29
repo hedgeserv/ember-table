@@ -198,7 +198,7 @@ var GroupRow = Row.extend({
       if (!this.get('grouping.isGroup')) {
         return undefined;
       }
-      var loadChildren = this.get('target.groupMeta.loadChildren');
+      var loadChildren = this.get('loadChildren') || this.get('target.groupMeta.loadChildren');
       if (loadChildren) {
         return LazyGroupRowArray.create({loadChildren: loadChildren});
       }
@@ -211,11 +211,11 @@ var GroupRow = Row.extend({
       return this.get('grouping.isGrandTotal') ? this.get('grouping.grandTotalClass') : '';
     }),
 
-    hasChildren: Ember.computed('grouping.isGrandTotal', '_groupRowControlFlags.isEmpty', function() {
+    hasChildren: Ember.computed('grouping.isGroup', '_groupRowControlFlags.isEmpty', function() {
       if (this.get('_groupRowControlFlags.isEmpty')) {
         return false;
       }
-      return this.get('grouping.isGrandTotal') || this.get('grouping.isGroup');
+      return this.get('grouping.isGroup');
     }),
 
     isExpanded: false,

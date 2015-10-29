@@ -8,7 +8,7 @@ var Grouping = Ember.Object.extend({
   }).property('groupingLevel', 'groupingMetadata.[]'),
 
   isGroup: Ember.computed(function () {
-    return this.get('groupingLevel') < this.get('groupingMetadata.length') - 1;
+    return this.get('groupingLevel') < Math.max(0, this.get('groupingMetadata.length') - 1);
   }).property('groupingMetadata.[]', 'groupingLevel'),
 
   key: Ember.computed.oneWay('grouper.id'),

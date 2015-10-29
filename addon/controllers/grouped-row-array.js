@@ -8,8 +8,6 @@ export default RowArrayController.extend({
   init: function() {
     var groupMeta = this.get('groupMeta');
     if (groupMeta.loadChildren) {
-      var loadChildren = this.get('groupMeta.loadTotalRow') || this.get('groupMeta.loadChildren');
-      this.set('content', LazyGroupRowArray.create({loadChildren: loadChildren}));
       this.set('status', Ember.Object.create({loadingCount: 0}));
     }
   },
@@ -35,6 +33,7 @@ export default RowArrayController.extend({
   _virtualRootRow: Ember.computed(function () {
     var groupingLevel = this.get('groupMeta.grandTotalTitle') ? -2 : -1;
     var rootRow = GroupRow.create({
+      loadChildren: this.get('groupMeta.loadTotalRow') || this.get('groupMeta.loadChildren'),
       content: {children: this.get('content')},
       expandLevel: -1,
       grandTotalTitle: this.get('groupMeta.grandTotalTitle'),
