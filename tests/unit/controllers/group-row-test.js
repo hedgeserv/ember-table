@@ -5,7 +5,6 @@ import Grouping from 'ember-table/models/grouping';
 
 var groupRow;
 
-
 module('grouping row', {
   beforeEach: function () {
     groupRow = GroupRow.create({
@@ -21,66 +20,99 @@ module('grouping row', {
   }
 });
 
-test('init state', function(assert) {
+test('init state', function (assert) {
   assert.equal(groupRow.get('isExpanded'), false, 'should be collapsed by default');
 });
 
-test ('group name', function(assert) {
+test('group name', function (assert) {
   assert.equal(groupRow.get('groupName'), 'groupName');
 });
 
 module('grouping row is expanded', {
-  beforeEach: function() {
+  beforeEach: function () {
     groupRow = GroupRow.create({
       expandLevel: 0,
       content: {id: 1, children: [{id: 11}]}
     });
     groupRow.expandChildren();
   },
-  afterEach: function() {
+  afterEach: function () {
     groupRow = null;
   }
 });
 
-test('subRowsCount', function(assert) {
+test('subRowsCount', function (assert) {
   var subRowsCount = groupRow.get('subRowsCount');
 
   assert.equal(subRowsCount, 1);
 });
 
 module('grouping row is collapsed', {
-  beforeEach: function() {
+  beforeEach: function () {
     groupRow = GroupRow.create({
       expandLevel: 0,
       isExpanded: false,
       content: {id: 1, children: [{id: 11}]}
     });
   },
-  afterEach: function() {
+  afterEach: function () {
     groupRow = null;
   }
 });
 
-test('subRowsCount', function(assert) {
+test('subRowsCount', function (assert) {
   var subRowsCount = groupRow.get('subRowsCount');
 
   assert.equal(subRowsCount, 0);
 });
 
 module('grouping row is expanded but has no children row', {
-  beforeEach: function() {
+  beforeEach: function () {
     groupRow = GroupRow.create({
       expandLevel: 0,
       isExpanded: true
     });
   },
-  afterEach: function() {
+  afterEach: function () {
     groupRow = null;
   }
 });
 
-test('subRowsCount', function(assert) {
+test('subRowsCount', function (assert) {
   var subRowsCount = groupRow.get('subRowsCount');
 
   assert.equal(subRowsCount, 0);
+});
+
+module('group row is lazy load', {
+  beforeEach() {
+    groupRow = GroupRow.create({
+      content: {
+        children: []
+      },
+      target: {
+        groupMeta: {
+          loadChildren() {
+            return [{id: 1}];
+          }
+        }
+      },
+      grouping: {
+        isGroup: true
+      }
+    });
+  }
+});
+
+test('children', function (assert) {
+  let children = groupRow.get('children');
+
+  assert.ok(children.loadChildren, 'should use lazy load children');
+});
+
+test('children of leaf node', function (assert) {
+  groupRow.set('grouping.isGroup', false);
+  let children = groupRow.get('children');
+
+  assert.ok(children === undefined, 'should not use lazy load children for leaf node');
 });
