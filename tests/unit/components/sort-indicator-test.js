@@ -13,32 +13,29 @@ var normalArray = [{
   id: 3
 }];
 
-moduleForEmberTable('Sort Indicator', function () {
+moduleForEmberTable('Unit | Component | sort Indicator', function (options) {
   return EmberTableFixture.create({
     height: 120,
-    content: normalArray
+    content: normalArray,
+    _assert: options._assert
   });
 });
 
 test('indicator when sort column', function (assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
 
-  var columnHeaderCell = component.getHeaderCell(0);
-  Ember.run(function () {
-    columnHeaderCell.click();
-  });
-  assert.ascendingIndicatorOn(columnHeaderCell, 'should show ascending indicator');
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
 
-  Ember.run(function () {
-    columnHeaderCell.click();
-  });
-  assert.descendingIndicatorOn(columnHeaderCell, 'should show descending indicator while changing indicator');
+  component.clickHeaderCell(0);
+  return component.assertSortIndicator(0, 'desc', 'should show descending indicator');
 });
 
 test('minWidth when sort column', function (assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
+
   Ember.run(function () {
     component.resizeColumn('Column1', -130);
   });

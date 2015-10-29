@@ -10,15 +10,25 @@ export default Ember.Component.extend(TableSelector, {
     this._super();
     StableSort.initialize();
     this.set('_component', this);
-    if (this.get('groupMeta') && !this.get('groupMeta.defers')) {
-      this.set('groupMeta.defers', DefersPromise.create());
+    var defers = DefersPromise.create();
+    if (this.get('groupMeta')) {
+      if (!this.get('groupMeta.defers') ) {
+        this.set('groupMeta.defers', defers);
+      } else {
+        defers = this.get('groupMeta.defers');
+      }
+    } else {
+      if (!this.get('content.defers')) {
+        this.set('content.defers', defers);
+      } else {
+        defers = this.get('content.defers');
+      }
     }
+    this.set('defers', defers);
   },
 
   height: 330,
   width: 1500,
-
-  defers: Ember.computed.alias('groupMeta.defers'),
 
   layout: Ember.Handlebars.compile(
     '{{ember-table ' +
@@ -56,9 +66,16 @@ export default Ember.Component.extend(TableSelector, {
     var grouper = this.get('groupMeta.groupingMetadata').objectAt(grouperIndex);
     Ember.set(grouper, 'sortDirection', sortDirection);
   },
+
   expandToLevel: function(level) {
     this.ready(() => {
       this.set('groupMeta.expandToLevelAction', {level: level});
+    });
+  },
+
+  sortByGrouper(grouperIndex, sortDirection) {
+    return this.ready(() => {
+      this.setGrouperSortDirection(grouperIndex, sortDirection);
     });
   },
 
@@ -109,7 +126,7 @@ export default Ember.Component.extend(TableSelector, {
   },
 
   clickHeaderCell(colIndex, withCmd=false) {
-    this.ready(() => {
+    return this.ready(() => {
       var cell = this.headerRows(0).cell(colIndex);
       if (withCmd) {
         cell.clickWithCommand();
@@ -128,6 +145,27 @@ export default Ember.Component.extend(TableSelector, {
   assertCellContentWhenReady() {
     return this.ready(() => {
       this.assertCellContent(...arguments);
+    });
+  },
+
+  assertSortIndicator(colIndex, direction, msg) {
+    return this.ready(() => {
+      if (direction === 'asc') {
+        this.assertAscendingIndicatorInHeaderCell(colIndex, msg);
+      } else if(direction === 'desc') {
+        this.assertDescendingIndicatorInHeaderCell(colIndex, msg);
+      } else {
+        this.assertNonSortIndicatorInHeaderCell(colIndex, msg);
+      }
+    });
+  },
+
+  assertCellsContent(rowsIdx, colsIdx, expected, msg) {
+    return this.ready(() => {
+      let assert = this.get('_assert');
+      let actual = this.cellsContent(rowsIdx, colsIdx);
+
+      assert.deepEqual(actual, expected, msg);
     });
   }
 

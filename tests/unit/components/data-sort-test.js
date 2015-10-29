@@ -2,62 +2,51 @@ import Ember from 'ember';
 import { test } from 'ember-qunit';
 import moduleForEmberTable from '../../helpers/module-for-ember-table';
 import EmberTableFixture from '../../fixture/ember-table';
-import EmberTableHelper from '../../helpers/ember-table-helper';
-import Columns from '../../fixture/columns';
-import LazyArray from 'ember-table/models/lazy-array';
-import DefersPromise from '../../fixture/defer-promises';
 import GroupedRowDataProvider from '../../fixture/grouped-row-data-provider';
 import { defaultFixture } from '../../fixture/lazy-array-factory';
 
-import _loadSortIndicatorAssertions from '../../helpers/assert-sort-indicator';
-import _loadTextAssertions from '../../helpers/assert-text';
-import TableDom from '../../helpers/table-dom';
-
 moduleForEmberTable('Unit | Component | data sort | A normal JavaScript array as ember-table content', function (options = {}) {
-  var subject = EmberTableFixture.create({
+  return EmberTableFixture.create({
     _assert: options._assert,
     content: options.content || [{ id: 2}, { id: 1}, { id: 4}, { id: 3}]
   });
-  return subject;
 });
 
 test('regular click to sort by id column', function (assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
 
-  var idHeaderCell = component.headerRow(0).cell(0);
-  var firstIdCell = component.cell(0, 0);
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  component.assertCellContentWhenReady(0, 0, '1', 'should sort as ascending');
 
-  idHeaderCell.click();
-  assert.ascendingIndicatorOn(idHeaderCell, 'should show ascending indicator');
-  assert.textOn(firstIdCell, '1', 'should sort as ascending');
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'desc', 'should show descending indicator');
+  component.assertCellContentWhenReady(0, 0, '4', 'should sort as descending');
 
-  idHeaderCell.click();
-  assert.descendingIndicatorOn(idHeaderCell, 'should show descending indicator');
-  assert.textOn(firstIdCell, '4', 'should sort as descending');
-
-  idHeaderCell.click();
-  assert.ascendingIndicatorOn(idHeaderCell, 'should show ascending indicator');
-  assert.textOn(firstIdCell, '1', 'should sort as ascending');
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  return component.assertCellContentWhenReady(0, 0, '1', 'should sort as ascending');
 });
 
 test('click with command key to sort by id column', function (assert) {
   var component = this.subject({_assert: assert});
   this.render();
 
-  component.clickHeaderCellWithCommand(0);
-  component.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
-  component.assertCellContent(0, 0, '1', 'should sort as ascending');
+  component.clickHeaderCell(0, true);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  component.assertCellContentWhenReady(0, 0, '1', 'should sort as ascending');
 
-  component.clickHeaderCellWithCommand(0);
-  component.assertNonSortIndicatorInHeaderCell(0, 'should not show loading indicator');
-  component.assertCellContent(0, 0, '1', ' should keep as ascending after unsort');
+  component.clickHeaderCell(0, true);
+  component.assertSortIndicator(0, null, 'should not show loading indicator');
+  component.assertCellContentWhenReady(0, 0, '1', ' should keep as ascending after unsort');
 
-  component.getHeaderCell(0).click();
-  component.getHeaderCell(0).click();
-  component.assertCellContent(0, 0, '4', 'should sort as descending');
-  component.clickHeaderCellWithCommand(0);
-  component.assertCellContent(0, 0, '4', 'should keep as descending after unsort');
+  component.clickHeaderCell(0);
+  component.clickHeaderCell(0);
+  component.assertCellContentWhenReady(0, 0, '4', 'should sort as descending');
+
+  component.clickHeaderCell(0, true);
+  return component.assertCellContentWhenReady(0, 0, '4', 'should keep as descending after unsort');
 });
 
 test('sort by id:asc, activity:desc', function(assert) {
@@ -74,14 +63,14 @@ test('sort by id:asc, activity:desc', function(assert) {
     ["id-c", "activity-a"]
   ];
   var component = this.subject({_assert: assert, content: content});
-
   this.render();
-  component.getHeaderCell(0).click();
-  component.clickHeaderCellWithCommand(1);
 
-  var bodyCellsContent = component.bodyCellsContent([0, 1, 2, 3], [0, 1]);
+  component.clickHeaderCell(0);
+  component.clickHeaderCell(1, true);
 
-  assert.deepEqual(bodyCellsContent, sortedContent, "content should be sorted by multiple columns");
+  return component.assertCellsContent(
+    4, [0, 1],
+    sortedContent,'content should be sorted by multiple columns');
 });
 
 moduleForEmberTable('Unit | Component | data sort | A grouped JavaScript array as ember-table content', function (options) {
@@ -101,10 +90,9 @@ test('sort grouped row array by id column, no expand', function(assert) {
   var component = this.subject({content: content, _assert: assert});
   this.render();
 
-  component.getHeaderCell(0).click();
+  component.clickHeaderCell(1);
 
-  var expectedContent = [['1'], ['2']];
-  assert.deepEqual(component.bodyCellsContent([0,1], [0]), expectedContent);
+  return component.assertCellsContent(2, [1], [['1'], ['2']]);
 });
 
 test('sort grouped row array by id column, expand', function(assert) {
@@ -123,12 +111,12 @@ test('sort grouped row array by id column, expand', function(assert) {
   var component = this.subject({_assert: assert, content: content});
   this.render();
 
-  component.rowGroupingIndicator(0).click();
-  component.rowGroupingIndicator(2).click();
-  component.getHeaderCell(0).click();
+  component.clickGroupIndicator(0);
+  component.clickGroupIndicator(2);
+  component.clickHeaderCell(1);
 
   var expectedContent = [['1'], ['2'], ['21'], ['211'], ['22'], ['23']];
-  assert.deepEqual(component.bodyCellsContent([0,1,2,3,4,5], [0]), expectedContent);
+  return component.assertCellsContent(6, [1], expectedContent);
 });
 
 test('sort grouped row array by id column, expand two levels ', function(assert) {
@@ -147,11 +135,11 @@ test('sort grouped row array by id column, expand two levels ', function(assert)
       ]
     },
     {id: 2}];
-  var component = this.subject({content: content});
+  var component = this.subject({_assert: assert, content: content});
   this.render();
 
-  component.rows(0).groupIndicator().click();
-  assert.deepEqual(component.cellsContent([0, 1, 2, 3, 4], [1]), [
+  component.clickGroupIndicator(0);
+  component.assertCellsContent(5, [1], [
     ['1'],
         ['12'],
         ['13'],
@@ -159,8 +147,8 @@ test('sort grouped row array by id column, expand two levels ', function(assert)
     ['2']
   ]);
 
-  component.rows(1).groupIndicator().click();
-  assert.deepEqual(component.cellsContent([0, 1, 2, 3, 4, 5, 6, 7], [1]), [
+  component.clickGroupIndicator(1);
+  component.assertCellsContent(8, [1], [
     ['1'],
         ['12'],
             ['122'],
@@ -171,8 +159,8 @@ test('sort grouped row array by id column, expand two levels ', function(assert)
     ['2']
   ]);
 
-  component.headerRows(0).cell(1).click();
-  assert.deepEqual(component.cellsContent([0, 1, 2, 3, 4, 5, 6, 7], [1]), [
+  component.clickHeaderCell(1);
+  component.assertCellsContent(8, [1], [
     ['1'],
         ['11'],
         ['12'],
@@ -183,8 +171,8 @@ test('sort grouped row array by id column, expand two levels ', function(assert)
     ['2']
   ]);
 
-  component.headerRows(0).cell(1).click();
-  assert.deepEqual(component.cellsContent([0, 1, 2, 3, 4, 5, 6, 7], [1]), [
+  component.clickHeaderCell(1);
+  return component.assertCellsContent(8, [1], [
     ['2'],
     ['1'],
       ['13'],
@@ -211,14 +199,14 @@ test('sort group row array by column id, expanded row invisible', function(asser
     {id: 3},
     {id: 4}
   ];
-  var component = this.subject({ content: content, height: 120});
+  var component = this.subject({_assert: assert, content: content, height: 120});
   this.render();
 
-  component.rows(0).groupIndicator().click();
-  component.headerRows(0).cell(1).click(); //ascending by id
-  component.headerRows(0).cell(1).click(); //descending by id
+  component.clickGroupIndicator(0);
+  component.clickHeaderCell(1);//ascending by id
+  component.clickHeaderCell(1);//descending by id
 
-  assert.deepEqual(component.cellsContent([0, 1, 2], [1]), [
+  return component.assertCellsContent(3, [1], [
     ['5'], ['53'], ['52']
   ]);
 });
@@ -244,7 +232,8 @@ moduleForEmberTable('Unit | Component | data sort | Sort a normal JavaScript arr
 
   var subject = EmberTableFixture.create({
     content: content,
-    groupMeta: groupMeta
+    groupMeta: groupMeta,
+    _assert: options._assert
   });
   if (options && options.height) {
     subject.set('height', options.height);
@@ -253,12 +242,12 @@ moduleForEmberTable('Unit | Component | data sort | Sort a normal JavaScript arr
 });
 
 test('sort by grouper accountSection in asc', function(assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
 
-  Ember.run(component, 'setGrouperSortDirection', 0, 'asc');
+  component.sortByGrouper(0, 'asc');
 
-  assert.deepEqual(component.cellsContent([0, 1, 2], [0, 1]), [
+  return component.assertCellsContent(3, [0, 1], [
     ['as-1', '2'],
     ['as-2', '1'],
     ['as-3', '3']
@@ -266,12 +255,12 @@ test('sort by grouper accountSection in asc', function(assert) {
 });
 
 test('sort by grouper accountSection in desc', function(assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
 
-  Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
+  component.sortByGrouper(0, 'desc');
 
-  assert.deepEqual(component.cellsContent([0, 1, 2], [0, 1]), [
+  return component.assertCellsContent(3, [0, 1], [
     ['as-3', '3'],
     ['as-2', '1'],
     ['as-1', '2']
@@ -279,15 +268,13 @@ test('sort by grouper accountSection in desc', function(assert) {
 });
 
 test('change grouper accountSection from asc to unsorted', function(assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
 
-  Ember.run(function() {
-    component.setGrouperSortDirection(0, 'asc');
-    component.setGrouperSortDirection(0, null);
-  });
+  component.sortByGrouper(0, 'asc');
+  component.sortByGrouper(0, null);
 
-  assert.deepEqual(component.cellsContent([0, 1, 2], [0, 1]), [
+  return component.assertCellsContent(3, [0, 1], [
     ['as-1', '2'],
     ['as-2', '1'],
     ['as-3', '3']
@@ -295,13 +282,14 @@ test('change grouper accountSection from asc to unsorted', function(assert) {
 });
 
 test('change grouper accountSection to asc with expand state', function (assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
 
-  component.rows(0).groupIndicator().click();
-  Ember.run(component, 'setGrouperSortDirection', 0, 'asc');
+  component.clickGroupIndicator(0);
+  component.sortByGrouper(0, 'asc');
 
-  assert.deepEqual(component.cellsContent([0, 1, 2, 3, 4, 5], [0, 1]), [
+
+  return component.assertCellsContent(6, [0, 1], [
     ['as-1', '2'],
     ['as-2', '1'],
     ['at-3', '11'],
@@ -312,16 +300,16 @@ test('change grouper accountSection to asc with expand state', function (assert)
 });
 
 test('change grouper accountSection from asc to desc, expanded row invisible', function (assert) {
-  var component = this.subject({height: 150});
+  var component = this.subject({_assert: assert, height: 150});
   this.render();
-  component.rows(0).groupIndicator().click();
-  component.rows(1).groupIndicator().click();
-  Ember.run(function() {
-    component.setGrouperSortDirection(0, 'asc');
-    component.setGrouperSortDirection(1, 'asc');
-  });
-  Ember.run(component, 'setGrouperSortDirection', 1, 'desc');
-  assert.deepEqual(component.cellsContent([0, 1, 2, 3], [0, 1]), [
+
+  component.clickGroupIndicator(0);
+  component.clickGroupIndicator(1);
+  component.sortByGrouper(0, 'asc');
+  component.sortByGrouper(1, 'asc');
+  component.sortByGrouper(1, 'desc');
+
+  return component.assertCellsContent(4, [0, 1], [
     ['as-1', '2'],
     ['as-2', '1'],
     ['at-3', '11'],
@@ -330,15 +318,14 @@ test('change grouper accountSection from asc to desc, expanded row invisible', f
 });
 
 test('change grouper accountSection and accountType to asc with expand state', function (assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
 
-  component.rows(0).groupIndicator().click();
-  Ember.run(function() {
-    component.setGrouperSortDirection(1, 'asc');
-    component.setGrouperSortDirection(0, 'asc');
-  });
-  assert.deepEqual(component.cellsContent([0, 1, 2, 3, 4, 5], [0, 1]), [
+  component.clickGroupIndicator(0);
+  component.sortByGrouper(1, 'asc');
+  component.sortByGrouper(0, 'asc');
+
+  return component.assertCellsContent(6, [0, 1], [
     ['as-1', '2'],
     ['as-2', '1'],
     ['at-1', '12'],
@@ -349,19 +336,16 @@ test('change grouper accountSection and accountType to asc with expand state', f
 });
 
 test('change grouper accountSection and accountType to asc with expand state and sorted by id column', function (assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
 
-  component.rows(0).groupIndicator().click();
-  component.rows(1).groupIndicator().click();
-  Ember.run(function() {
-    component.setGrouperSortDirection(1, 'asc');
-    component.setGrouperSortDirection(0, 'asc');
-  });
+  component.clickGroupIndicator(0);
+  component.clickGroupIndicator(1);
+  component.sortByGrouper(1, 'asc');
+  component.sortByGrouper(0, 'asc');
+  component.clickHeaderCell(1);
 
-  component.headerRows(0).cell(1).click();
-
-  assert.deepEqual(component.cellsContent([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1]), [
+  return component.assertCellsContent(10, [0, 1], [
     ['as-1', '2'],
     ['as-2', '1'],
     ['at-1', '12'],
@@ -376,15 +360,14 @@ test('change grouper accountSection and accountType to asc with expand state and
 });
 
 test('make grouper unsorted', function (assert) {
-  var component = this.subject();
+  var component = this.subject({_assert: assert});
   this.render();
-  Ember.run(component, 'setGrouperSortDirection', 0, 'asc');
-  Ember.run(function () {
-    component.getHeaderCell(0).click();
-  });
-  Ember.run(component, 'setGrouperSortDirection', 0, undefined);
-  var res = component.bodyCellsContent([0, 1, 2], [0]);
-  assert.deepEqual(res, [
+
+  component.sortByGrouper(0, 'asc');
+  component.clickHeaderCell(1);
+  component.sortByGrouper(0, undefined);
+
+  return component.assertCellsContent(3, [1],[
     ['1'],
     ['2'],
     ['3']
@@ -400,106 +383,71 @@ moduleForEmberTable('Unit | Component | data sort | lazy-array as ember-table co
 });
 
 test('regular click to sort column of id by completed data', function (assert) {
-  var defers = DefersPromise.create({count: 4});
-  var component = this.subject({defers:defers, height: 800, _assert: assert});
+  var component = this.subject({height: 800, _assert: assert});
   this.render();
 
-  return defers.ready(function () {
-    component.assertCellContent(0, 0, '3', 'should sort as unsorted');
+  component.assertCellContentWhenReady(0, 0, '3', 'should sort as unsorted');
 
-    Ember.run(function() {
-      component.getHeaderCell(0).click();
-    });
-    component.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
-    component.assertCellContent(0, 0, '0', 'should sort as ascending');
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  component.assertCellContentWhenReady(0, 0, '0', 'should sort as ascending');
 
-    Ember.run(function() {
-      component.getHeaderCell(0).click();
-    });
-    component.assertDescendingIndicatorInHeaderCell(0, 'should show descending indicator');
-    component.assertCellContent(0, 0, '19', 'should sort as descending');
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'desc', 'should show descending indicator');
+  component.assertCellContentWhenReady(0, 0, '19', 'should sort as descending');
 
-    Ember.run(function() {
-      component.getHeaderCell(0).click();
-    });
-    component.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
-    component.assertCellContent(0, 0, '0', 'should sort as ascending');
-  });
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  return component.assertCellContentWhenReady(0, 0, '0', 'should sort as ascending');
 });
 
 test('click with command key to sort column of id by completed data', function (assert) {
-  var defers = DefersPromise.create({count: 4});
-  var component = this.subject({defers:defers, height: 800, _assert: assert});
+  var component = this.subject({height: 800, _assert: assert});
   this.render();
 
-  return defers.ready(function () {
-    component.assertCellContent(0, 0, '3', 'should sort as unsorted');
+  component.assertCellContentWhenReady(0, 0, '3', 'should sort as unsorted');
 
-    Ember.run(function() {
-      component.clickHeaderCellWithCommand(0);
-    });
-    component.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
-    component.assertCellContent(0, 0, '0', 'should sort as ascending');
+  component.clickHeaderCell(0, true);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  component.assertCellContentWhenReady(0, 0, '0', 'should sort as ascending');
 
-    Ember.run(function() {
-      component.clickHeaderCellWithCommand(0);
-    });
-    component.assertNonSortIndicatorInHeaderCell(0, 'should not show loading indicator');
-    component.assertCellContent(0, 0, '0', 'should keep ascending after unsort');
+  component.clickHeaderCell(0, true);
+  component.assertNonSortIndicatorInHeaderCell(0, 'should not show loading indicator');
+  component.assertCellContentWhenReady(0, 0, '0', 'should keep ascending after unsort');
 
-    Ember.run(function() {
-      component.getHeaderCell(0).click();
-    });
-    Ember.run(function() {
-      component.getHeaderCell(0).click();
-    });
-
-    Ember.run(function() {
-      component.clickHeaderCellWithCommand(0);
-    });
-    component.assertNonSortIndicatorInHeaderCell(0, 'should not show loading indicator');
-    component.assertCellContent(0, 0, '19', 'should keep descending after unsort');
-  });
+  component.clickHeaderCell(0);
+  component.clickHeaderCell(0);
+  component.clickHeaderCell(0, true);
+  component.assertNonSortIndicatorInHeaderCell(0, 'should not show loading indicator');
+  return component.assertCellContentWhenReady(0, 0, '19', 'should keep descending after unsort');
 });
 
 test('regular click to sort column of id by partial data', function (assert) {
-  var defers = DefersPromise.create({count: 8});
-  var component = this.subject({defers:defers, height: 200, _assert: assert});
+  var component = this.subject({height: 200, _assert: assert});
   this.render();
-  defers.ready(function () {
-    component.assertCellContent(0, 0, '3', 'should sort as unsorted');
-    component.getHeaderCell(0).click();
-  }, [0, 1]);
-  defers.ready(function () {
-    component.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
-    component.assertCellContent(0, 0, '0', 'should sort as ascending');
-    component.getHeaderCell(0).click();
-  }, [2, 3]);
+  component.assertCellContentWhenReady(0, 0, '3', 'should sort as unsorted');
 
-  defers.ready(function () {
-    component.assertDescendingIndicatorInHeaderCell(0, 'should show descending indicator');
-    component.assertCellContent(0, 0, '19', 'should sort as descending');
-    component.getHeaderCell(0).click();
-  }, [4, 5]);
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  component.assertCellContentWhenReady(0, 0, '0', 'should sort as ascending');
 
-  return defers.ready(function(){
-    component.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
-    component.assertCellContent(0, 0, '0', 'should sort as ascending');
-  });
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'desc', 'should show descending indicator');
+  component.assertCellContentWhenReady(0, 0, '19', 'should sort as descending');
+
+  component.clickHeaderCell(0);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  return component.assertCellContentWhenReady(0, 0, '0', 'should sort as ascending');
 });
 
 test('multiple columns sort by partial data', function (assert) {
-  var defers = DefersPromise.create({count: 6});
-  var component = this.subject({defers:defers, height: 200, _assert: assert});
+  var component = this.subject({height: 200, _assert: assert});
   this.render();
-  defers.ready(function () {
-    component.getHeaderCell(1).click();
-  }, [0, 1]);
-  defers.ready(function () {
-    component.clickHeaderCellWithCommand(2);
-  }, [2, 3]);
 
-  return defers.ready(function () {
+  component.clickHeaderCell(1);
+  component.clickHeaderCell(2, true);
+
+  return component.ready(function () {
     var sortedContent = [
       ["activity-0", "state-1"],
       ["activity-0", "state-3"],
@@ -511,62 +459,43 @@ test('multiple columns sort by partial data', function (assert) {
 });
 
 test('sort quickly twice', function (assert) {
-  var defers = DefersPromise.create({count: 4});
-  var component = this.subject({defers:defers, height: 200, delayTime: 500, _assert: assert});
+  var component = this.subject({height: 200, delayTime: 500, _assert: assert});
   this.render();
-  defers.ready(function () {
-    component.assertCellContent(0, 0, '3', 'should sort as unsorted');
-    var idHeaderCell = component.getHeaderCell(0);
-    Ember.run(function() {
-      idHeaderCell.click();
-    });
-    Ember.run(function() {
-      idHeaderCell.click();
-    });
-  }, [0, 1]);
 
-  return defers.ready(function(){
-    component.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
-    component.assertCellContent(0, 0, '0', 'should ascending');
+  component.assertCellContentWhenReady(0, 0, '3', 'should sort as unsorted');
+
+  component.ready(() => {
+    var headerCell = component.getHeaderCell(0);
+    Ember.run(() =>headerCell.click());
+    Ember.run(() =>headerCell.click());
   });
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  return component.assertCellContentWhenReady(0, 0, '0', 'should ascending');
 });
 
 test('click with command key to sort column of id by partial data', function (assert) {
-  var defers = DefersPromise.create({count: 12});
-  var component = this.subject({defers:defers, height: 200, _assert: assert});
+  var component = this.subject({height: 200, _assert: assert});
   this.render();
-  defers.ready(function () {
-    component.assertCellContent(0, 0, '3', 'should sort as unsorted');
-    component.clickHeaderCellWithCommand(0);
-  }, [0, 1]);
-  defers.ready(function () {
-    component.assertAscendingIndicatorInHeaderCell(0, 'should show ascending indicator');
-    component.assertCellContent(0, 0, '0', 'should sort as ascending');
-    component.clickHeaderCellWithCommand(0);
-  }, [2, 3]);
-  defers.ready(function () {
-    component.assertNonSortIndicatorInHeaderCell(0, 'should not show loading indicator');
-    component.assertCellContent(0, 0, '3', 'should display unsorted state');
-    component.getHeaderCell(0).click();
-  }, [4, 5]);
 
-  defers.ready(function(){
-    component.getHeaderCell(0).click();
-  }, [6, 7]);
+  component.assertCellContentWhenReady(0, 0, '3', 'should sort as unsorted');
 
-  defers.ready(function(){
-    component.clickHeaderCellWithCommand(0);
-  }, [8, 9]);
+  component.clickHeaderCell(0, true);
+  component.assertSortIndicator(0, 'asc', 'should show ascending indicator');
+  component.assertCellContentWhenReady(0, 0, '0', 'should sort as ascending');
 
-  return defers.ready(function(){
-    component.assertNonSortIndicatorInHeaderCell(0, 'should not show loading indicator');
-    component.assertCellContent(0, 0, '3', 'should display unsorted state');
-  }, [10, 11]);
+  component.clickHeaderCell(0, true);
+  component.assertSortIndicator(0, null, 'should not show sort indicator');
+  component.assertCellContentWhenReady(0, 0, '3', 'should display unsorted state');
+
+  component.clickHeaderCell(0);
+  component.clickHeaderCell(0);
+  component.clickHeaderCell(0, true);
+  component.assertSortIndicator(0, null, 'should not show sort indicator');
+  return component.assertCellContentWhenReady(0, 0, '3', 'should display unsorted state');
 });
 
 test('multiple columns sort with complete data', function(assert) {
-  var defers = DefersPromise.create({count: 1});
-  var options = {defers: defers, height: 800, totalCount: 3, chunkSize: 3, multipleColumns: true, _assert: assert};
+  var options = {height: 800, totalCount: 3, chunkSize: 3, multipleColumns: true, _assert: assert};
   var component = this.subject(options);
 
   options.chunks = [
@@ -578,14 +507,10 @@ test('multiple columns sort with complete data', function(assert) {
   ];
   this.render();
 
-  return defers.ready(function() {
-    Ember.run(function() {
-      component.getHeaderCell(0).click();
-    });
-    Ember.run(function() {
-      component.clickHeaderCellWithCommand(1);
-    });
+  component.clickHeaderCell(0);
+  component.clickHeaderCell(1, true);
 
+  return component.ready(function() {
     var sortedContent = [
       ["1", "a"],
       ["1", "b"],
@@ -594,7 +519,6 @@ test('multiple columns sort with complete data', function(assert) {
     var bodyCellsContent = component.bodyCellsContent([0, 1, 2], [0, 1]);
     assert.deepEqual(bodyCellsContent, sortedContent, "content should be sorted by multiple columns");
   });
-
 });
 
 moduleForEmberTable('Unit | Component | data sort | lazy-grouped-row-array as ember-table content', function (options) {
@@ -613,15 +537,10 @@ test('sort completed data by multiple columns', function (assert) {
   this.render();
 
   component.clickGroupIndicator(0);
+  component.clickHeaderCell(2);
+  component.clickHeaderCell(3, true);
 
   return component.ready(function () {
-    Ember.run(function() {
-      component.headerRows(0).cell(2).click();
-    });
-    Ember.run(function() {
-      component.headerRows(0).cell(3).clickWithCommand();
-    });
-
     var sortedContent = [
       ["activity-0", "state-1"],
       ["activity-0", "state-3"],
@@ -662,9 +581,7 @@ test('sort partial data by grouper accountSection', function(assert) {
   var component = this.subject({height: 120});
   this.render();
 
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  }, [0]);
+  component.sortByGrouper(0, 'desc');
 
   return component.ready(function () {
     var sortedContent = [
@@ -681,13 +598,8 @@ test('unSort partial data by setting grouper "accountSection" to null', function
   var component = this.subject({height: 120});
   this.render();
 
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  });
-
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, null);
-  });
+  component.sortByGrouper(0, 'desc');
+  component.sortByGrouper(0, null);
 
   return component.ready(function () {
     var sortedContent = [
@@ -704,13 +616,8 @@ test('unSort partial data by setting grouper "accountSection" to undefined', fun
   var component = this.subject({height: 120});
   this.render();
 
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  });
-
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, undefined);
-  });
+  component.sortByGrouper(0, 'desc');
+  component.sortByGrouper(0, undefined);
 
   return component.ready(function () {
     var sortedContent = [
@@ -729,14 +636,9 @@ test('sort partial data by grouper accountSection and accountType', function(ass
 
   component.clickGroupIndicator(0);
 
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-    Ember.run(component, 'setGrouperSortDirection', 1, 'desc');
-  });
-
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'asc');
-  });
+  component.sortByGrouper(0, 'desc');
+  component.sortByGrouper(1, 'desc');
+  component.sortByGrouper(0, 'asc');
 
   return component.ready(function () {
     var sortedContent = [
@@ -753,19 +655,10 @@ test('sort partial data by grouper accountSection then expand', function(assert)
   var component = this.subject({height: 120});
   this.render();
 
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  });
-
+  component.sortByGrouper(0, 'desc');
   component.clickGroupIndicator(0);
-
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'asc');
-  });
-
-  component.ready(function () {
-    Ember.run.later(component, 'setGrouperSortDirection', 0, 'desc');
-  });
+  component.sortByGrouper(0, 'asc');
+  component.sortByGrouper(0, 'desc');
 
   return component.ready(function () {
     var sortedContent = [
@@ -783,10 +676,7 @@ test('expand then sort partial data by grouper "accountSection"', function(asser
   this.render();
 
   component.clickGroupIndicator(0);
-
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'asc');
-  });
+  component.sortByGrouper(0, 'asc');
 
   return component.ready(function () {
     var sortedContent = [
@@ -803,10 +693,7 @@ test('sort partial data by grouper "accountSection" and then by column "id"', fu
   var component = this.subject({height: 120});
   this.render();
 
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  }, [0]);
-
+  component.sortByGrouper(0, 'desc');
   component.clickHeaderCell(1);
 
   return component.ready(function () {
@@ -825,10 +712,7 @@ test('sort partial data by column "id" then by grouper "accountSection"', functi
   this.render();
 
   component.clickHeaderCell(1);
-
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  }, [1]);
+  component.sortByGrouper(0, 'desc');
 
   return component.ready(function () {
     var sortedContent = [
@@ -846,12 +730,8 @@ test('sort partial data by column "id", expand first row, then sort by grouper "
   this.render();
 
   component.clickHeaderCell(1);
-
   component.clickGroupIndicator(0);
-
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 1, 'desc');
-  }, [2]);
+  component.sortByGrouper(1, 'desc');
 
   return component.ready(function () {
     var sortedContent = [
@@ -869,12 +749,8 @@ test('expand partial data, sort by column "id", then sort by grouper "accountTyp
   this.render();
 
   component.clickGroupIndicator(0);
-
   component.clickHeaderCell(1);
-
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 1, 'desc');
-  }, [2, 3]);
+  component.sortByGrouper(1, 'desc');
 
   return component.ready(function () {
     var sortedContent = [
@@ -888,13 +764,12 @@ test('expand partial data, sort by column "id", then sort by grouper "accountTyp
 });
 
 test('click grouping-column header cell', function(assert) {
-  var component = this.subject({height: 1000});
+  var component = this.subject({_assert: assert, height: 1000});
   this.render();
-  component.ready(function () {
-    var groupingColumnHeader = component.headerRow(0).cell(0);
-    groupingColumnHeader.click();
-    assert.noSortIndicatorOn(groupingColumnHeader, 'should not appear ascending indicator');
-  }, [0, 1]);
+
+  component.clickHeaderCell(0);
+
+  return component.assertSortIndicator(0, null, 'should not appear ascending indicator');
 });
 
 test('click with command key to sort completed data', function (assert) {
@@ -902,30 +777,18 @@ test('click with command key to sort completed data', function (assert) {
   this.render();
 
   component.clickGroupIndicator(0);
+  component.assertCellContentWhenReady(1, 0, '102', 'should unsorted before click header cell');
 
-  return component.ready(function () {
-    component.assertCellContent(1, 0, '102', 'should unsorted before click header cell');
-    Ember.run(function() {
-      component.clickHeaderCellWithCommand(0);
-    });
-    component.assertCellContent(1, 0, '101', 'should sort ascending');
+  component.clickHeaderCell(1, true);
+  component.assertCellContentWhenReady(1, 0, '101', 'should sort ascending');
 
-    Ember.run(function() {
-      component.clickHeaderCellWithCommand(0);
-    });
-    component.assertCellContent(1, 0, '101', 'should keep ascending');
+  component.clickHeaderCell(1, true);
+  component.assertCellContentWhenReady(1, 0, '101', 'should keep ascending');
 
-    Ember.run(function() {
-      component.getHeaderCell(0).click();
-    });
-    Ember.run(function() {
-      component.getHeaderCell(0).click();
-    });
-    Ember.run(function() {
-      component.clickHeaderCellWithCommand(0);
-    });
-    component.assertCellContent(10, 0, '110', 'should keep descending');
-  });
+  component.clickHeaderCell(1);
+  component.clickHeaderCell(1);
+  component.clickHeaderCell(1, true);
+  return component.assertCellContentWhenReady(10, 0, '110', 'should keep descending');
 });
 
 test('regular click to sort partial data', function (assert) {
@@ -1068,9 +931,7 @@ test('sort by grouper accountSection', function(assert) {
   var component = this.subject({height: 120});
   this.render();
 
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  });
+  component.sortByGrouper(0, 'desc');
 
   return component.ready(function() {
     assert.deepEqual(component.cellsContent([0, 1, 2], [0, 1]), [
@@ -1086,10 +947,9 @@ test('sort by grouper accountSection in client side with expand state', function
   this.render();
 
   component.clickGroupIndicator(0);
+  component.sortByGrouper(0, 'desc');
 
   return component.ready(function() {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-
     assert.deepEqual(component.cellsContent([7, 8, 9, 10, 11, 12], [0, 1]), [
       ['as-2', '2'],
       ['as-10', '10'],
@@ -1106,11 +966,7 @@ test('sort by grouper accountSection in server side with expand state', function
   this.render();
 
   component.clickGroupIndicator(0);
-
-  component.ready(function() {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  });
-
+  component.sortByGrouper(0, 'desc');
   component.scrollRows(7);
 
   return component.ready(function() {
@@ -1125,11 +981,7 @@ test('sort by grouper accountSection in server side with expand state of two lev
 
   component.clickGroupIndicator(0);
   component.clickGroupIndicator(1);
-
-  component.ready(function() {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  });
-
+  component.sortByGrouper(0, 'desc');
   component.scrollRows(10);
 
   return component.ready(function() {
@@ -1142,9 +994,7 @@ test('expand grouping row after sorted by grouper accountSection', function(asse
   var component = this.subject({height: 1000});
   this.render();
 
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 1, 'desc');
-  });
+  component.sortByGrouper(1, 'desc');
   component.clickGroupIndicator(0);
 
   return component.ready(function() {
@@ -1162,10 +1012,7 @@ test('sort by column after expand and sorted by grouper accountSection', functio
   var component = this.subject({height: 120});
   this.render();
 
-  component.ready(function () {
-    Ember.run(component, 'setGrouperSortDirection', 0, 'desc');
-  });
-
+  component.sortByGrouper(0, 'desc');
   component.clickGroupIndicator(0);
   component.clickHeaderCell(1);
 

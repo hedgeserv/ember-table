@@ -20,7 +20,7 @@ export function defaultFixture(options) {
     _preloadGate: options._preloadGate || 1,
 
     callback: function (pageIndex, sortingColumns) {
-      var defer = options.defers.next();
+      var defer = this.get('defers').next();
       var result = this.initChunk(pageIndex, sortingColumns);
       delayResolve(defer, result, options.delayTime);
       return defer.promise;
