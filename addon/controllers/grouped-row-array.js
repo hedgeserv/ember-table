@@ -2,7 +2,6 @@ import Ember from 'ember';
 import RowArrayController from 'ember-table/controllers/row-array';
 import GroupRow from './group-row';
 import Grouping from '../models/grouping';
-import LazyGroupRowArray from '../models/lazy-group-row-array';
 
 export default RowArrayController.extend({
   init: function() {
