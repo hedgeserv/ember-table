@@ -32,7 +32,8 @@ module('grouping row is expanded', {
   beforeEach: function () {
     groupRow = GroupRow.create({
       expandLevel: 0,
-      content: {id: 1, children: [{id: 11}]}
+      content: {id: 1, children: [{id: 11}]},
+      grouping: {isGroup: true}
     });
     groupRow.expandChildren();
   },
@@ -52,7 +53,8 @@ module('grouping row is collapsed', {
     groupRow = GroupRow.create({
       expandLevel: 0,
       isExpanded: false,
-      content: {id: 1, children: [{id: 11}]}
+      content: {id: 1, children: [{id: 11}]},
+      grouping: {isGroup: true}
     });
   },
   afterEach: function () {
