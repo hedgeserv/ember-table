@@ -23,6 +23,17 @@ var GroupRow = Row.extend({
       return childrenCount + childrenExpandedCount;
     }).property('isExpanded', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount', '_childrenRow.length'),
 
+    subRowIndex: Ember.computed('_childrenRow.@each.subRowsCount', '_childrenRow.definedControllersCount', function () {
+      var subRows = this.get('_childrenRow');
+      var offset = 0;
+      var result = [];
+      subRows.forEach(function (row, idx) {
+        result.push({offset: offset, rowIndex: idx});
+        offset += row ? (row.get('subRowsCount') + 1) : 1;
+      });
+      return result;
+    }),
+
     _childrenRow: null,
 
     expandChildren: function () {
@@ -113,13 +124,13 @@ var GroupRow = Row.extend({
       this.notifyLengthChange();
     },
 
-    notifyLengthChange: function() {
+    notifyLengthChange: function () {
       if (this.get('target')) {
         this.get('target').notifyPropertyChange('length');
       }
     },
 
-    findRow: function (idx) {
+    _findRow: function (idx) {
       var subRows = this.get('_childrenRow');
       if (!subRows) {
         return undefined;
@@ -141,6 +152,72 @@ var GroupRow = Row.extend({
         }
       }
       return undefined;
+    },
+
+    findRow: function (idx) {
+      var subRows = this.get('_childrenRow');
+      if (!subRows || !subRows.get('length')) {
+        return undefined;
+      }
+
+      var subRowIndex = this.get('subRowIndex');
+
+      var binarySearch = function(array, left, right) {
+        if (left >= right) {
+          return array[left];
+        }
+
+        let leftOffset = subRowIndex[left].offset;
+        let rightOffset = subRowIndex[right].offset;
+        if (right - left === 1) {
+          if (idx < rightOffset) {
+            return array[left];
+          } else {
+            return array[right];
+          }
+        }
+
+        let sum = left + right;
+        let mid = sum % 2 ? (sum + 1) / 2 : sum / 2;
+        let midOffset = subRowIndex[mid].offset;
+
+        if (idx >= leftOffset && idx < midOffset) {
+          return binarySearch(array, left, mid);
+        } else if (idx > midOffset && idx <= rightOffset) {
+          return binarySearch(array, mid, right);
+        } else {
+          return array[mid];
+        }
+      };
+
+      var index = binarySearch(subRowIndex, 0, subRowIndex.length - 1);
+
+      //pow2 = [1];
+      //powIndex = 1;
+      //while (pow2[pow2.length - 1] < subRows.length) {
+      //  pow2.push(Math.pow(2, powIndex));
+      //  powIndex ++;
+      //}
+      //
+      //var index = 0;
+      //for(var i = pow2.length - 1; i >= 0; i--) {
+      //  tmp = index + pow2[i];
+      //  if(tmp < subRowIndex.length && idx >= subRowIndex[tmp].offset) {
+      //    index = tmp;
+      //  }
+      //}
+      //while(i < subRowIndex.length && idx >= subRowIndex[i].offset) {
+      //  index = subRowIndex[i];
+      //  i ++;
+      //}
+
+      console.log('findRow', idx, index);
+      var row = subRows.objectAt(index.rowIndex);
+      if (idx === index.offset) {
+        return row;
+      } else {
+        return row.findRow(idx - index.offset - 1);
+      }
     },
 
     createRow: function (idx) {
@@ -211,7 +288,7 @@ var GroupRow = Row.extend({
       return this.get('grouping.isGrandTotal') ? this.get('grouping.grandTotalClass') : '';
     }),
 
-    hasChildren: Ember.computed('grouping.isGroup', '_groupRowControlFlags.isEmpty', function() {
+    hasChildren: Ember.computed('grouping.isGroup', '_groupRowControlFlags.isEmpty', function () {
       if (this.get('_groupRowControlFlags.isEmpty')) {
         return false;
       }
@@ -237,7 +314,7 @@ var GroupRow = Row.extend({
 
     parentRow: null,
 
-    path: Ember.computed(function() {
+    path: Ember.computed(function () {
       var parentPath = this.get('parentRow.path') || RowPath.create();
       return parentPath.createChild(this);
     }).property('parentRow.path', 'grouping.key', 'content'),
@@ -247,7 +324,7 @@ var GroupRow = Row.extend({
     }),
 
     // trigger callback when data is loaded
-    contentDidLoad: Ember.observer('isLoaded', function() {
+    contentDidLoad: Ember.observer('isLoaded', function () {
       this.tryExpandChildren();
       this.tryExpandGrandTotalRow();
     }),
@@ -258,7 +335,7 @@ var GroupRow = Row.extend({
       }
     },
 
-    tryExpandChildren: function() {
+    tryExpandChildren: function () {
       let selfLevel = this.get('expandLevel') + 1; //convert to 1-based
       let targetLevel = this.get('target.groupMeta.expandToLevelAction.level');
       if (selfLevel < targetLevel) {

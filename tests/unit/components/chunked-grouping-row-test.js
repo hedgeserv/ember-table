@@ -138,6 +138,7 @@ test('show grouping name in grouping column', function (assert) {
     helper.rowGroupingIndicator(0).click();
   }, [0]);
 
+  defers.next();
   return defers.ready(function () {
     var secondRowGroupingName = helper.fixedBodyCell(1, 0).text().trim();
     assert.equal(secondRowGroupingName, "secondLevel-0", 'it should show second level grouping name');
