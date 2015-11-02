@@ -114,7 +114,7 @@ test('load top level chunk data in need', function (assert) {
 });
 
 test('show grouping name in grouping column', function (assert) {
-  var defers = DeferPromises.create({count: 2});
+  var defers = DeferPromises.create();
   var chunkSize = 5;
   var component = this.subject({
       loadChildren: function getChunk() {
@@ -138,7 +138,6 @@ test('show grouping name in grouping column', function (assert) {
     helper.rowGroupingIndicator(0).click();
   }, [0]);
 
-  defers.next();
   return defers.ready(function () {
     var secondRowGroupingName = helper.fixedBodyCell(1, 0).text().trim();
     assert.equal(secondRowGroupingName, "secondLevel-0", 'it should show second level grouping name');

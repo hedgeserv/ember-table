@@ -23,8 +23,8 @@ var GroupRow = Row.extend({
       return childrenCount + childrenExpandedCount;
     }).property('isExpanded', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount', '_childrenRow.length'),
 
-    subRowIndex: Ember.computed('_childrenRow.@each.subRowsCount', '_childrenRow.definedControllersCount', function () {
-      var subRows = this.get('_childrenRow');
+    subRowIndex: Ember.computed('_childrenRow.definedControllersCount', 'subRowsCount', function () {
+      var subRows = this.get('_childrenRow') || [];
       var offset = 0;
       var result = [];
       subRows.forEach(function (row, idx) {
@@ -159,59 +159,44 @@ var GroupRow = Row.extend({
       if (!subRows || !subRows.get('length')) {
         return undefined;
       }
-
       var subRowIndex = this.get('subRowIndex');
-
-      var binarySearch = function(array, left, right) {
-        if (left >= right) {
-          return array[left];
-        }
-
-        let leftOffset = subRowIndex[left].offset;
-        let rightOffset = subRowIndex[right].offset;
-        if (right - left === 1) {
-          if (idx < rightOffset) {
-            return array[left];
-          } else {
-            return array[right];
-          }
-        }
-
-        let sum = left + right;
-        let mid = sum % 2 ? (sum + 1) / 2 : sum / 2;
-        let midOffset = subRowIndex[mid].offset;
-
-        if (idx >= leftOffset && idx < midOffset) {
-          return binarySearch(array, left, mid);
-        } else if (idx > midOffset && idx <= rightOffset) {
-          return binarySearch(array, mid, right);
-        } else {
-          return array[mid];
-        }
-      };
-
-      var index = binarySearch(subRowIndex, 0, subRowIndex.length - 1);
-
-      //pow2 = [1];
-      //powIndex = 1;
-      //while (pow2[pow2.length - 1] < subRows.length) {
-      //  pow2.push(Math.pow(2, powIndex));
-      //  powIndex ++;
-      //}
-      //
-      //var index = 0;
-      //for(var i = pow2.length - 1; i >= 0; i--) {
-      //  tmp = index + pow2[i];
-      //  if(tmp < subRowIndex.length && idx >= subRowIndex[tmp].offset) {
-      //    index = tmp;
+      //var binarySearch = function(array, left, right) {
+      //  if (left >= right) {
+      //    return array[left];
       //  }
-      //}
-      //while(i < subRowIndex.length && idx >= subRowIndex[i].offset) {
-      //  index = subRowIndex[i];
-      //  i ++;
-      //}
+      //
+      //  let leftOffset = subRowIndex[left].offset;
+      //  let rightOffset = subRowIndex[right].offset;
+      //  if (right - left === 1) {
+      //    if (idx < rightOffset) {
+      //      return array[left];
+      //    } else {
+      //      return array[right];
+      //    }
+      //  }
+      //
+      //  let sum = left + right;
+      //  let mid = sum % 2 ? (sum + 1) / 2 : sum / 2;
+      //  let midOffset = subRowIndex[mid].offset;
+      //
+      //  if (idx >= leftOffset && idx < midOffset) {
+      //    return binarySearch(array, left, mid);
+      //  } else if (idx > midOffset && idx <= rightOffset) {
+      //    return binarySearch(array, mid, right);
+      //  } else {
+      //    return array[mid];
+      //  }
+      //};
+      //
+      //var index = binarySearch(subRowIndex, 0, subRowIndex.length - 1);
 
-      console.log('findRow', idx, index);
+      var index;
+      var i = 0;
+      while(i < subRowIndex.length && idx >= subRowIndex[i].offset) {
+        index = subRowIndex[i];
+        i ++;
+      }
+
       var row = subRows.objectAt(index.rowIndex);
       if (idx === index.offset) {
         return row;

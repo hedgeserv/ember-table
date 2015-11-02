@@ -168,17 +168,21 @@ test('children of leaf node', function (assert) {
 
 module('group row with nested children', {
   beforeEach() {
+    let grouping = {isGroup: true};
+    grouping.nextLevelGrouping = grouping;
     groupRow = GroupRow.create({
       itemController: GroupRow,
-      grouping: {isGroup: true},
-      nextLevelGrouping: {isGroup: true},
+      grouping: grouping,
       content: {
         id: 1,
         children: [
           {
             id: 11,
             children: [
-              {id: 111}, {id: 112}
+              {
+                id: 111,
+                children: [{id: 1111}]
+              }, {id: 112}
             ]
           },
           {
@@ -229,4 +233,18 @@ test('find children of 12 when 11 is expanded', function (assert) {
   var row121 = groupRow.createRow(4);
   assert.equal(row121.get('id'), 121, 'should return created row 121');
   assert.equal(Ember.guidFor(groupRow.findRow(4)), Ember.guidFor(row121), 'should find created row 121');
+});
+
+test('find children of 111', function (assert) {
+  let row11 = groupRow.findRow(0);
+  row11.expandChildren();
+  groupRow.createRow(1);
+  let row111 = groupRow.findRow(1);
+  row111.expandChildren();
+
+  assert.ok(groupRow.findRow(2) === undefined, 'no children row by default');
+
+  var row1111 = groupRow.createRow(2);
+  assert.equal(row1111.get('id'), 1111, 'should return created row 1111');
+  assert.equal(Ember.guidFor(groupRow.findRow(2)), Ember.guidFor(row1111), 'should find created row 1111');
 });
