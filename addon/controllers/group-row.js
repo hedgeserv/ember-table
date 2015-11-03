@@ -130,28 +130,22 @@ var GroupRow = Row.extend({
       }
     },
 
-    _findRow: function (idx) {
-      var subRows = this.get('_childrenRow');
-      if (!subRows) {
-        return undefined;
+    _bSearchLowerBound(subRowIndex, idx) {
+      var base = 1;
+      while (base < subRowIndex.length) {
+        base <<= 1;
       }
-      var p = idx;
-      for (var i = 0; i < subRows.get('length'); i++) {
-        if (p === 0) {
-          return subRows.objectAt(i);
+
+      var i = 0;
+      while (base > 0) {
+        var tempI = i + base;
+        if (tempI < subRowIndex.length && idx >= subRowIndex[tempI].offset) {
+          i = tempI;
         }
-        var row = subRows.objectAt(i);
-        p--;
-        if (row && row.get('isExpanded')) {
-          var subRowsCount = row.get('subRowsCount');
-          if (p < subRowsCount) {
-            return row.findRow(p);
-          } else {
-            p -= subRowsCount;
-          }
-        }
+        base >>= 1;
       }
-      return undefined;
+
+      return subRowIndex[i];
     },
 
     findRow: function (idx) {
@@ -159,43 +153,7 @@ var GroupRow = Row.extend({
       if (!subRows || !subRows.get('length')) {
         return undefined;
       }
-      var subRowIndex = this.get('subRowIndex');
-      //var binarySearch = function(array, left, right) {
-      //  if (left >= right) {
-      //    return array[left];
-      //  }
-      //
-      //  let leftOffset = subRowIndex[left].offset;
-      //  let rightOffset = subRowIndex[right].offset;
-      //  if (right - left === 1) {
-      //    if (idx < rightOffset) {
-      //      return array[left];
-      //    } else {
-      //      return array[right];
-      //    }
-      //  }
-      //
-      //  let sum = left + right;
-      //  let mid = sum % 2 ? (sum + 1) / 2 : sum / 2;
-      //  let midOffset = subRowIndex[mid].offset;
-      //
-      //  if (idx >= leftOffset && idx < midOffset) {
-      //    return binarySearch(array, left, mid);
-      //  } else if (idx > midOffset && idx <= rightOffset) {
-      //    return binarySearch(array, mid, right);
-      //  } else {
-      //    return array[mid];
-      //  }
-      //};
-      //
-      //var index = binarySearch(subRowIndex, 0, subRowIndex.length - 1);
-
-      var index;
-      var i = 0;
-      while(i < subRowIndex.length && idx >= subRowIndex[i].offset) {
-        index = subRowIndex[i];
-        i ++;
-      }
+      var index = this._bSearchLowerBound(this.get('subRowIndex'), idx);
 
       var row = subRows.objectAt(index.rowIndex);
       if (idx === index.offset) {
@@ -210,50 +168,43 @@ var GroupRow = Row.extend({
       if (!subRows) {
         return undefined;
       }
-      var p = idx;
-      for (var i = 0; i < subRows.get('length'); i++) {
-        if (p === 0) {
-          var content = subRows.objectAtContent(i);
-          if (content && Ember.get(content, 'isLoading')) {
-            Ember.set(content, 'contentLoadedHandler', Ember.Object.create({
-              target: subRows,
-              index: i
-            }));
-            var subRowsContent = this.get('children');
-            if (subRowsContent.get('loadChildren')) {
-              var group = Ember.Object.create({
-                query: this.get('path').toQuery(),
-                key: this.get('nextLevelGrouping.key')
-              });
-              subRowsContent.triggerLoading(i, this.get('target'), group);
-            }
-          }
-          var newRow = this.get('itemController').create({
-            target: this.get('target'),
-            parentController: this.get('parentController'),
-            content: content,
-            expandLevel: this.get('expandLevel') + 1,
-            grouping: this.get('nextLevelGrouping'),
-            itemController: this.get('itemController'),
-            parentRow: this
-          });
-          //It can be an old controller.
-          newRow = subRows.setControllerAt(newRow, i);
-          newRow.tryExpandChildren();
-          return newRow;
-        }
-        var row = subRows.objectAt(i);
-        p--;
-        if (row && row.get('isExpanded')) {
-          var subRowsCount = row.get('subRowsCount');
-          if (p < subRowsCount) {
-            return row.createRow(p);
-          } else {
-            p -= subRowsCount;
+
+      var index = this._bSearchLowerBound(this.get('subRowIndex'), idx);
+
+      var row = subRows.objectAt(index.rowIndex);
+      if (idx === index.offset) {
+        var i = index.rowIndex;
+        var content = subRows.objectAtContent(i);
+        if (content && Ember.get(content, 'isLoading')) {
+          Ember.set(content, 'contentLoadedHandler', Ember.Object.create({
+            target: subRows,
+            index: i
+          }));
+          var subRowsContent = this.get('children');
+          if (subRowsContent.get('loadChildren')) {
+            var group = Ember.Object.create({
+              query: this.get('path').toQuery(),
+              key: this.get('nextLevelGrouping.key')
+            });
+            subRowsContent.triggerLoading(i, this.get('target'), group);
           }
         }
+        var newRow = this.get('itemController').create({
+          target: this.get('target'),
+          parentController: this.get('parentController'),
+          content: content,
+          expandLevel: this.get('expandLevel') + 1,
+          grouping: this.get('nextLevelGrouping'),
+          itemController: this.get('itemController'),
+          parentRow: this
+        });
+        //It can be an old controller.
+        newRow = subRows.setControllerAt(newRow, i);
+        newRow.tryExpandChildren();
+        return newRow;
+      } else {
+        return row.createRow(idx - index.offset - 1);
       }
-      return undefined;
     },
 
     children: Ember.computed(function () {
