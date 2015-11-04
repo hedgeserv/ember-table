@@ -75,6 +75,9 @@ StyleBindingsMixin, {
     }
     // for all views that we are not using... just remove content
     // this makes them invisible
+    if (content && content.get('_virtualRootRow')) {
+      content.get('_virtualRootRow').notifyPropertyChange('subRowIndex');
+    }
     childViews.forEach(function(childView, i) {
       if (i >= numShownViews) {
         childView.set('content', null);
@@ -90,5 +93,5 @@ StyleBindingsMixin, {
         childView.prepareContent();
       }
     });
-  }, 'content.length', 'length', 'startIndex', 'sortingColumns._columns')
+  }, 'content.length', 'length', 'startIndex')
 });

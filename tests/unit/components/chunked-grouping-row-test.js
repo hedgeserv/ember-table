@@ -114,7 +114,7 @@ test('load top level chunk data in need', function (assert) {
 });
 
 test('show grouping name in grouping column', function (assert) {
-  var defers = DeferPromises.create({count: 2});
+  var defers = DeferPromises.create();
   var chunkSize = 5;
   var component = this.subject({
       loadChildren: function getChunk() {
