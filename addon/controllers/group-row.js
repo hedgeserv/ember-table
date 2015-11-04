@@ -21,9 +21,9 @@ var GroupRow = Row.extend({
         }, 0);
       }
       return childrenCount + childrenExpandedCount;
-    }).property('isExpanded', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount', '_childrenRow.length'),
+    }).property('isExpanded', '_childrenRow.definedControllersCount', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length'),
 
-    subRowIndex: Ember.computed('_childrenRow.definedControllersCount', 'subRowsCount', function () {
+    subRowIndex: Ember.computed('_childrenRow.definedControllersCount', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length', function () {
       var subRows = this.get('_childrenRow') || [];
       var offset = 0;
       var result = [];
@@ -66,13 +66,6 @@ var GroupRow = Row.extend({
         target.notifyPropertyChange('length');
       }
     },
-
-    subRowsCountDidChange: Ember.observer('subRowsCount', function () {
-      var parentRow = this.get('parentRow');
-      if (parentRow) {
-        parentRow.notifyPropertyChange('subRowsCount');
-      }
-    }),
 
     sortingColumnsDidChange: Ember.observer('target.sortingColumns._columns', function () {
       if (this.get('_childrenRow') && !this.get('nextLevelGrouping.sortDirection')) {

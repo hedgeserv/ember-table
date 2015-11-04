@@ -60,7 +60,7 @@ export default RowArrayController.extend({
       return item.get('subRowsCount') + previousValue;
     }, 0);
     return root.get('_childrenRow.length') + subRowsCount;
-  }).property('_virtualRootRow._childrenRow.@each.subRowsCount'),
+  }).property('_virtualRootRow._childrenRow._subRows.@each.subRowsCount'),
 
   groupMeta: null,
 

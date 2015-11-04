@@ -3,6 +3,7 @@ import Ember from 'ember';
 var SubRowArray = Ember.ArrayController.extend({
   init: function() {
     this._super();
+    this.set('_subRows', Ember.A());
     var oldControllersMap = this.get('oldControllersMap');
     if (oldControllersMap) {
       if (!this.get('isContentIncomplete')) {
@@ -18,6 +19,7 @@ var SubRowArray = Ember.ArrayController.extend({
     }
   },
 
+  _subRows: null,
   objectAt: function (idx) {
     return this._subControllers[idx];
   },
@@ -33,7 +35,9 @@ var SubRowArray = Ember.ArrayController.extend({
       }
     }
     this.incrementProperty('definedControllersCount', 1);
-    return this._subControllers[idx];
+    var subController = this._subControllers[idx];
+    this.get('_subRows').pushObject(subController);
+    return subController;
   },
 
   refreshControllerAt: function(idx, content) {
@@ -41,6 +45,7 @@ var SubRowArray = Ember.ArrayController.extend({
     if (oldExpandedController) {
       oldExpandedController.set('content', content);
       this._subControllers[idx] = oldExpandedController;
+      this.get('_subRows').replace(idx, 1, [oldExpandedController]);
       oldExpandedController.notifyLengthChange();
     }
   },
