@@ -56,7 +56,7 @@ export default RowArrayController.extend({
 
   length: Ember.computed(function () {
     var root = this.get('_virtualRootRow');
-    var subRowsCount = root.get('_childrenRow').definedControllers().reduce(function (previousValue, item) {
+    var subRowsCount = root.get('_childrenRow._subRows').reduce(function (previousValue, item) {
       return item.get('subRowsCount') + previousValue;
     }, 0);
     return root.get('_childrenRow.length') + subRowsCount;

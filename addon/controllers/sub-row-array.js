@@ -34,7 +34,6 @@ var SubRowArray = Ember.ArrayController.extend({
         oldExpandedController.notifyLengthChange();
       }
     }
-    this.incrementProperty('definedControllersCount', 1);
     var subController = this._subControllers[idx];
     this.get('_subRows').pushObject(subController);
     return subController;
@@ -62,14 +61,6 @@ var SubRowArray = Ember.ArrayController.extend({
   objectAtContent: function (idx) {
     var content = this.get('content');
     return content.objectAt(idx);
-  },
-
-  definedControllersCount: 0,
-
-  definedControllers: function () {
-    return this._subControllers.filter(function (item) {
-      return !!item;
-    });
   },
 
   getAvailableControllersMap: function () {

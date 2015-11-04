@@ -13,7 +13,7 @@ var GroupRow = Row.extend({
       var childrenCount = this.get('_childrenRow.length') || 0;
       var childrenExpandedCount = 0;
       if (this.get('_childrenRow.length') > 0) {
-        childrenExpandedCount = this.get('_childrenRow').definedControllers().reduce(function (previousValue, item) {
+        childrenExpandedCount = this.get('_childrenRow._subRows').reduce(function (previousValue, item) {
           if (!item) {
             return previousValue;
           }
@@ -21,9 +21,9 @@ var GroupRow = Row.extend({
         }, 0);
       }
       return childrenCount + childrenExpandedCount;
-    }).property('isExpanded', '_childrenRow.definedControllersCount', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length'),
+    }).property('isExpanded', '_childrenRow._subRows.[]', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length'),
 
-    subRowIndex: Ember.computed('_childrenRow.definedControllersCount', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length', function () {
+    subRowIndex: Ember.computed( '_childrenRow._subRows.[]', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length', function () {
       var subRows = this.get('_childrenRow') || [];
       var offset = 0;
       var result = [];
@@ -98,6 +98,7 @@ var GroupRow = Row.extend({
           this.recreateChildrenRow(sorter.sortContent(this.get('children')));
         }
       }
+      this.notifyLengthChange();
     },
 
     recreateChildrenRow: function (content) {
@@ -106,7 +107,6 @@ var GroupRow = Row.extend({
         oldControllersMap: this.get('_childrenRow').getAvailableControllersMap(),
         isContentIncomplete: this.get('children.isNotCompleted')
       }));
-      this.notifyLengthChange();
     },
 
     notifyLengthChange: function () {
