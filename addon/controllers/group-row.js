@@ -42,10 +42,6 @@ var GroupRow = Row.extend({
       }
       this.set('isExpanded', true);
       this.createChildrenRow();
-      var target = this.get('target');
-      if (target) {
-        target.notifyPropertyChange('length');
-      }
     },
 
     createChildrenRow: function () {
@@ -61,10 +57,6 @@ var GroupRow = Row.extend({
         return;
       }
       this.set('isExpanded', false);
-      var target = this.get('target');
-      if (target) {
-        target.notifyPropertyChange('length');
-      }
     },
 
     sortingColumnsDidChange: Ember.observer('target.sortingColumns._columns', function () {
