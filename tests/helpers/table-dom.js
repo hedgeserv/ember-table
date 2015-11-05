@@ -128,9 +128,9 @@ let TableDom = Ember.ObjectProxy.extend({
       scrollBar.scrollTop(px);
       rowCount--;
       if (rowCount > 0) {
-        setTimeout(scroll, 200);
+        setTimeout(scroll, 100);
       } else {
-        defer.resolve();
+        setTimeout(() => defer.resolve(), 100);
       }
     };
     setTimeout(scroll, 0);

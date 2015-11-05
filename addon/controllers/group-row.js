@@ -13,7 +13,7 @@ var GroupRow = Row.extend({
       var childrenCount = this.get('_childrenRow.length') || 0;
       var childrenExpandedCount = 0;
       if (this.get('_childrenRow.length') > 0) {
-        childrenExpandedCount = this.get('_childrenRow').definedControllers().reduce(function (previousValue, item) {
+        childrenExpandedCount = this.get('_childrenRow._subRows').reduce(function (previousValue, item) {
           if (!item) {
             return previousValue;
           }
@@ -21,9 +21,9 @@ var GroupRow = Row.extend({
         }, 0);
       }
       return childrenCount + childrenExpandedCount;
-    }).property('isExpanded', '_childrenRow.definedControllersCount', '_childrenRow.@each.subRowsCount', '_childrenRow.length'),
+    }).property('isExpanded', '_childrenRow._subRows.[]', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length'),
 
-    subRowIndex: Ember.computed('_childrenRow.definedControllersCount', 'subRowsCount', function () {
+    subRowIndex: Ember.computed( '_childrenRow._subRows.[]', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length', function () {
       var subRows = this.get('_childrenRow') || [];
       var offset = 0;
       var result = [];
@@ -42,10 +42,6 @@ var GroupRow = Row.extend({
       }
       this.set('isExpanded', true);
       this.createChildrenRow();
-      var target = this.get('target');
-      if (target) {
-        target.notifyPropertyChange('length');
-      }
     },
 
     createChildrenRow: function () {
@@ -61,18 +57,7 @@ var GroupRow = Row.extend({
         return;
       }
       this.set('isExpanded', false);
-      var target = this.get('target');
-      if (target) {
-        target.notifyPropertyChange('length');
-      }
     },
-
-    subRowsCountDidChange: Ember.observer('subRowsCount', function () {
-      var parentRow = this.get('parentRow');
-      if (parentRow) {
-        parentRow.notifyPropertyChange('subRowsCount');
-      }
-    }),
 
     sortingColumnsDidChange: Ember.observer('target.sortingColumns._columns', function () {
       if (this.get('_childrenRow') && !this.get('nextLevelGrouping.sortDirection')) {
@@ -113,6 +98,7 @@ var GroupRow = Row.extend({
           this.recreateChildrenRow(sorter.sortContent(this.get('children')));
         }
       }
+      this.notifyLengthChange();
     },
 
     recreateChildrenRow: function (content) {
@@ -121,7 +107,6 @@ var GroupRow = Row.extend({
         oldControllersMap: this.get('_childrenRow').getAvailableControllersMap(),
         isContentIncomplete: this.get('children.isNotCompleted')
       }));
-      this.notifyLengthChange();
     },
 
     notifyLengthChange: function () {
