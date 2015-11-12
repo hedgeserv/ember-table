@@ -21,7 +21,7 @@ var GroupRow = Row.extend({
         }, 0);
       }
       return childrenCount + childrenExpandedCount;
-    }).property('isExpanded', '_childrenRow._subRows.[]', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length'),
+    }).property('isExpanded', '_childrenRow._subRows.[]', '_childrenRow._subRows.@each.{subRowsCount,isExpanded}', '_childrenRow.length'),
 
     subRowIndex: Ember.computed( '_childrenRow._subRows.[]', '_childrenRow._subRows.@each.subRowsCount', '_childrenRow.length', function () {
       var subRows = this.get('_childrenRow') || [];
