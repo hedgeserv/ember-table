@@ -134,6 +134,10 @@ var GroupRow = Row.extend({
     },
 
     findRow: function (idx) {
+      if (!this.get('isExpanded')) {
+        return undefined;
+      }
+
       var subRows = this.get('_childrenRow');
       if (!subRows || !subRows.get('length')) {
         return undefined;
