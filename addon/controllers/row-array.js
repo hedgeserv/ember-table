@@ -3,6 +3,7 @@ import Ember from 'ember';
 export default Ember.ArrayController.extend({
   itemController: null,
   content: null,
+  lastItem: null,
 
   rowContent: Ember.computed(function() {
     return [];
@@ -51,6 +52,6 @@ export default Ember.ArrayController.extend({
   },
 
   _isLastItem: function(idx) {
-    return idx === this.get('length') - 1;
+    return this.get('content').length - 1 === idx;
   }
 });
