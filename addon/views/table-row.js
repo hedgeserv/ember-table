@@ -22,6 +22,11 @@ RegisterTableComponentMixin, {
   }).property('columns.@each.width'),
   height: Ember.computed.alias('tableComponent.rowHeight'),
 
+  // Use `lastItem` (set manually) instead of the array's built-in `lastObject`
+  // to avoid creating a controller for last row on table initialization.  If
+  // this TableRow is the last row, then the row controller should have been
+  // created and set to `lastItem` in RowArrayController, otherwise `lastItem`
+  // is null.
   isLastRow: Ember.computed(function() {
     return this.get('row') ===
         this.get('tableComponent.bodyContent.lastItem');

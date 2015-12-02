@@ -23,6 +23,24 @@ StyleBindingsMixin, RegisterTableComponentMixin, SortableMixin, {
     var hasColumnGroup = this.get('tableComponent.hasGroupColumn');
     return this.get(hasColumnGroup ? 'width' : 'controller._tableColumnsWidth');
   }),
+
+  // Options for jQuery UI sortable
+  sortableOption: Ember.computed(function() {
+    return {
+      axis: 'x',
+      containment: 'parent',
+      cursor: 'move',
+      helper: 'clone',
+      items: ".ember-table-header-cell.sortable",
+      opacity: 0.9,
+      placeholder: 'ui-state-highlight',
+      scroll: true,
+      tolerance: 'pointer',
+      update: Ember.$.proxy(this.onColumnSortDone, this),
+      stop: Ember.$.proxy(this.onColumnSortStop, this),
+      sort: Ember.$.proxy(this.onColumnSortChange, this)
+    };
+  }),
   isNotFixedBlock: Ember.computed.not('isFixedBlock'),
   isNotTopRow: Ember.computed.not('isTopRow'),
   enableColumnReorder: Ember.computed.and('tableComponent.enableColumnReorder', 'isNotTopRow', 'isNotFixedBlock'),
@@ -57,5 +75,25 @@ StyleBindingsMixin, RegisterTableComponentMixin, SortableMixin, {
       }
     }
     this._super();
+  },
+
+  onColumnSortStop: function() {
+    this.set('tableComponent._isShowingSortableIndicator', false);
+  },
+
+  onColumnSortChange: function() {
+    var left = this.$('.ui-state-highlight').offset().left -
+        this.$().closest('.ember-table-tables-container').offset().left;
+    this.set('tableComponent._isShowingSortableIndicator', true);
+    this.set('tableComponent._sortableIndicatorLeft', left);
+  },
+
+  onColumnSortDone: function(event, ui) {
+    var newIndex = ui.item.index();
+    this.$('> div').sortable('cancel');
+    var view = Ember.View.views[ui.item.attr('id')];
+    var column = view.get('column');
+    this.get('tableComponent').onColumnSort(column, newIndex);
+    this.set('tableComponent._isShowingSortableIndicator', false);
   }
 });

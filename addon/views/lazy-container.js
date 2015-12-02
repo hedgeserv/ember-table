@@ -63,7 +63,7 @@ StyleBindingsMixin, {
     var childViews = this.get('childViews');
     var content = this.get('content') || [];
     var clength = content.get('length');
-    var numShownViews = Math.min(this.get('length'), clength);
+    var numShownViews = Math.min(childViews.length, clength);
     var startIndex = this.get('startIndex');
     // this is a necessary check otherwise we are trying to access an object
     // that doesn't exist
