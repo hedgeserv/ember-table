@@ -67,6 +67,11 @@ export default Ember.Object.extend({
   tableCellView: 'table-cell',
   tableCellViewClass: Ember.computed.alias('tableCellView'),
 
+  // TODO(new-api): Remove `footerCellViewClass`
+  // Override to specify a custom view to use for the footer cells.
+  footerCellView: Ember.computed.oneWay('tableCellView'), // default to tableCellView if not provided
+  footerCellViewClass: Ember.computed.alias('footerCellView'),
+
   // Override to customize how the column gets data from each row object.
   // Given a row, should return a formatted cell value, e.g. $20,000,000.
   getCellContent: function(row) {
