@@ -18,7 +18,7 @@ RegisterTableComponentMixin, {
   scrollLeft: Ember.computed.alias('tableComponent._tableScrollLeft'),
 
   top: Ember.computed(function() {
-    var headerHeight = this.get('tableComponent._headerHeight');
+    var headerHeight = this.get('tableComponent._headerContainerHeight');
     var contentHeight = this.get('tableComponent._tableContentHeight') +
         headerHeight;
     var bodyHeight = this.get('tableComponent._bodyHeight') + headerHeight;
