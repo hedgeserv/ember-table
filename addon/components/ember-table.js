@@ -297,7 +297,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
 
   //Do not want to create a new groupedRowController, even if its content length did change as more chunks are loaded.
   //If a new groupedRowController is created, the expanding state will be cleared.
-  _groupedRowController: Ember.computed(function(){
+  _groupedRowController: Ember.computed('content', function(){
     var self = this;
     var content = this.get('content');
     return GroupedRowArrayController.create({
@@ -311,8 +311,8 @@ StyleBindingsMixin, ResizeHandlerMixin, {
         self.sendAction('handleDataLoadingError', errorMessage, groupingName, chunkIndex);
       },
       groupMeta: this.get('groupMeta')
-  });
-  }).property('content'),
+    });
+  }),
 
   // An array of Ember.Table.Row computed based on `content`
   bodyContent: Ember.computed(function() {
@@ -326,7 +326,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
       itemController: Row,
       content: this.get('_resolvedContent')
     });
-  }).property('_resolvedContent.[]', '_hasGroupingColumn'),
+  }).property('_resolvedContent.[]', '_hasGroupingColumn', '_groupedRowController'),
 
   // An array of Ember.Table.Row
   footerContent: computed({
@@ -552,11 +552,11 @@ StyleBindingsMixin, ResizeHandlerMixin, {
     }
   },
 
-  onBodyContentLengthDidChange: Ember.observer(function() {
+  onBodyContentLengthDidChange: Ember.observer('bodyContent.length', '_groupedRowController.length', function() {
     Ember.run.next(this, function() {
       Ember.run.once(this, this.updateLayout);
     });
-  }, 'bodyContent.length'),
+  }),
 
   // ---------------------------------------------------------------------------
   // Private variables

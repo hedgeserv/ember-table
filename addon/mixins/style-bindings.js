@@ -36,7 +36,7 @@ export default Ember.Mixin.create({
     properties = styles.map(function(style) {
       return lookup[style];
     });
-    styleComputed = Ember.computed(function() {
+    styleComputed = Ember.computed(...styleBindings, function() {
       var styleString, styleTokens;
       styleTokens = styles.map(function(style) {
         return _this.createStyleString(style, lookup[style]);
