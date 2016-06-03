@@ -12,10 +12,7 @@ export default Ember.View.extend(StyleBindingsMixin, {
     return this.get('itemIndex') * this.get('rowHeight');
   }).property('itemIndex', 'rowHeight'),
 
-  // TODO(azirbel): Add explicit else case
   display: Ember.computed(function() {
-    if (!this.get('content')) {
-      return 'none';
-    }
+    return this.get('content') ? 'block' : 'none';
   }).property('content')
 });
