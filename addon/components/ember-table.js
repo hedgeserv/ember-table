@@ -112,6 +112,8 @@ StyleBindingsMixin, ResizeHandlerMixin, {
 
   groupingColumnWidth: 150,
 
+  groupingColumnCellView: 'grouping-column-cell',
+
   groupingHeaderCellName: '',
 
   groupingHeaderCellViewName: 'header-cell',
@@ -435,7 +437,7 @@ StyleBindingsMixin, ResizeHandlerMixin, {
       sortFn: null,
       minWidth: 40, // Prevent cell content from changing into '...' then into normal string.
       savedWidth: groupingColumnWidth,
-      tableCellView: 'grouping-column-cell',
+      tableCellView: this.get('groupingColumnCellView'),
       headerCellView: this.get('groupingHeaderCellViewName'),
       getCellContent: function (row) {
         return row.get('groupName');
